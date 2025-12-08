@@ -1,18 +1,17 @@
 # Formatting Guide
 
-Code formatting standards using Ruff and Black for consistent, readable code.
+Code formatting standards using Ruff formatter for consistent, readable code.
+
+> **Note:** This project uses Ruff's formatter, which is 100% compatible with Black but significantly faster. Ruff has replaced Black in modern Python tooling.
 
 ## Quick Start
 
 ```powershell
-# Format all code with Black
-uv run black src/ scripts/ tests/
-
-# Format with Ruff
+# Format all code
 uv run ruff format src/ scripts/ tests/
 
 # Check formatting without changes
-uv run black --check src/ scripts/ tests/
+uv run ruff format --check src/ scripts/ tests/
 
 # Format specific files
 uv run ruff format src/tv_hml/config/schema.py
@@ -53,11 +52,15 @@ Settings in `pyproject.toml`:
 line-length = 100
 indent-width = 4
 target-version = "py311"
-
-[tool.black]
-line-length = 100
-target-version = ['py311', 'py312', 'py313']
 ```
+
+## Why Ruff Formatter?
+
+Ruff's formatter is designed to be a drop-in replacement for Black:
+- **100% Black-compatible** output
+- **10-100x faster** than Black
+- **Single tool** for both linting and formatting
+- **Actively maintained** as part of the Ruff ecosystem
 
 ## Formatting Rules
 
@@ -571,6 +574,5 @@ Exit codes:
 ## Resources
 
 - [Ruff Formatter Documentation](https://docs.astral.sh/ruff/formatter/)
-- [Black Documentation](https://black.readthedocs.io/) (compatible style)
+- [Ruff vs Black Compatibility Guide](https://docs.astral.sh/ruff/formatter/#black-compatibility)
 - [PEP 8 Style Guide](https://pep8.org/)
-- [Pre-commit Documentation](https://pre-commit.com/)

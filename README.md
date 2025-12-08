@@ -3,7 +3,7 @@
 [![CI/CD Pipeline](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot/actions/workflows/ci.yml/badge.svg)](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot/actions/workflows/ci.yml)
 [![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A production-ready NLP API showcasing natural language processing and retrieval-augmented generation capabilities. This portfolio project demonstrates expertise in LLM integration, vector databases, semantic search, REST API development, and modern AI engineering practices.
@@ -132,7 +132,7 @@ Jupyter notebooks showcasing statistical NLP and exploratory data analysis techn
 - **Containerization**: Multi-stage Docker builds, non-root user, health checks
 - **CI/CD**: GitHub Actions with automated testing, security scanning, code quality gates
 - **Testing**: pytest with 65%+ coverage, unit and integration tests, parametrized test cases, modular component testing
-- **Code Quality**: Black, flake8, isort enforced via CI (mypy for select modules)
+- **Code Quality**: Ruff (linting + formatting), mypy (type checking) enforced via CI
 - **Security**: pip-audit for vulnerability scanning, bandit for security analysis
 - **Documentation**: Comprehensive MkDocs site, API docs via Swagger/ReDoc, inline docstrings
 - **Observability**: Structured logging, health endpoints, startup configuration display
@@ -395,7 +395,7 @@ uv run pytest --cov=src --cov-report=html
 
 ```powershell
 # Format code
-uv run black src/
+uv run ruff format src/
 
 # Lint code
 uv run flake8 src/
@@ -407,14 +407,14 @@ uv run isort src/
 uv run mypy src/
 
 # Run all checks
-uv run black src/ && uv run isort src/ && uv run flake8 src/ && uv run pytest
+uv run ruff format src/ && uv run ruff check src/ && uv run pytest
 ```
 
 ### CI/CD Pipeline
 
 The project uses GitHub Actions for continuous integration:
 - ✅ **Automated testing** on Python 3.11, 3.12, 3.13
-- ✅ **Code quality checks** (black, flake8, isort, mypy)
+- ✅ **Code quality checks** (ruff format, ruff check, mypy)
 - ✅ **Security scanning** (safety, bandit)
 - ✅ **Docker image build** and health checks
 

@@ -81,7 +81,6 @@ dependencies = [
 dev = [
     "pytest>=8.3.0,<9.0.0",
     "pytest-cov>=6.0.0,<7.0.0",
-    "black>=24.0.0,<25.0.0",
     "ruff>=0.6.0,<1.0.0",
     "mypy>=1.13.0,<2.0.0",
     "pip-audit>=2.9.0,<3.0.0",
@@ -148,29 +147,6 @@ docs = [
 # where = ["src"]
 # include = ["ayne*"]
 # namespaces = false
-
-# Black configuration
-[tool.black]
-line-length = 100
-target-version = ['py311', 'py312', 'py313']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-  \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | site
-  | notebooks
-  | __pycache__
-)/
-'''
 
 # Ruff configuration
 [tool.ruff]

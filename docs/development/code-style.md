@@ -8,7 +8,7 @@ Python code style guidelines for maintaining consistent, readable code across th
 
 Follow [PEP 8](https://pep8.org/) with these specifics:
 
-- Line length: 100 characters (Black configuration)
+- Line length: 100 characters (Ruff configuration)
 - Indentation: 4 spaces
 - Use double quotes for strings
 - Trailing commas in multi-line structures
@@ -68,7 +68,7 @@ Use `ruff check --select I --fix` to auto-sort imports.
 The project uses modern Python tooling for code quality:
 
 - **[Ruff](linting.md)** - Fast linting and code quality checks
-- **[Black](formatting.md)** - Consistent code formatting
+- **[Ruff Formatter](formatting.md)** - Consistent code formatting (Black-compatible)
 - **[Mypy](linting.md#type-checking-with-mypy)** - Static type checking
 - **[pytest](testing.md)** - Testing framework with coverage
 - **[Bandit](security.md)** - Security vulnerability scanning
@@ -76,7 +76,7 @@ The project uses modern Python tooling for code quality:
 See individual guides for detailed usage:
 
 - **[Linting Guide](linting.md)** - Ruff, Mypy, Bandit
-- **[Formatting Guide](formatting.md)** - Ruff formatter, Black
+- **[Formatting Guide](formatting.md)** - Ruff formatter
 - **[Testing Guide](testing.md)** - pytest, coverage, fixtures
 
 ## Formatting Tools
