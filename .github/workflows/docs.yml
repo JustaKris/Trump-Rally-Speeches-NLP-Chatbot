@@ -1,18 +1,18 @@
 name: docs
 
 on:
-  pull_request:
-    branches: ["**"]
-  push:
-    branches:
-      - main
-      - master
-    paths:
-      - "mkdocs.yml"
-      - "docs/**/*"
-      - "!docs/copilot_artifacts/**"
-      - "pyproject.toml"
-      - ".github/workflows/docs.yml"
+  # pull_request:
+  #   branches: ["**"]
+  # push:
+  #   branches:
+  #     - main
+  #     - master
+  #   paths:
+  #     - "mkdocs.yml"
+  #     - "docs/**/*"
+  #     - "!docs/copilot_artifacts/**"
+  #     - "pyproject.toml"
+  #     - ".github/workflows/docs.yml"
   workflow_dispatch:
 
 # Allow only one concurrent deployment
