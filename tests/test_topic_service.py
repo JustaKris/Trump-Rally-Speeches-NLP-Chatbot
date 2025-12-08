@@ -1,5 +1,4 @@
-"""
-Tests for enhanced topic extraction service.
+"""Tests for enhanced topic extraction service.
 
 Tests semantic clustering, snippet extraction, and AI summary generation.
 """

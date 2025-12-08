@@ -1,5 +1,4 @@
-"""
-Dependency injection for API routes.
+"""Dependency injection for API routes.
 
 Provides reusable dependencies for FastAPI route handlers,
 including configuration, services, and model instances.
@@ -7,8 +6,6 @@ including configuration, services, and model instances.
 
 import logging
 from typing import Optional
-
-from fastapi import Depends
 
 from ..config.settings import Settings, get_settings
 from ..services import (
@@ -60,8 +57,7 @@ def set_topic_service(service: TopicExtractionService) -> None:
 
 
 def get_settings_dep() -> Settings:
-    """
-    Dependency to get application settings.
+    """Dependency to get application settings.
 
     Returns:
         Settings instance
@@ -70,8 +66,7 @@ def get_settings_dep() -> Settings:
 
 
 def get_sentiment_analyzer_dep() -> Optional[EnhancedSentimentAnalyzer]:
-    """
-    Dependency to get sentiment analyzer.
+    """Dependency to get sentiment analyzer.
 
     Returns:
         EnhancedSentimentAnalyzer instance or None if not loaded
@@ -80,8 +75,7 @@ def get_sentiment_analyzer_dep() -> Optional[EnhancedSentimentAnalyzer]:
 
 
 def get_rag_service() -> Optional[RAGService]:
-    """
-    Dependency to get RAG service.
+    """Dependency to get RAG service.
 
     Returns:
         RAGService instance or None if not initialized
@@ -90,8 +84,7 @@ def get_rag_service() -> Optional[RAGService]:
 
 
 def get_llm_service() -> Optional[LLMProvider]:
-    """
-    Dependency to get LLM service.
+    """Dependency to get LLM service.
 
     Returns:
         LLMProvider instance or None if not configured
@@ -100,8 +93,7 @@ def get_llm_service() -> Optional[LLMProvider]:
 
 
 def get_nlp_service() -> NLPService:
-    """
-    Dependency to get NLP service.
+    """Dependency to get NLP service.
 
     Returns:
         NLPService instance
@@ -113,8 +105,7 @@ def get_nlp_service() -> NLPService:
 
 
 def get_topic_service() -> Optional[TopicExtractionService]:
-    """
-    Dependency to get topic extraction service.
+    """Dependency to get topic extraction service.
 
     Returns:
         TopicExtractionService instance or None if not initialized

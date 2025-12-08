@@ -1,5 +1,4 @@
-"""
-RAG (Retrieval-Augmented Generation) Service - Refactored Version.
+"""RAG (Retrieval-Augmented Generation) Service - Refactored Version.
 
 This is the streamlined version that delegates to modular components.
 Provides semantic search and question-answering capabilities over text documents
@@ -19,7 +18,6 @@ from ..services.llm.base import LLMProvider
 from .rag.confidence import ConfidenceCalculator
 from .rag.document_loader import DocumentLoader
 from .rag.entity_analyzer import EntityAnalyzer
-from .rag.models import SearchResult
 from .rag.search_engine import SearchEngine
 
 # Disable ChromaDB telemetry
@@ -29,8 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 class RAGService:
-    """
-    Refactored RAG service that delegates to modular components.
+    """Refactored RAG service that delegates to modular components.
 
     This version maintains backward compatibility while using the new
     modular architecture under the hood.
@@ -48,8 +45,7 @@ class RAGService:
         use_reranking: bool = True,
         use_hybrid_search: bool = True,
     ):
-        """
-        Initialize RAG service with modular components.
+        """Initialize RAG service with modular components.
 
         Args:
             collection_name: Name of the ChromaDB collection
@@ -111,7 +107,8 @@ class RAGService:
         )
 
         self.entity_analyzer = EntityAnalyzer(
-            collection=self.collection, sentiment_analyzer=None  # Can be set later via property
+            collection=self.collection,
+            sentiment_analyzer=None,  # Can be set later via property
         )
 
         self.confidence_calculator = ConfidenceCalculator()
@@ -149,8 +146,7 @@ class RAGService:
         self.entity_analyzer.sentiment_analyzer = analyzer
 
     def load_documents(self, data_dir: str = "data/Donald Trump Rally Speeches") -> int:
-        """
-        Load and index all text documents from a directory.
+        """Load and index all text documents from a directory.
 
         Args:
             data_dir: Directory containing text files
@@ -192,12 +188,11 @@ class RAGService:
         logger.info(f"✓ Total documents in collection: {count}")
 
         # Count unique source files
-        unique_sources = len(set(m["source"] for m in metadatas))
+        unique_sources = len({m["source"] for m in metadatas})
         return unique_sources
 
     def search(self, query: str, top_k: int = 5) -> List[Dict[str, Any]]:
-        """
-        Search for relevant documents using the configured search strategy.
+        """Search for relevant documents using the configured search strategy.
 
         Args:
             query: Search query
@@ -228,8 +223,7 @@ class RAGService:
             return []
 
     def ask(self, question: str, top_k: int = 5) -> Dict[str, Any]:
-        """
-        Answer a question using RAG (retrieval + generation).
+        """Answer a question using RAG (retrieval + generation).
 
         Args:
             question: Question to answer
@@ -318,7 +312,7 @@ class RAGService:
             "confidence_score": confidence_result.score,
             "confidence_explanation": confidence_result.explanation,
             "confidence_factors": confidence_factors_dict,
-            "sources": sorted(list(set(c.source for c in context_chunks))),  # Deduplicate and sort
+            "sources": sorted({c.source for c in context_chunks}),  # Deduplicate and sort
             "entities": entities,
         }
 
@@ -328,8 +322,7 @@ class RAGService:
         return response
 
     def _generate_llm_answer(self, question: str, context_chunks: List) -> str:
-        """
-        Generate answer using LLM with retrieved context.
+        """Generate answer using LLM with retrieved context.
 
         Args:
             question: User's question
@@ -365,8 +358,7 @@ class RAGService:
         include_sentiment: bool = False,
         include_associations: bool = True,
     ) -> Dict[str, Any]:
-        """
-        Get statistics about entities across the corpus.
+        """Get statistics about entities across the corpus.
 
         Args:
             entities: List of entity names
@@ -394,8 +386,7 @@ class RAGService:
         logger.info("✓ Collection cleared")
 
     def clear_collection(self) -> bool:
-        """
-        Clear all documents from the collection.
+        """Clear all documents from the collection.
 
         Returns:
             True if successful
@@ -404,8 +395,7 @@ class RAGService:
         return True
 
     def get_stats(self) -> Dict[str, Any]:
-        """
-        Get collection statistics.
+        """Get collection statistics.
 
         Returns:
             Dictionary with collection statistics including:
@@ -431,7 +421,7 @@ class RAGService:
                         source_set = {
                             m.get("source", "") for m in metadatas if m and isinstance(m, dict)
                         }
-                        sources = sorted(list(source_set))
+                        sources = sorted(source_set)
                         unique_sources = len(sources)
             except Exception as e:
                 logger.warning(f"Could not get source statistics: {e}")

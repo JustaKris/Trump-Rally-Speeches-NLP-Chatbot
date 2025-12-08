@@ -1,5 +1,4 @@
-"""
-Confidence calculator component for RAG service.
+"""Confidence calculator component for RAG service.
 
 Calculates confidence scores and generates human-readable explanations
 for RAG answer quality based on multiple factors.
@@ -14,8 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class ConfidenceCalculator:
-    """
-    Calculates confidence scores for RAG answers.
+    """Calculates confidence scores for RAG answers.
 
     Uses multiple factors including retrieval quality, score consistency,
     chunk coverage, and entity mention frequency to assess answer confidence.
@@ -41,8 +39,7 @@ class ConfidenceCalculator:
         context_chunks: List[ContextChunk],
         search_results: List[SearchResult],
     ) -> ConfidenceResult:
-        """
-        Calculate confidence using multiple factors for accurate assessment.
+        """Calculate confidence using multiple factors for accurate assessment.
 
         Factors considered:
         1. Average retrieval score (semantic similarity) - 40%
@@ -150,8 +147,7 @@ class ConfidenceCalculator:
         )
 
     def _extract_entities(self, text: str) -> List[str]:
-        """
-        Extract potential entities from question.
+        """Extract potential entities from question.
 
         Simple heuristic: capitalized words longer than 2 chars.
 
@@ -168,8 +164,7 @@ class ConfidenceCalculator:
     def _calculate_entity_coverage(
         self, entities: List[str], context_chunks: List[ContextChunk]
     ) -> float:
-        """
-        Calculate what percentage of chunks mention the entities.
+        """Calculate what percentage of chunks mention the entities.
 
         Args:
             entities: Entity names to look for
@@ -197,8 +192,7 @@ class ConfidenceCalculator:
         entity_coverage: Optional[float],
         entities: Optional[List[str]],
     ) -> str:
-        """
-        Generate human-readable explanation for confidence level.
+        """Generate human-readable explanation for confidence level.
 
         Args:
             level: Confidence level (high/medium/low)

@@ -1,5 +1,4 @@
-"""
-Document loader component for RAG service.
+"""Document loader component for RAG service.
 
 Handles loading text documents from disk, chunking them into appropriate sizes,
 and preparing them for embedding and vector storage.
@@ -15,16 +14,14 @@ logger = logging.getLogger(__name__)
 
 
 class DocumentLoader:
-    """
-    Loads and chunks documents for RAG indexing.
+    """Loads and chunks documents for RAG indexing.
 
     Uses LangChain's RecursiveCharacterTextSplitter for intelligent
     text chunking that preserves semantic boundaries.
     """
 
     def __init__(self, chunk_size: int = 2048, chunk_overlap: int = 150):
-        """
-        Initialize document loader.
+        """Initialize document loader.
 
         Args:
             chunk_size: Maximum size of text chunks in characters (~512-768 tokens)
@@ -44,8 +41,7 @@ class DocumentLoader:
         logger.info(f"DocumentLoader initialized: chunk_size={chunk_size}, overlap={chunk_overlap}")
 
     def load_from_directory(self, data_dir: str) -> Tuple[List[str], List[dict], List[str]]:
-        """
-        Load and chunk all text documents from a directory.
+        """Load and chunk all text documents from a directory.
 
         Args:
             data_dir: Directory containing text files
@@ -82,8 +78,7 @@ class DocumentLoader:
         return all_chunks, all_metadatas, all_ids
 
     def _load_file(self, file_path: Path) -> Tuple[List[str], List[dict], List[str]]:
-        """
-        Load and chunk a single text file.
+        """Load and chunk a single text file.
 
         Args:
             file_path: Path to text file
@@ -101,7 +96,7 @@ class DocumentLoader:
         metadatas = []
         chunk_ids = []
 
-        for i, chunk in enumerate(chunks):
+        for i, _chunk in enumerate(chunks):
             chunk_id = f"{file_path.stem}_chunk_{i}"
             chunk_ids.append(chunk_id)
 
@@ -116,8 +111,7 @@ class DocumentLoader:
         return chunks, metadatas, chunk_ids
 
     def chunk_text(self, text: str) -> List[str]:
-        """
-        Chunk a single text string.
+        """Chunk a single text string.
 
         Useful for processing ad-hoc text without file I/O.
 

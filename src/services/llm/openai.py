@@ -1,5 +1,4 @@
-"""
-OpenAI LLM provider implementation.
+"""OpenAI LLM provider implementation.
 
 Provides integration with OpenAI's GPT models for answer generation.
 """
@@ -15,8 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class OpenAILLM(LLMProvider):
-    """
-    OpenAI LLM provider.
+    """OpenAI LLM provider.
 
     Uses OpenAI's GPT models (GPT-4, GPT-3.5, etc.) for text generation
     and question answering.
@@ -29,8 +27,7 @@ class OpenAILLM(LLMProvider):
         temperature: float = 0.3,
         max_output_tokens: int = 1024,
     ):
-        """
-        Initialize OpenAI LLM service.
+        """Initialize OpenAI LLM service.
 
         Args:
             api_key: OpenAI API key (required)
@@ -60,8 +57,7 @@ class OpenAILLM(LLMProvider):
         max_tokens: Optional[int] = None,
         **kwargs,
     ) -> Any:
-        """
-        Generate content from a prompt (implements LLMProvider interface).
+        """Generate content from a prompt (implements LLMProvider interface).
 
         Args:
             prompt: Text prompt for generation
@@ -95,8 +91,7 @@ class OpenAILLM(LLMProvider):
         max_context_length: int = 4000,
         entities: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
-        """
-        Generate an answer to a question using provided context.
+        """Generate an answer to a question using provided context.
 
         Args:
             question: User's question
@@ -170,8 +165,7 @@ class OpenAILLM(LLMProvider):
             }
 
     def test_connection(self) -> bool:
-        """
-        Test if OpenAI API is accessible.
+        """Test if OpenAI API is accessible.
 
         Returns:
             True if connection successful, False otherwise
@@ -192,8 +186,7 @@ class OpenAILLM(LLMProvider):
             return False
 
     def get_model_info(self) -> Dict[str, Any]:
-        """
-        Get information about the configured model.
+        """Get information about the configured model.
 
         Returns:
             Dict with model details

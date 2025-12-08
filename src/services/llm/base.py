@@ -1,5 +1,4 @@
-"""
-Abstract base class for LLM providers.
+"""Abstract base class for LLM providers.
 
 Defines the interface that all LLM providers (Gemini, OpenAI, Anthropic, etc.)
 must implement for consistent integration across the application.
@@ -13,8 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class LLMProvider(ABC):
-    """
-    Abstract base class for Large Language Model providers.
+    """Abstract base class for Large Language Model providers.
 
     All LLM implementations must inherit from this class and implement
     the required methods. This ensures consistent behavior across different
@@ -29,8 +27,7 @@ class LLMProvider(ABC):
         temperature: float = 0.3,
         max_output_tokens: int = 1024,
     ):
-        """
-        Initialize the LLM provider.
+        """Initialize the LLM provider.
 
         Args:
             api_key: API key for the provider
@@ -48,8 +45,7 @@ class LLMProvider(ABC):
         max_context_length: int = 4000,
         entities: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
-        """
-        Generate an answer to a question using provided context.
+        """Generate an answer to a question using provided context.
 
         This is the primary method for RAG (Retrieval-Augmented Generation).
 
@@ -72,8 +68,7 @@ class LLMProvider(ABC):
         max_tokens: Optional[int] = None,
         **kwargs,
     ) -> Any:
-        """
-        Generate content from a prompt (general-purpose generation).
+        """Generate content from a prompt (general-purpose generation).
 
         This method is used for tasks like sentiment interpretation,
         topic labeling, and other non-RAG text generation.
@@ -91,8 +86,7 @@ class LLMProvider(ABC):
 
     @abstractmethod
     def test_connection(self) -> bool:
-        """
-        Test if the LLM API is accessible.
+        """Test if the LLM API is accessible.
 
         Returns:
             True if connection successful, False otherwise
@@ -101,8 +95,7 @@ class LLMProvider(ABC):
 
     @abstractmethod
     def get_model_info(self) -> Dict[str, Any]:
-        """
-        Get information about the configured model.
+        """Get information about the configured model.
 
         Returns:
             Dict with model details (name, provider, temperature, etc.)
@@ -116,8 +109,7 @@ class LLMProvider(ABC):
         sources: List[str],
         entities: Optional[List[str]] = None,
     ) -> str:
-        """
-        Build a standardized prompt for RAG question answering.
+        """Build a standardized prompt for RAG question answering.
 
         This method provides a consistent prompt structure across all providers.
         Can be overridden by subclasses if needed.
@@ -133,7 +125,7 @@ class LLMProvider(ABC):
         """
         prompt = f"""You are an expert research assistant analyzing political speech documents.
 
-CONTEXT from {len(sources)} document(s): {', '.join(sources)}
+CONTEXT from {len(sources)} document(s): {", ".join(sources)}
 
 {context}
 
@@ -149,15 +141,14 @@ INSTRUCTIONS:
 
         if entities:
             entity_instruction = f"""
-7. IMPORTANT: The question is about {', '.join(entities)}. Focus specifically on direct mentions, quotes, and references to these entities. Prioritize exact quotes and specific statements."""
+7. IMPORTANT: The question is about {", ".join(entities)}. Focus specifically on direct mentions, quotes, and references to these entities. Prioritize exact quotes and specific statements."""
             prompt += entity_instruction
 
         prompt += "\n\nYour answer:"
         return prompt
 
     def _extraction_fallback(self, question: str, context_chunks: List[Dict[str, Any]]) -> str:
-        """
-        Fallback to extraction-based answer if LLM fails.
+        """Fallback to extraction-based answer if LLM fails.
 
         Args:
             question: User's question

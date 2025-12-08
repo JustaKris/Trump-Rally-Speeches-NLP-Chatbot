@@ -1,5 +1,4 @@
-"""
-RAG (Retrieval-Augmented Generation) endpoints.
+"""RAG (Retrieval-Augmented Generation) endpoints.
 
 Provides AI-powered question answering, semantic search, and document indexing
 using ChromaDB vector search and Google Gemini LLM.
@@ -24,8 +23,7 @@ async def rag_ask_question(
     query: RAGQueryRequest,
     rag_service: Optional[RAGService] = Depends(get_rag_service),
 ):
-    """
-    Ask a question about the indexed Trump rally speeches using Retrieval-Augmented Generation.
+    """Ask a question about the indexed Trump rally speeches using Retrieval-Augmented Generation.
 
     Combines semantic search with Google Gemini AI to:
     1. Find relevant speech excerpts using vector similarity
@@ -57,8 +55,7 @@ async def rag_semantic_search(
     query: RAGSearchRequest,
     rag_service: Optional[RAGService] = Depends(get_rag_service),
 ):
-    """
-    Perform semantic search over the indexed Trump rally speeches.
+    """Perform semantic search over the indexed Trump rally speeches.
 
     Finds speech excerpts similar to your query using vector embeddings from SentenceTransformers.
     Combines semantic similarity with optional keyword matching (BM25) for hybrid search.
@@ -84,8 +81,7 @@ async def rag_semantic_search(
 
 @router.get("/stats", response_model=RAGStatsResponse)
 async def get_rag_statistics(rag_service: Optional[RAGService] = Depends(get_rag_service)):
-    """
-    Get statistics about the RAG knowledge base.
+    """Get statistics about the RAG knowledge base.
 
     Returns information about the indexed Trump rally speeches including:
     - Total number of indexed chunks
@@ -116,8 +112,7 @@ async def index_documents(
     rag_service: Optional[RAGService] = Depends(get_rag_service),
     settings=Depends(get_settings_dep),
 ):
-    """
-    Index or re-index documents into the RAG knowledge base.
+    """Index or re-index documents into the RAG knowledge base.
 
     Loads all text files from the specified directory, chunks them using LangChain,
     generates vector embeddings, and stores them in ChromaDB for semantic search.

@@ -1,5 +1,4 @@
-"""
-NLP analysis endpoints.
+"""NLP analysis endpoints.
 
 Provides text analysis features including sentiment analysis, word frequency,
 topic extraction, and n-gram analysis.
@@ -16,7 +15,6 @@ from ..models import (
     SentimentResponse,
     StatsResponse,
     TextInput,
-    TopicResponse,
     WordFrequencyResponse,
 )
 from ..services import EnhancedSentimentAnalyzer, NLPService
@@ -33,8 +31,7 @@ async def analyze_sentiment(
     input: TextInput,
     sentiment_analyzer: Optional[EnhancedSentimentAnalyzer] = Depends(get_sentiment_analyzer_dep),
 ):
-    """
-    AI-powered sentiment analysis with emotion detection and contextual interpretation.
+    """AI-powered sentiment analysis with emotion detection and contextual interpretation.
 
     This endpoint uses multiple AI models to provide comprehensive sentiment analysis:
     - **FinBERT**: Financial/political sentiment classification (positive/negative/neutral)
@@ -74,8 +71,7 @@ async def analyze_word_frequency(
     top_n: int = 50,
     nlp_service: NLPService = Depends(get_nlp_service),
 ):
-    """
-    Analyze word frequency in the input text.
+    """Analyze word frequency in the input text.
 
     Returns the most common words with their frequencies, excluding stopwords.
     """
@@ -97,8 +93,7 @@ async def analyze_topics(
     snippets_per_topic: int = 3,
     topic_service=Depends(get_topic_service),
 ):
-    """
-    Extract topics with AI-powered semantic clustering and contextual analysis.
+    """Extract topics with AI-powered semantic clustering and contextual analysis.
 
     This advanced topic extraction system provides:
     - **Semantic Clustering**: Groups related keywords using AI embeddings (e.g., "economy", "jobs" → "Economic Policy")
@@ -134,8 +129,7 @@ async def extract_ngrams_endpoint(
     input: NGramRequest,
     nlp_service: NLPService = Depends(get_nlp_service),
 ):
-    """
-    Extract n-grams from the input text.
+    """Extract n-grams from the input text.
 
     Returns the most common n-grams (bigrams, trigrams, etc.) found in the text.
     """
@@ -150,8 +144,7 @@ async def extract_ngrams_endpoint(
 
 @router.post("/clean")
 async def clean_text_endpoint(input: TextInput, remove_stopwords: bool = True):
-    """
-    Clean and normalize input text.
+    """Clean and normalize input text.
 
     Removes URLs, special characters, extra whitespace, and optionally stopwords.
     """
@@ -171,8 +164,7 @@ async def clean_text_endpoint(input: TextInput, remove_stopwords: bool = True):
 
 @router.get("/speeches/stats", response_model=StatsResponse)
 async def get_speech_statistics(nlp_service: NLPService = Depends(get_nlp_service)):
-    """
-    Get statistics about the demo dataset (political rally speeches, 2019-2020).
+    """Get statistics about the demo dataset (political rally speeches, 2019-2020).
 
     This endpoint demonstrates the API's analytical capabilities using a real-world
     dataset of 35+ political speeches. The dataset serves as a showcase example.
@@ -192,8 +184,7 @@ async def get_speech_statistics(nlp_service: NLPService = Depends(get_nlp_servic
 
 @router.get("/speeches/list")
 async def list_speeches(nlp_service: NLPService = Depends(get_nlp_service)):
-    """
-    List all speeches indexed in the RAG knowledge base.
+    """List all speeches indexed in the RAG knowledge base.
 
     Returns all speeches in the demo dataset (35+ Trump rally speeches, 2019-2020)
     with metadata including filename, location, date, and word count.

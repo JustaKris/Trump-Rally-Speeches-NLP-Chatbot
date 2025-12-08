@@ -1,5 +1,4 @@
-"""
-AI-powered sentiment analysis with emotion detection.
+"""AI-powered sentiment analysis with emotion detection.
 
 This module handles sentiment analysis using multiple models:
 - FinBERT for financial/political sentiment (positive/negative/neutral)
@@ -40,8 +39,7 @@ ssl._create_default_https_context = ssl._create_unverified_context  # type: igno
 
 
 class EnhancedSentimentAnalyzer:
-    """
-    AI-powered sentiment analysis with emotion detection and contextual interpretation.
+    """AI-powered sentiment analysis with emotion detection and contextual interpretation.
 
     Combines multiple models:
     - FinBERT: Sentiment classification (positive/negative/neutral)
@@ -55,8 +53,7 @@ class EnhancedSentimentAnalyzer:
         emotion_model: str = "j-hartmann/emotion-english-distilroberta-base",
         llm_service: Optional[LLMProvider] = None,
     ):
-        """
-        Initialize the enhanced sentiment analyzer.
+        """Initialize the enhanced sentiment analyzer.
 
         Args:
             sentiment_model: HuggingFace model for sentiment classification
@@ -84,8 +81,11 @@ class EnhancedSentimentAnalyzer:
             )
             warnings.filterwarnings("ignore", message=".*TRAIN this model.*")
 
-            self.sentiment_tokenizer = AutoTokenizer.from_pretrained(self.sentiment_model_name)
-            self.sentiment_model = AutoModelForSequenceClassification.from_pretrained(
+            # Model names are from configuration, not user input
+            self.sentiment_tokenizer = AutoTokenizer.from_pretrained(
+                self.sentiment_model_name
+            )  # nosec B615
+            self.sentiment_model = AutoModelForSequenceClassification.from_pretrained(  # nosec B615
                 self.sentiment_model_name
             )
             self.sentiment_model.eval()
@@ -102,8 +102,11 @@ class EnhancedSentimentAnalyzer:
             )
             warnings.filterwarnings("ignore", message=".*TRAIN this model.*")
 
-            self.emotion_tokenizer = AutoTokenizer.from_pretrained(self.emotion_model_name)
-            self.emotion_model = AutoModelForSequenceClassification.from_pretrained(
+            # Model names are from configuration, not user input
+            self.emotion_tokenizer = AutoTokenizer.from_pretrained(
+                self.emotion_model_name
+            )  # nosec B615
+            self.emotion_model = AutoModelForSequenceClassification.from_pretrained(  # nosec B615
                 self.emotion_model_name
             )
             self.emotion_model.eval()
@@ -184,13 +187,13 @@ class EnhancedSentimentAnalyzer:
             prompt = f"""You are analyzing the emotional and sentimental tone of a text excerpt. Provide a clear, insightful interpretation that explains WHY the models produced their results.
 
 TEXT ANALYZED:
-"{text[:600]}{'...' if len(text) > 600 else ''}"
+"{text[:600]}{"..." if len(text) > 600 else ""}"
 
 SENTIMENT ANALYSIS RESULTS:
 - Overall Sentiment: {dominant_sentiment[0].upper()} ({dominant_sentiment[1]:.0%} confidence)
-- Positive: {sentiment_scores['positive']:.0%}
-- Negative: {sentiment_scores['negative']:.0%}
-- Neutral: {sentiment_scores['neutral']:.0%}
+- Positive: {sentiment_scores["positive"]:.0%}
+- Negative: {sentiment_scores["negative"]:.0%}
+- Neutral: {sentiment_scores["neutral"]:.0%}
 
 EMOTION DETECTION RESULTS:
 - Primary Emotion: {dominant_emotion[0].capitalize()} ({dominant_emotion[1]:.0%})
@@ -240,8 +243,7 @@ Your interpretation:"""
             return f"The text exhibits {dominant_sentiment[0]} sentiment (score: {dominant_sentiment[1]:.0%}) with {top_emotion[0]} as the dominant emotion ({top_emotion[1]:.0%})."
 
     def analyze_sentiment(self, text: str) -> Dict[str, Any]:
-        """
-        Perform comprehensive sentiment analysis with emotion detection and contextual interpretation.
+        """Perform comprehensive sentiment analysis with emotion detection and contextual interpretation.
 
         Args:
             text: Input text to analyze
@@ -281,8 +283,7 @@ Your interpretation:"""
 
 
 def get_sentiment_analyzer(llm_service: Optional[Any] = None) -> EnhancedSentimentAnalyzer:
-    """
-    Factory function to get an enhanced sentiment analyzer instance.
+    """Factory function to get an enhanced sentiment analyzer instance.
 
     Args:
         llm_service: Optional LLM service for contextual analysis

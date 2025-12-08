@@ -1,5 +1,4 @@
-"""
-Tests for DocumentLoader component.
+"""Tests for DocumentLoader component.
 
 Tests document loading, chunking, and metadata generation.
 """
@@ -144,7 +143,7 @@ class TestDocumentLoader:
         chunks, metadatas, ids = loader.load_from_directory(str(tmp_path))
 
         # Should have chunks from all 3 files
-        sources = set(m["source"] for m in metadatas)
+        sources = {m["source"] for m in metadatas}
         assert len(sources) == 3
         assert "speech_0.txt" in sources
         assert "speech_1.txt" in sources

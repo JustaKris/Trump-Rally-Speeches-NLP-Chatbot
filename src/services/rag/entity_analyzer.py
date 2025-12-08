@@ -1,5 +1,4 @@
-"""
-Entity analyzer component for RAG service.
+"""Entity analyzer component for RAG service.
 
 Handles entity extraction, statistics gathering, sentiment analysis,
 and finding associated terms for named entities in the corpus.
@@ -19,16 +18,14 @@ logger = logging.getLogger(__name__)
 
 
 class EntityAnalyzer:
-    """
-    Analyzes named entities in text and corpus.
+    """Analyzes named entities in text and corpus.
 
     Provides entity extraction, frequency statistics, sentiment analysis,
     and term association discovery.
     """
 
     def __init__(self, collection=None, sentiment_analyzer=None):
-        """
-        Initialize entity analyzer.
+        """Initialize entity analyzer.
 
         Args:
             collection: ChromaDB collection for corpus-wide analysis
@@ -43,8 +40,7 @@ class EntityAnalyzer:
         logger.debug("EntityAnalyzer initialized")
 
     def extract_entities(self, text: str) -> List[str]:
-        """
-        Extract potential named entities from text using simple heuristics.
+        """Extract potential named entities from text using simple heuristics.
 
         Uses capitalized words as entity candidates. For production,
         consider using a proper NER model (spaCy, Hugging Face).
@@ -79,8 +75,7 @@ class EntityAnalyzer:
         include_sentiment: bool = False,
         include_associations: bool = True,
     ) -> Dict[str, EntityStatistics]:
-        """
-        Get comprehensive statistics about entity mentions across the corpus.
+        """Get comprehensive statistics about entity mentions across the corpus.
 
         Args:
             entities: List of entity names to analyze
@@ -116,8 +111,7 @@ class EntityAnalyzer:
         include_sentiment: bool,
         include_associations: bool,
     ) -> Optional[EntityStatistics]:
-        """
-        Analyze a single entity across the corpus.
+        """Analyze a single entity across the corpus.
 
         Args:
             entity: Entity name
@@ -166,7 +160,7 @@ class EntityAnalyzer:
             "mention_count": mentions,
             "speech_count": len(speeches_with_entity),
             "corpus_percentage": round(percentage, 2),
-            "speeches": sorted(list(speeches_with_entity))[:10],  # Limit to first 10
+            "speeches": sorted(speeches_with_entity)[:10],  # Limit to first 10
         }
 
         # Add sentiment analysis if requested
@@ -182,8 +176,7 @@ class EntityAnalyzer:
         return EntityStatistics(**entity_data)
 
     def analyze_sentiment(self, entity: str, contexts: List[str]) -> EntitySentiment:
-        """
-        Analyze sentiment of text chunks mentioning an entity.
+        """Analyze sentiment of text chunks mentioning an entity.
 
         Args:
             entity: Entity name
@@ -215,8 +208,8 @@ class EntityAnalyzer:
                         sentiments.append(-result.get("negative", 0))
                     else:
                         sentiments.append(0)
-                except Exception:
-                    # Skip failed analyses
+                except Exception:  # nosec B112
+                    # Skip failed analyses - intentional pattern for robust error handling
                     continue
 
             if sentiments:
@@ -246,8 +239,7 @@ class EntityAnalyzer:
         )
 
     def find_associations(self, entity: str, contexts: List[str], top_n: int = 5) -> List[str]:
-        """
-        Find most common terms associated with an entity.
+        """Find most common terms associated with an entity.
 
         Args:
             entity: Entity name

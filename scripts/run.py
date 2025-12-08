@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-"""
-Application launcher using configured settings.
+"""Application launcher using configured settings.
 
 Usage:
     python run.py                 # Uses settings from configs + .env
@@ -15,12 +14,11 @@ from pathlib import Path
 
 import uvicorn
 
-
 PROJECT_ROOT = Path(__file__).parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.config.settings import get_settings
+from src.config.settings import get_settings  # noqa: E402
 
 # Get configuration
 settings = get_settings()
@@ -36,7 +34,7 @@ def main():
     PROJECT_ROOT = Path(__file__).parent.parent
     if str(PROJECT_ROOT) not in sys.path:
         sys.path.insert(0, str(PROJECT_ROOT))
-    
+
     # Parse CLI arguments (allows overrides)
     parser = argparse.ArgumentParser(
         description="Trump Speeches NLP Chatbot API",
@@ -56,7 +54,7 @@ Examples:
   ENVIRONMENT=production python run.py   # Use production config
         """,
     )
-    
+
     parser.add_argument(
         "--host",
         type=str,
@@ -87,23 +85,23 @@ Examples:
         default=None,
         help="Log level (default: info)",
     )
-    
+
     args = parser.parse_args()
-    
+
     # Import here to avoid loading all the ML models upfront
     # We only need the settings module for config reading
     from src.config.settings import get_settings
-    
+
     # Load settings from config hierarchy
     settings = get_settings()
-    
+
     # Determine final launch parameters (CLI > settings > defaults)
     host = args.host or settings.api.host
     port = args.port or settings.api.port
     reload = args.reload or settings.api.reload
     workers = args.workers or 1
     log_level = args.log_level or "info"
-    
+
     logger.info("Starting %s v%s", settings.app_name, settings.app_version)
     logger.info("Environment: %s", settings.environment)
     logger.info("Host: %s", host)
@@ -111,7 +109,7 @@ Examples:
     logger.info("Reload: %s", reload)
     logger.info("Workers: %s", workers)
     logger.info("Log Level: %s", log_level)
-    
+
     # Launch uvicorn with settings
     uvicorn.run(
         "src.main:app",

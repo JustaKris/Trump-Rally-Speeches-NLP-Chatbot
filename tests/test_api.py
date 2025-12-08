@@ -1,5 +1,4 @@
-"""
-Integration tests for FastAPI endpoints.
+"""Integration tests for FastAPI endpoints.
 
 Tests the API routes using FastAPI's TestClient.
 """

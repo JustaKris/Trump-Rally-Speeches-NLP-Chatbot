@@ -1,5 +1,4 @@
-"""
-Security utilities for the NLP Chatbot API.
+"""Security utilities for the NLP Chatbot API.
 
 Provides authentication, authorization, and security-related utilities.
 Currently implements basic API key validation. Can be extended for more
@@ -14,8 +13,7 @@ from fastapi import Header, HTTPException, status
 
 
 def generate_api_key() -> str:
-    """
-    Generate a secure API key.
+    """Generate a secure API key.
 
     Returns:
         Randomly generated API key
@@ -24,8 +22,7 @@ def generate_api_key() -> str:
 
 
 def hash_api_key(api_key: str) -> str:
-    """
-    Hash an API key for secure storage.
+    """Hash an API key for secure storage.
 
     Args:
         api_key: API key to hash
@@ -37,10 +34,9 @@ def hash_api_key(api_key: str) -> str:
 
 
 def verify_api_key(
-    x_api_key: Optional[str] = Header(None, description="API key for authentication")
+    x_api_key: Optional[str] = Header(None, description="API key for authentication"),
 ) -> str:
-    """
-    Verify API key from request header.
+    """Verify API key from request header.
 
     This is a dependency that can be added to routes requiring authentication.
     Currently disabled for demo purposes, but can be easily enabled.
@@ -79,8 +75,7 @@ def verify_api_key(
 
 
 def sanitize_user_input(text: str, max_length: int = 10000) -> str:
-    """
-    Sanitize user input text.
+    """Sanitize user input text.
 
     Args:
         text: User input text

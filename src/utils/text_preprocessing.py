@@ -1,5 +1,4 @@
-"""
-Text preprocessing utilities for NLP analysis.
+"""Text preprocessing utilities for NLP analysis.
 
 This module contains functions for cleaning, tokenizing, and preparing
 text data for various NLP tasks.
@@ -25,8 +24,7 @@ except LookupError:
 
 
 def get_stopwords() -> Set[str]:
-    """
-    Get English stopwords set.
+    """Get English stopwords set.
 
     Returns:
         Set of stopword strings
@@ -36,8 +34,7 @@ def get_stopwords() -> Set[str]:
 
 
 def clean_text(text: str, remove_stopwords: bool = True) -> str:
-    """
-    Clean and normalize text for analysis.
+    """Clean and normalize text for analysis.
 
     Args:
         text: Input text to clean
@@ -71,8 +68,7 @@ def clean_text(text: str, remove_stopwords: bool = True) -> str:
 
 
 def tokenize_text(text: str) -> List[str]:
-    """
-    Tokenize text into words.
+    """Tokenize text into words.
 
     Args:
         text: Input text to tokenize
@@ -84,8 +80,7 @@ def tokenize_text(text: str) -> List[str]:
 
 
 def extract_ngrams(tokens: List[str], n: int = 2) -> List[str]:
-    """
-    Extract n-grams from a list of tokens.
+    """Extract n-grams from a list of tokens.
 
     Args:
         tokens: List of token strings
@@ -102,8 +97,7 @@ def extract_ngrams(tokens: List[str], n: int = 2) -> List[str]:
 
 
 def chunk_text_for_bert(text: str, tokenizer, max_length: int = 510) -> List[dict]:
-    """
-    Split text into chunks that fit within BERT's token limits.
+    """Split text into chunks that fit within BERT's token limits.
 
     Args:
         text: Input text to chunk
@@ -137,8 +131,7 @@ def chunk_text_for_bert(text: str, tokenizer, max_length: int = 510) -> List[dic
 
 
 def calculate_word_frequency(text: str, top_n: int = 20, remove_stopwords: bool = True) -> dict:
-    """
-    Calculate word frequency distribution.
+    """Calculate word frequency distribution.
 
     Args:
         text: Input text to analyze

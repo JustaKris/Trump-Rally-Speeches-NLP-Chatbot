@@ -1,5 +1,4 @@
-"""
-Pytest configuration and fixtures.
+"""Pytest configuration and fixtures.
 
 Provides test configuration, fixtures, and warning filters for handling
 third-party deprecation warnings that we cannot control.
@@ -23,8 +22,7 @@ def pytest_configure(config):
 
 
 def pytest_collection_modifyitems(config, items):
-    """
-    Hook that runs after test collection to suppress ChromaDB warnings.
+    """Hook that runs after test collection to suppress ChromaDB warnings.
 
     This runs even when -W error::DeprecationWarning is used, because it modifies
     how warnings are handled for each test item.

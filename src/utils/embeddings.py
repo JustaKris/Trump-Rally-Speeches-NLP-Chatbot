@@ -1,5 +1,4 @@
-"""
-Embedding utilities for vector operations.
+"""Embedding utilities for vector operations.
 
 Provides helper functions for working with embeddings and vector databases.
 """
@@ -10,8 +9,7 @@ import numpy as np
 
 
 def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
-    """
-    Calculate cosine similarity between two vectors.
+    """Calculate cosine similarity between two vectors.
 
     Args:
         vec1: First vector
@@ -34,8 +32,7 @@ def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
 
 
 def normalize_scores(scores: List[float]) -> List[float]:
-    """
-    Normalize a list of scores to 0-1 range.
+    """Normalize a list of scores to 0-1 range.
 
     Args:
         scores: List of raw scores
@@ -56,8 +53,7 @@ def normalize_scores(scores: List[float]) -> List[float]:
 
 
 def batch_embeddings(texts: List[str], batch_size: int = 32) -> List[List[int]]:
-    """
-    Process texts in batches for embedding generation.
+    """Process texts in batches for embedding generation.
 
     Args:
         texts: List of texts to process

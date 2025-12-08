@@ -30,6 +30,19 @@ Implementation details for specific features:
 - **[Topic Analysis](howto/topic-extraction.md)** — Using AI-powered topic extraction with semantic clustering
 - **[Entity Analytics](howto/entity-analytics.md)** — Entity extraction and sentiment analysis
 - **[Documentation](howto/documentation.md)** — Contributing to project documentation
+- **[Logging](howto/logging.md)** — Logging configuration and best practices
+
+### Development Resources
+
+Code quality and development standards:
+
+- **[Code Style Guide](development/code-style.md)** — Python style guidelines and naming conventions
+- **[Formatting Guide](development/formatting.md)** — Ruff and Black formatting standards
+- **[Linting Guide](development/linting.md)** — Code quality checks with Ruff and Mypy
+- **[Testing Guide](development/testing.md)** — pytest practices and coverage requirements
+- **[Security Guide](development/security.md)** — Security scanning with Bandit and pip-audit
+- **[Logging Setup](development/logging.md)** — Centralized logging configuration
+- **[Markdown Linting](development/markdown-linting.md)** — Documentation formatting standards
 
 ### Technical Reference
 

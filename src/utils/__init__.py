@@ -1,5 +1,4 @@
-"""
-Utility functions for the NLP Chatbot API.
+"""Utility functions for the NLP Chatbot API.
 
 This module contains helper functions for text processing, data loading,
 formatting, and other common operations.

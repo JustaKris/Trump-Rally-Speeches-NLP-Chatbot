@@ -1,5 +1,4 @@
-"""
-Trump Speeches NLP Chatbot API - Production-Ready AI Platform
+"""Trump Speeches NLP Chatbot API - Production-Ready AI Platform
 
 Comprehensive NLP and RAG platform for analyzing Trump rally speeches (2019-2020).
 Features AI-powered Q&A with multiple LLM providers (Gemini, OpenAI, Claude), sentiment
@@ -44,8 +43,7 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Lifespan context manager for startup and shutdown events.
+    """Lifespan context manager for startup and shutdown events.
 
     Handles model loading on startup and cleanup on shutdown.
     """

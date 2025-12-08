@@ -1,5 +1,4 @@
-"""
-API module for the NLP Chatbot API.
+"""API module for the NLP Chatbot API.
 
 Contains route handlers organized by functionality:
 - chatbot: RAG-powered question answering

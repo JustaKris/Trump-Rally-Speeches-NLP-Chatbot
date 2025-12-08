@@ -1,5 +1,4 @@
-"""
-Core application configuration and utilities.
+"""Core application configuration and utilities.
 
 This module contains the core infrastructure components including
 configuration management, logging, security, custom exceptions, and constants.

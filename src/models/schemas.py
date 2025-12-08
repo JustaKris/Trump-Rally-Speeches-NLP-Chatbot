@@ -1,5 +1,4 @@
-"""
-Pydantic schemas for API request and response models.
+"""Pydantic schemas for API request and response models.
 
 Defines the data structures for API endpoints using Pydantic for
 automatic validation, serialization, and OpenAPI documentation.
@@ -20,6 +19,8 @@ class TextInput(BaseModel):
     text: str = Field(..., min_length=1, description="Text to analyze")
 
     class Config:
+        """Pydantic configuration."""
+
         json_schema_extra = {
             "example": {"text": "We're going to make America great again. Our economy is booming!"}
         }
@@ -40,6 +41,8 @@ class RAGQueryRequest(BaseModel):
     top_k: int = Field(5, ge=1, le=15, description="Number of context chunks to retrieve")
 
     class Config:
+        """Pydantic configuration."""
+
         json_schema_extra = {
             "example": {
                 "question": "What are the main economic policies discussed?",

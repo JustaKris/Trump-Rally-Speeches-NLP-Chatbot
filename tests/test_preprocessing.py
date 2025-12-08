@@ -1,5 +1,4 @@
-"""
-Unit tests for preprocessing utilities.
+"""Unit tests for preprocessing utilities.
 
 Tests the text cleaning, tokenization, and n-gram extraction functions.
 """

@@ -1,5 +1,4 @@
-"""
-Business logic and service layer for the NLP Chatbot API.
+"""Business logic and service layer for the NLP Chatbot API.
 
 This module contains all service classes that handle the core business logic,
 including LLM integration, RAG, sentiment analysis, NLP processing, and vector database operations.

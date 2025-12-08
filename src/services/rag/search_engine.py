@@ -1,5 +1,4 @@
-"""
-Search engine component for RAG service.
+"""Search engine component for RAG service.
 
 Handles semantic search, hybrid search (semantic + BM25),
 and cross-encoder re-ranking for improved retrieval accuracy.
@@ -17,8 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class SearchEngine:
-    """
-    Manages search operations for RAG.
+    """Manages search operations for RAG.
 
     Supports pure semantic search, hybrid search (semantic + BM25),
     and optional cross-encoder re-ranking for improved accuracy.
@@ -32,8 +30,7 @@ class SearchEngine:
         use_reranking: bool = True,
         use_hybrid_search: bool = True,
     ):
-        """
-        Initialize search engine.
+        """Initialize search engine.
 
         Args:
             embedding_model: SentenceTransformer model for embeddings
@@ -66,8 +63,7 @@ class SearchEngine:
         )
 
     def initialize_bm25(self, documents: List[str]):
-        """
-        Initialize BM25 index for keyword search.
+        """Initialize BM25 index for keyword search.
 
         Args:
             documents: List of document chunks
@@ -88,8 +84,7 @@ class SearchEngine:
         logger.info(f"BM25 index initialized with {len(documents)} documents")
 
     def search(self, query: str, top_k: int = 5) -> List[SearchResult]:
-        """
-        Perform search over indexed documents.
+        """Perform search over indexed documents.
 
         Uses hybrid search if enabled, otherwise pure semantic search.
         Optionally re-ranks results using cross-encoder.
@@ -111,8 +106,7 @@ class SearchEngine:
             return self._semantic_search(query, top_k)
 
     def _semantic_search(self, query: str, top_k: int) -> List[SearchResult]:
-        """
-        Perform pure semantic search using embeddings.
+        """Perform pure semantic search using embeddings.
 
         Args:
             query: Search query
@@ -137,8 +131,7 @@ class SearchEngine:
         return formatted
 
     def _hybrid_search(self, query: str, top_k: int) -> List[SearchResult]:
-        """
-        Perform hybrid search combining semantic and keyword search.
+        """Perform hybrid search combining semantic and keyword search.
 
         Args:
             query: Search query
@@ -199,8 +192,7 @@ class SearchEngine:
     def _merge_results(
         self, semantic_results: List[SearchResult], bm25_results: List[SearchResult]
     ) -> List[SearchResult]:
-        """
-        Merge semantic and BM25 results with weighted scoring.
+        """Merge semantic and BM25 results with weighted scoring.
 
         Args:
             semantic_results: Results from semantic search
@@ -243,8 +235,7 @@ class SearchEngine:
     def _rerank_results(
         self, query: str, results: List[SearchResult], top_k: int
     ) -> List[SearchResult]:
-        """
-        Re-rank results using cross-encoder for improved accuracy.
+        """Re-rank results using cross-encoder for improved accuracy.
 
         Args:
             query: Original query
@@ -264,7 +255,7 @@ class SearchEngine:
         rerank_scores = self.reranker.predict(pairs)
 
         # Add scores to results
-        for result, score in zip(results, rerank_scores):
+        for result, score in zip(results, rerank_scores, strict=False):
             result.rerank_score = float(score)
 
         # Sort by rerank score
@@ -274,8 +265,7 @@ class SearchEngine:
         return reranked[:top_k]
 
     def _format_chromadb_results(self, results: Any) -> List[SearchResult]:
-        """
-        Format ChromaDB query results into SearchResult objects.
+        """Format ChromaDB query results into SearchResult objects.
 
         Args:
             results: Raw results from ChromaDB

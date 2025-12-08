@@ -1,5 +1,4 @@
-"""
-Factory for creating LLM provider instances.
+"""Factory for creating LLM provider instances.
 
 Provides a centralized way to instantiate the correct LLM provider
 based on configuration settings.
@@ -31,8 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 def create_llm_provider(settings: Settings) -> Optional[LLMProvider]:
-    """
-    Create an LLM provider instance based on configuration.
+    """Create an LLM provider instance based on configuration.
 
     This factory method instantiates the appropriate LLM provider
     (Gemini, OpenAI, Anthropic) based on the settings.

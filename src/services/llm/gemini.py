@@ -1,5 +1,4 @@
-"""
-Google Gemini LLM provider implementation.
+"""Google Gemini LLM provider implementation.
 
 Provides integration with Google Gemini for high-quality answer synthesis
 from retrieved context chunks.
@@ -25,8 +24,7 @@ GEMINI_SAFETY_SETTINGS = [
 
 
 class GeminiLLM(LLMProvider):
-    """
-    Google Gemini LLM provider.
+    """Google Gemini LLM provider.
 
     Uses Gemini to synthesize high-quality answers from retrieved context,
     with proper citations and confidence assessment.
@@ -39,8 +37,7 @@ class GeminiLLM(LLMProvider):
         temperature: float = 0.3,
         max_output_tokens: int = 1024,
     ):
-        """
-        Initialize Gemini LLM service.
+        """Initialize Gemini LLM service.
 
         Args:
             api_key: Google API key (required)
@@ -83,8 +80,7 @@ class GeminiLLM(LLMProvider):
         max_tokens: Optional[int] = None,
         **kwargs,
     ) -> Any:
-        """
-        Generate content from a prompt (implements LLMProvider interface).
+        """Generate content from a prompt (implements LLMProvider interface).
 
         Args:
             prompt: Text prompt for generation
@@ -115,8 +111,7 @@ class GeminiLLM(LLMProvider):
         max_context_length: int = 4000,
         entities: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
-        """
-        Generate an answer to a question using provided context.
+        """Generate an answer to a question using provided context.
 
         Args:
             question: User's question
@@ -190,8 +185,7 @@ class GeminiLLM(LLMProvider):
             }
 
     def test_connection(self) -> bool:
-        """
-        Test if Gemini API is accessible.
+        """Test if Gemini API is accessible.
 
         Returns:
             True if connection successful, False otherwise
@@ -210,8 +204,7 @@ class GeminiLLM(LLMProvider):
             return False
 
     def get_model_info(self) -> Dict[str, Any]:
-        """
-        Get information about the configured model.
+        """Get information about the configured model.
 
         Returns:
             Dict with model details

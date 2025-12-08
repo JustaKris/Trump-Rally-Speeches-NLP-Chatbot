@@ -1,5 +1,4 @@
-"""
-Trump Speeches NLP Chatbot API - Production-Ready AI Platform
+"""Trump Speeches NLP Chatbot API - Production-Ready AI Platform
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A comprehensive NLP and RAG platform for analyzing political speeches

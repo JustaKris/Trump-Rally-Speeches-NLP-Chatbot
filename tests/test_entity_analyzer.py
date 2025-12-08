@@ -1,5 +1,4 @@
-"""
-Tests for EntityAnalyzer component.
+"""Tests for EntityAnalyzer component.
 
 Tests entity extraction, statistics, and associations.
 Note: Sentiment analysis tests are skipped if sentiment analyzer not available.
@@ -122,7 +121,7 @@ class TestEntityAnalyzer:
         assert "Biden" in stats
 
         # Check structure of each entity's stats - using Pydantic model attributes
-        for entity, entity_stats in stats.items():
+        for _entity, entity_stats in stats.items():
             assert hasattr(entity_stats, "mention_count")
             assert hasattr(entity_stats, "speech_count")
             assert hasattr(entity_stats, "corpus_percentage")

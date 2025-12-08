@@ -1,5 +1,4 @@
-"""
-Migration script to re-index documents with the new embedding model.
+"""Migration script to re-index documents with the new embedding model.
 
 This script is needed because we upgraded from all-MiniLM-L6-v2 (384 dimensions)
 to all-mpnet-base-v2 (768 dimensions). The existing ChromaDB collection needs
@@ -99,5 +98,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n\nUnexpected error: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

@@ -1,5 +1,4 @@
-"""
-Health check and metadata endpoints.
+"""Health check and metadata endpoints.
 
 Provides system health status, version information, and configuration details.
 """
@@ -55,8 +54,7 @@ async def health_check(
     sentiment_analyzer: Optional[EnhancedSentimentAnalyzer] = Depends(get_sentiment_analyzer_dep),
     rag_service: Optional[RAGService] = Depends(get_rag_service),
 ):
-    """
-    Health check endpoint.
+    """Health check endpoint.
 
     Returns system status and service availability.
     """
@@ -74,8 +72,7 @@ async def health_check(
 
 @router.get("/config")
 async def get_config(settings=Depends(get_settings_dep)):
-    """
-    Get public configuration information.
+    """Get public configuration information.
 
     Returns non-sensitive configuration details.
     """

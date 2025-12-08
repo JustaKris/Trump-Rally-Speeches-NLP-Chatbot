@@ -1,5 +1,4 @@
-"""
-Integration tests for RAG (Retrieval-Augmented Generation) Service.
+"""Integration tests for RAG (Retrieval-Augmented Generation) Service.
 
 Tests the complete RAG pipeline including document loading, chunking,
 embedding, semantic search, and question answering with the refactored

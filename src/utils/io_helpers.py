@@ -1,11 +1,9 @@
-"""
-Utility functions for data loading and statistics.
+"""Utility functions for data loading and statistics.
 
 This module provides helper functions for loading speech data and
 computing aggregate statistics.
 """
 
-import os
 from collections import Counter
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -19,8 +17,7 @@ def get_project_root() -> Path:
 
 
 def load_speeches_from_directory(data_dir: Optional[Any] = None) -> pd.DataFrame:
-    """
-    Load all speeches from the data directory.
+    """Load all speeches from the data directory.
 
     Args:
         data_dir: Path to directory containing speech text files.
@@ -78,8 +75,7 @@ def load_speeches_from_directory(data_dir: Optional[Any] = None) -> pd.DataFrame
 
 
 def get_dataset_statistics() -> Dict[str, Any]:
-    """
-    Get aggregate statistics about the speech dataset.
+    """Get aggregate statistics about the speech dataset.
 
     Returns:
         Dictionary with dataset statistics
@@ -100,8 +96,7 @@ def get_dataset_statistics() -> Dict[str, Any]:
 
 
 def get_word_frequency_stats(text: str, top_n: int = 50) -> Dict[str, Any]:
-    """
-    Get word frequency statistics from text.
+    """Get word frequency statistics from text.
 
     Args:
         text: Input text to analyze
@@ -131,8 +126,7 @@ def get_word_frequency_stats(text: str, top_n: int = 50) -> Dict[str, Any]:
 
 
 def extract_topics(text: str, top_n: int = 10) -> List[Dict[str, Any]]:
-    """
-    Extract key topics/themes from text based on word frequency.
+    """Extract key topics/themes from text based on word frequency.
 
     Args:
         text: Input text to analyze

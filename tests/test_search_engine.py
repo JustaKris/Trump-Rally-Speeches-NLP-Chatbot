@@ -1,5 +1,4 @@
-"""
-Tests for SearchEngine component.
+"""Tests for SearchEngine component.
 
 Tests semantic search, hybrid search, and re-ranking functionality.
 Note: Some tests require actual embedding models which are mocked.

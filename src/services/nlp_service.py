@@ -1,5 +1,4 @@
-"""
-NLP Service for text analysis and processing.
+"""NLP Service for text analysis and processing.
 
 Provides word frequency analysis, topic extraction, and other NLP operations.
 This service aggregates functionality from utils for cleaner API separation.
@@ -19,8 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class NLPService:
-    """
-    Service for NLP text analysis operations.
+    """Service for NLP text analysis operations.
 
     Provides methods for word frequency, topic extraction, n-gram analysis,
     and other text processing tasks.
@@ -32,8 +30,7 @@ class NLPService:
         logger.info("NLP service initialized")
 
     def analyze_word_frequency(self, text: str, top_n: int = 50) -> Dict[str, Any]:
-        """
-        Analyze word frequency in the input text.
+        """Analyze word frequency in the input text.
 
         Args:
             text: Input text to analyze
@@ -46,8 +43,7 @@ class NLPService:
         return stats
 
     def extract_topics(self, text: str, top_n: int = 10) -> List[Dict[str, Any]]:
-        """
-        Extract key topics/themes from text.
+        """Extract key topics/themes from text.
 
         Args:
             text: Input text to analyze
@@ -75,8 +71,7 @@ class NLPService:
         ]
 
     def extract_ngrams(self, text: str, n: int = 2, top_n: int = 20) -> Dict[str, Any]:
-        """
-        Extract n-grams from text.
+        """Extract n-grams from text.
 
         Args:
             text: Input text
@@ -106,8 +101,7 @@ class NLPService:
         }
 
     def get_dataset_stats(self) -> Dict[str, Any]:
-        """
-        Get statistics about the speech dataset.
+        """Get statistics about the speech dataset.
 
         Returns:
             Dictionary with dataset statistics
@@ -115,8 +109,7 @@ class NLPService:
         return get_dataset_statistics()
 
     def list_speeches(self) -> Dict[str, Any]:
-        """
-        List all speeches in the dataset.
+        """List all speeches in the dataset.
 
         Returns:
             Dictionary with speech list and count

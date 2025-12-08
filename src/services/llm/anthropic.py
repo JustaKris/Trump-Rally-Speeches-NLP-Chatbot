@@ -1,5 +1,4 @@
-"""
-Anthropic Claude LLM provider implementation.
+"""Anthropic Claude LLM provider implementation.
 
 Provides integration with Anthropic's Claude models for answer generation.
 """
@@ -15,8 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class AnthropicLLM(LLMProvider):
-    """
-    Anthropic Claude LLM provider.
+    """Anthropic Claude LLM provider.
 
     Uses Anthropic's Claude models for text generation and question answering.
     """
@@ -28,8 +26,7 @@ class AnthropicLLM(LLMProvider):
         temperature: float = 0.3,
         max_output_tokens: int = 1024,
     ):
-        """
-        Initialize Anthropic LLM service.
+        """Initialize Anthropic LLM service.
 
         Args:
             api_key: Anthropic API key (required)
@@ -59,8 +56,7 @@ class AnthropicLLM(LLMProvider):
         max_tokens: Optional[int] = None,
         **kwargs,
     ) -> Any:
-        """
-        Generate content from a prompt (implements LLMProvider interface).
+        """Generate content from a prompt (implements LLMProvider interface).
 
         Args:
             prompt: Text prompt for generation
@@ -102,8 +98,7 @@ class AnthropicLLM(LLMProvider):
         max_context_length: int = 4000,
         entities: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
-        """
-        Generate an answer to a question using provided context.
+        """Generate an answer to a question using provided context.
 
         Args:
             question: User's question
@@ -185,8 +180,7 @@ class AnthropicLLM(LLMProvider):
             }
 
     def test_connection(self) -> bool:
-        """
-        Test if Anthropic API is accessible.
+        """Test if Anthropic API is accessible.
 
         Returns:
             True if connection successful, False otherwise
@@ -212,8 +206,7 @@ class AnthropicLLM(LLMProvider):
             return False
 
     def get_model_info(self) -> Dict[str, Any]:
-        """
-        Get information about the configured model.
+        """Get information about the configured model.
 
         Returns:
             Dict with model details

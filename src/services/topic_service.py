@@ -1,5 +1,4 @@
-"""
-Enhanced Topic Extraction Service with Semantic Clustering.
+"""Enhanced Topic Extraction Service with Semantic Clustering.
 
 Provides advanced topic analysis using:
 - Semantic clustering of keywords using embeddings
@@ -15,7 +14,6 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from sklearn.cluster import KMeans
-from sklearn.metrics.pairwise import cosine_similarity
 
 from ..config.settings import get_settings
 from ..services.llm.base import LLMProvider
@@ -25,8 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class TopicExtractionService:
-    """
-    Enhanced topic extraction service with semantic clustering and AI analysis.
+    """Enhanced topic extraction service with semantic clustering and AI analysis.
 
     Features:
     - Semantic grouping of related keywords using embeddings
@@ -39,8 +36,7 @@ class TopicExtractionService:
         embedding_model: Optional[SentenceTransformer] = None,
         llm_service: Optional[LLMProvider] = None,
     ):
-        """
-        Initialize topic extraction service.
+        """Initialize topic extraction service.
 
         Args:
             embedding_model: Pre-initialized SentenceTransformer for embeddings
@@ -62,8 +58,7 @@ class TopicExtractionService:
         snippets_per_topic: int = 3,
         snippet_context: int = 100,
     ) -> Dict[str, Any]:
-        """
-        Extract topics with clustering, snippets, and AI summary.
+        """Extract topics with clustering, snippets, and AI summary.
 
         Args:
             text: Input text to analyze
@@ -142,8 +137,7 @@ class TopicExtractionService:
         }
 
     def _extract_keywords(self, text: str, top_n: int = 20) -> List[Dict[str, Any]]:
-        """
-        Extract top keywords with frequency and positions.
+        """Extract top keywords with frequency and positions.
 
         Args:
             text: Input text
@@ -197,8 +191,7 @@ class TopicExtractionService:
     def _cluster_keywords(
         self, keywords_data: List[Dict[str, Any]], num_clusters: Optional[int] = None
     ) -> List[Dict[str, Any]]:
-        """
-        Cluster keywords using semantic embeddings.
+        """Cluster keywords using semantic embeddings.
 
         Args:
             keywords_data: List of keyword dicts
@@ -259,8 +252,7 @@ class TopicExtractionService:
         return clusters
 
     def _label_clusters(self, clusters: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """
-        Generate semantic labels for clusters using LLM.
+        """Generate semantic labels for clusters using LLM.
 
         Args:
             clusters: List of cluster dicts
@@ -284,8 +276,7 @@ class TopicExtractionService:
         return clusters
 
     def _generate_cluster_label(self, keywords: List[str]) -> str:
-        """
-        Generate a short, descriptive label for a keyword cluster.
+        """Generate a short, descriptive label for a keyword cluster.
 
         Args:
             keywords: List of keywords in the cluster
@@ -296,7 +287,7 @@ class TopicExtractionService:
         if not self.llm_service:
             return keywords[0].title()
 
-        prompt = f"""Given these related keywords: {', '.join(keywords)}
+        prompt = f"""Given these related keywords: {", ".join(keywords)}
 
 Generate a concise 2-4 word label that captures the main theme these keywords represent.
 
@@ -330,8 +321,7 @@ Respond with ONLY the label, nothing else."""
         snippets_per_topic: int = 3,
         context_chars: int = 100,
     ) -> List[Dict[str, Any]]:
-        """
-        Extract contextual snippets showing keywords in use.
+        """Extract contextual snippets showing keywords in use.
 
         Args:
             text: Original text
@@ -377,8 +367,7 @@ Respond with ONLY the label, nothing else."""
     def _deduplicate_positions(
         self, positions: List[Tuple[int, str]], min_distance: int = 200
     ) -> List[Tuple[int, str]]:
-        """
-        Remove positions that are too close to each other.
+        """Remove positions that are too close to each other.
 
         Args:
             positions: List of (position, keyword) tuples
@@ -400,8 +389,7 @@ Respond with ONLY the label, nothing else."""
     def _extract_snippet(
         self, text: str, position: int, keyword: str, context_chars: int = 100
     ) -> Optional[str]:
-        """
-        Extract a text snippet around a keyword occurrence.
+        """Extract a text snippet around a keyword occurrence.
 
         Args:
             text: Full text
@@ -440,8 +428,7 @@ Respond with ONLY the label, nothing else."""
         return snippet.strip()
 
     def _generate_topic_summary(self, text: str, clusters: List[Dict[str, Any]]) -> Optional[str]:
-        """
-        Generate AI interpretation of main topics.
+        """Generate AI interpretation of main topics.
 
         Args:
             text: Original text

@@ -1,5 +1,4 @@
-"""
-Data models and schemas for the NLP Chatbot API.
+"""Data models and schemas for the NLP Chatbot API.
 
 This module contains Pydantic models for request/response validation
 and domain-specific datatypes.

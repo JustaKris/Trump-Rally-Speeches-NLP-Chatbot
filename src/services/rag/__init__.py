@@ -1,5 +1,4 @@
-"""
-RAG (Retrieval-Augmented Generation) module.
+"""RAG (Retrieval-Augmented Generation) module.
 
 Provides specialized components for document retrieval and answer generation:
 - DocumentLoader: Document loading and chunking

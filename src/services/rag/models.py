@@ -1,5 +1,4 @@
-"""
-Domain models for RAG (Retrieval-Augmented Generation) service.
+"""Domain models for RAG (Retrieval-Augmented Generation) service.
 
 Provides Pydantic models for type-safe data structures used internally
 in the RAG pipeline, separate from API request/response models.
@@ -23,8 +22,7 @@ class SearchResult(BaseModel):
 
     @property
     def effective_score(self) -> float:
-        """
-        Get the most relevant score available.
+        """Get the most relevant score available.
 
         Priority: rerank_score > combined_score > (1.0 - distance)
         """

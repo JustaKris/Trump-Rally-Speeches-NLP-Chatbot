@@ -1,5 +1,4 @@
-"""
-Unit tests for utility functions.
+"""Unit tests for utility functions.
 
 Tests data loading, statistics computation, and topic extraction.
 """

@@ -65,6 +65,16 @@ nav:
       - AI Topic Analysis: howto/topic-extraction.md
       - Entity Analytics: howto/entity-analytics.md
       - Documentation: howto/documentation.md
+      - Logging: howto/logging.md
+  
+  - Development:
+      - Code Style: development/code-style.md
+      - Formatting: development/formatting.md
+      - Linting: development/linting.md
+      - Testing: development/testing.md
+      - Security: development/security.md
+      - Logging Setup: development/logging.md
+      - Markdown Linting: development/markdown-linting.md
   
   - Reference:
       - Architecture: reference/architecture.md

@@ -1,5 +1,4 @@
-"""
-Output formatting utilities.
+"""Output formatting utilities.
 
 Provides functions for formatting API responses and display data.
 """
@@ -8,8 +7,7 @@ from typing import Any, Dict, List
 
 
 def format_sentiment_badge(sentiment: str, confidence: float) -> Dict[str, Any]:
-    """
-    Format sentiment data for display.
+    """Format sentiment data for display.
 
     Args:
         sentiment: Sentiment label (positive/negative/neutral)
@@ -33,8 +31,7 @@ def format_sentiment_badge(sentiment: str, confidence: float) -> Dict[str, Any]:
 
 
 def format_confidence_badge(confidence_level: str, confidence_score: float) -> Dict[str, Any]:
-    """
-    Format confidence data for display.
+    """Format confidence data for display.
 
     Args:
         confidence_level: Confidence level (high/medium/low)
@@ -65,8 +62,7 @@ def format_confidence_badge(confidence_level: str, confidence_score: float) -> D
 
 
 def format_sources(sources: List[str]) -> List[Dict[str, str]]:
-    """
-    Format source document list for display.
+    """Format source document list for display.
 
     Args:
         sources: List of source document names
@@ -78,8 +74,7 @@ def format_sources(sources: List[str]) -> List[Dict[str, str]]:
 
 
 def truncate_text(text: str, max_length: int = 500, suffix: str = "...") -> str:
-    """
-    Truncate text to a maximum length.
+    """Truncate text to a maximum length.
 
     Args:
         text: Text to truncate
@@ -96,8 +91,7 @@ def truncate_text(text: str, max_length: int = 500, suffix: str = "...") -> str:
 
 
 def format_percentage(value: float, decimals: int = 1) -> str:
-    """
-    Format a float as a percentage string.
+    """Format a float as a percentage string.
 
     Args:
         value: Value between 0 and 1

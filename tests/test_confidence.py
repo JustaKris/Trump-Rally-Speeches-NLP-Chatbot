@@ -1,5 +1,4 @@
-"""
-Tests for ConfidenceCalculator component.
+"""Tests for ConfidenceCalculator component.
 
 Tests confidence score calculation and explanation generation.
 """
@@ -116,7 +115,10 @@ class TestConfidenceCalculator:
         ]
         context_chunks = [
             ContextChunk(
-                text="Test text", source="neg.txt", chunk_index=0, score=-5.0  # Negative score
+                text="Test text",
+                source="neg.txt",
+                chunk_index=0,
+                score=-5.0,  # Negative score
             )
         ]
 

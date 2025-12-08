@@ -151,6 +151,7 @@ The system retrieves relevant context, analyzes entities, calculates confidence 
 ### 🎯 Recent Improvements (November 2025)
 
 ### LLM Provider Abstraction
+
 - **Multi-Provider Support**: Pluggable architecture supporting Gemini, OpenAI GPT, and Anthropic Claude
 - **Model-Agnostic Configuration**: Single configuration interface for all providers (`LLM_API_KEY`, `LLM_MODEL_NAME`)
 - **Factory Pattern**: Lazy imports with optional dependencies for clean provider switching
@@ -158,6 +159,7 @@ The system retrieves relevant context, analyzes entities, calculates confidence 
 - **Easy Extension**: Add new providers by implementing the `LLMProvider` interface
 
 ### Enhanced AI-Powered NLP Features
+
 - **Multi-Model Sentiment Analysis**:
   - FinBERT for sentiment classification (positive/negative/neutral)
   - RoBERTa emotion detection (anger, joy, fear, sadness, surprise, disgust)
@@ -171,6 +173,7 @@ The system retrieves relevant context, analyzes entities, calculates confidence 
 - **Centralized Configuration**: All NLP parameters (thresholds, model names, excluded verbs) configurable via environment variables
 
 ### Modular RAG Architecture (Code Refactoring)
+
 - **Component Separation**: Extracted RAG functionality into dedicated, testable modules
   - `SearchEngine`: Hybrid search with semantic, BM25, and cross-encoder reranking
   - `ConfidenceCalculator`: Multi-factor confidence scoring
@@ -181,18 +184,21 @@ The system retrieves relevant context, analyzes entities, calculates confidence 
 - **Maintainability**: Clear separation of concerns, easier to extend and debug
 
 ### Production-Ready Logging
+
 - **Dual-format logging**: JSON for production/cloud, colored for development
 - **Automatic environment detection**: Zero configuration needed
 - **Cloud-native**: Works with Azure Application Insights, CloudWatch, ELK stack
 - **Smart filtering**: Suppresses noisy third-party library logs
 
-### Professional Configuration Management  
+### Professional Configuration Management
+
 - **Type-safe settings**: Pydantic validation catches errors at startup
 - **Environment-based**: Full `.env` file support for local and cloud deployment
 - **Flexible**: Support for multiple LLM providers (Gemini, OpenAI, Anthropic)
 - **Cloud-ready**: Seamless Azure/AWS deployment with environment variables
 
 ### Performance & Reliability
+
 - **Smart deduplication**: Prevents re-indexing existing ChromaDB chunks
 - **100x faster re-indexing**: Skip embedding computation for existing documents
 - **Clean logs**: No more duplicate ID warnings or telemetry errors

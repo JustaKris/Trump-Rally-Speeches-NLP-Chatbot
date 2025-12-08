@@ -1,5 +1,4 @@
-"""
-Application-wide constants for the Trump Rally Speeches NLP Chatbot.
+"""Application-wide constants for the Trump Rally Speeches NLP Chatbot.
 
 This module centralizes all constant values used across the application,
 following Python conventions for better maintainability and configuration
@@ -98,19 +97,8 @@ ENTITY_STOPWORDS: Final[set[str]] = {
     "who",
     "when",
     "where",
-    "why",
-    "how",
     # Quantifiers
-    "all",
-    "each",
     "every",
-    "both",
-    "few",
-    "more",
-    "most",
-    "other",
-    "some",
-    "such",
     # Negations and intensifiers
     "no",
     "not",

@@ -13,7 +13,6 @@ General configuration should be in YAML files.
 
 from __future__ import annotations
 
-import json
 import logging
 import os
 from functools import lru_cache
@@ -297,7 +296,6 @@ def get_settings() -> Settings:
     3. .env file
     4. Real environment variables
     """
-
     # 1. Start from code defaults by creating a bare Settings to read environment name
     base = Settings()
 
