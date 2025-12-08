@@ -1,4 +1,4 @@
-# Trump Speeches NLP Chatbot — Production-Ready Portfolio Project
+# Trump Speeches NLP Chatbot
 
 [![CI/CD Pipeline](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot/actions/workflows/ci.yml/badge.svg)](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot/actions/workflows/ci.yml)
 [![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/)
@@ -6,48 +6,43 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A production-ready NLP API showcasing natural language processing and retrieval-augmented generation capabilities. This portfolio project demonstrates expertise in LLM integration, vector databases, semantic search, REST API development, and modern AI engineering practices.
+A full-stack NLP application built from the ground up — combining retrieval-augmented generation, hybrid search, multi-model sentiment analysis, and AI-powered topic extraction into a production-ready FastAPI service. Features pluggable LLM providers (Gemini, OpenAI, Claude), comprehensive testing, and automated deployment pipelines.
 
-## 🎯 Project Highlights
+## What's Inside
 
-### 🤖 Core AI Features
+### The AI Stack
 
-- **RAG (Retrieval-Augmented Generation)** — Ask questions about 300,000+ words of political speeches using semantic search + state-of-the-art LLMs (Gemini, OpenAI GPT, Anthropic Claude)
-- **Intelligent Q&A System** — ChromaDB vector database + MPNet embeddings (768d) + cross-encoder reranking for accurate context retrieval
-- **Multi-Factor Confidence Scoring** — Sophisticated confidence calculation considering semantic similarity, consistency, coverage, and entity mentions
-- **Entity Analytics** — Automatic entity detection with sentiment analysis and contextual associations
-- **AI-Powered Sentiment Analysis** — Multi-model approach using FinBERT (sentiment), RoBERTa (emotion detection), and LLM (contextual interpretation)
-- **Semantic Topic Extraction** — AI-powered topic clustering with sentence embeddings, semantic grouping, and contextual summaries
-- **Flexible LLM Integration** — Model-agnostic architecture supporting multiple providers with easy switching
+- **RAG Q&A System** — Natural language questions over 300,000+ words using ChromaDB vector storage, MPNet embeddings (768d), and hybrid search combining semantic similarity with BM25 keyword matching
+- **Multi-Provider LLM Integration** — Pluggable architecture supporting Gemini, OpenAI GPT, and Anthropic Claude with a unified interface and lazy-loaded dependencies
+- **Smart Confidence Scoring** — Multi-factor calculation weighing semantic similarity, answer consistency, context coverage, and entity presence
+- **Entity Analytics Engine** — Extract entities with sentiment analysis, track co-occurrences, and map contextual associations across documents
+- **Advanced Sentiment Analysis** — Ensemble approach combining FinBERT (sentiment), RoBERTa (emotion detection), and LLM-generated contextual interpretation
+- **AI-Powered Topic Clustering** — DBSCAN semantic clustering with sentence-transformers + LLM-generated labels and summaries
 
-### 🛠️ Engineering Excellence
+### The Engineering Side
 
-- **Production-ready FastAPI application** with 12+ RESTful endpoints
-- **Hybrid search architecture** — Combining semantic embeddings with BM25 keyword search
-- **Docker containerization** ready for cloud deployment
-- **Comprehensive testing** with pytest (50%+ code coverage)
-- **CI/CD pipelines** with GitHub Actions
-- **Clean, documented code** following industry best practices
+- **FastAPI Backend** — 12+ RESTful endpoints with async handling, dependency injection, Pydantic validation, and comprehensive error handling
+- **Modular RAG Architecture** — Separated concerns with dedicated components for search, confidence calculation, entity analysis, and document loading
+- **Production Deployment** — Multi-stage Docker builds, Azure Web App hosting, GitHub Actions CI/CD, automated testing and security scanning
+- **Developer Experience** — Type hints throughout, structured logging (JSON for prod, pretty for dev), comprehensive documentation with MkDocs, and 65%+ test coverage
+- **Modern Python Tooling** — uv for dependency management, Ruff for linting/formatting, pytest with parametrized tests, mypy for type checking
 
-## 🚀 Live Demo
+## Try It Live
 
-🔗 **[Try the API](https://trump-speeches-nlp-chatbot.azurewebsites.net)**
+The API is deployed on Azure and ready to explore:
 
-📚 **[API Documentation](https://trump-speeches-nlp-chatbot.azurewebsites.net/docs)** - Interactive Swagger UI
+- **[Interactive Web App](https://trump-speeches-nlp-chatbot.azurewebsites.net)** — Try the RAG system, sentiment analysis, and topic extraction
+- **[API Docs (Swagger)](https://trump-speeches-nlp-chatbot.azurewebsites.net/docs)** — Interactive API playground
+- **[API Docs (ReDoc)](https://trump-speeches-nlp-chatbot.azurewebsites.net/redoc)** — Clean, readable documentation
+- **[Full Documentation](https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/)** — Complete guides, architecture diagrams, and API reference
 
-📖 **[ReDoc Documentation](https://trump-speeches-nlp-chatbot.azurewebsites.net/redoc)** - Alternative API docs
+> **Note:** Azure free tier apps cold-start after inactivity. First request may take 1-2 minutes to wake the service.
 
-> NOTE: The Azure Web App may be cold and can take a minute or two to boot after a deploy or when it hasn't been used recently. If the demo or API docs are temporarily unavailable, please wait 1–2 minutes and retry.
+## How It Works
 
-📘 **[Documentation Site](https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/)** - Complete project documentation with guides and references
+### RAG System Architecture
 
-🏗️ **[System Architecture](https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/reference/architecture/)** - Detailed technical documentation with diagrams
-
-## 📊 Technical Implementation
-
-### RAG (Retrieval-Augmented Generation) System
-
-Production-ready question-answering system over 35 political speeches (300,000+ words) built with a modular, testable architecture:
+Built a modular question-answering system over 35 political speeches (300,000+ words) with these components:
 
 **Core Services:**
 - **`services/rag_service.py`** — Orchestrates RAG pipeline, manages ChromaDB, coordinates components
@@ -102,7 +97,7 @@ Single-page application at the root (`/`) for testing all API features including
 
 Jupyter notebooks showcasing statistical NLP and exploratory data analysis techniques on the speech corpus.
 
-## 🚀 Key Skills Demonstrated
+## Technical Highlights
 
 ### AI/ML Engineering
 
@@ -137,20 +132,20 @@ Jupyter notebooks showcasing statistical NLP and exploratory data analysis techn
 - **Documentation**: Comprehensive MkDocs site, API docs via Swagger/ReDoc, inline docstrings
 - **Observability**: Structured logging, health endpoints, startup configuration display
 
-## � Example RAG Queries
+## What You Can Ask
 
-Try asking the system natural language questions like:
+The RAG system handles complex queries like:
 
 - *"What economic policies were discussed in the speeches?"*
 - *"How many times was Biden mentioned and in what context?"*
 - *"What did the speaker say about immigration?"*
 - *"Compare the themes between 2019 and 2020 speeches"*
 
-The system retrieves relevant context, analyzes entities, calculates confidence scores, and generates coherent answers with source attribution.
+It retrieves relevant chunks via hybrid search, analyzes entities and sentiment, calculates multi-factor confidence scores, and generates coherent answers with source attribution.
 
-### 🎯 Recent Improvements (November 2025)
+## What's New
 
-### LLM Provider Abstraction
+### LLM Provider Abstraction (Recent)
 
 - **Multi-Provider Support**: Pluggable architecture supporting Gemini, OpenAI GPT, and Anthropic Claude
 - **Model-Agnostic Configuration**: Single configuration interface for all providers (`LLM_API_KEY`, `LLM_MODEL_NAME`)
@@ -206,16 +201,14 @@ The system retrieves relevant context, analyzes entities, calculates confidence 
 
 [See full changelog](docs/CHANGELOG.md)
 
-## 🚀 Quick Start
+## Get Started
 
-### Prerequisites
+### What You Need
 
-- Python 3.11+
-- uv ([install guide](https://docs.astral.sh/uv/getting-started/installation/))
-- LLM API key from one of the supported providers:
-  - **Google Gemini** ([get one free](https://ai.google.dev/)) — Default provider
-  - **OpenAI** ([get API key](https://platform.openai.com/api-keys)) — Optional
-  - **Anthropic** ([get API key](https://console.anthropic.com/)) — Optional
+- Python 3.11 or newer
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) (modern Python package manager)
+- An LLM API key (grab a free one from [Google Gemini](https://ai.google.dev/) — it's the default provider)
+  - Or use [OpenAI](https://platform.openai.com/api-keys) / [Anthropic](https://console.anthropic.com/) if you prefer
 
 ### Setup
 
@@ -368,9 +361,9 @@ uv run jupyter lab
 
 Navigate to `notebooks/` to explore statistical NLP analysis and visualizations.
 
-## 🧪 Testing & Code Quality
+## Testing & Code Quality
 
-This project includes comprehensive testing and code quality tools to demonstrate professional software engineering practices.
+Built with testing in mind — comprehensive test suite with pytest, automated CI/CD, and modern Python tooling.
 
 ### Run Tests
 
@@ -522,8 +515,11 @@ This repository is for educational and portfolio purposes. The speech transcript
 
 ---
 
-## 📫 Contact
+## Get in Touch
 
-**Kristiyan Bonev** | [GitHub](https://github.com/JustaKris)
+**Kristiyan Bonev**
 
-*This project showcases practical NLP skills and modern data science workflows. Feel free to explore the notebooks and reach out with questions!*
+- GitHub: [@JustaKris](https://github.com/JustaKris)
+- Email: k.s.bonev@gmail.com
+
+Built this from scratch to explore modern NLP techniques and production ML deployment. Dive into the code, try the API, or reach out if you want to chat about RAG systems, LLM integration, or anything else!
