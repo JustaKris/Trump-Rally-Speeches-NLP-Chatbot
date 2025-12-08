@@ -1,6 +1,8 @@
 # Trump Speeches NLP Chatbot
 
-[![CI/CD Pipeline](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot/actions/workflows/ci.yml/badge.svg)](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot/actions/workflows/ci.yml)
+[![Tests](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot/actions/workflows/python-tests.yml/badge.svg)](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot/actions/workflows/python-tests.yml)
+[![Linting](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot/actions/workflows/python-lint.yml/badge.svg)](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot/actions/workflows/python-lint.yml)
+[![Security](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot/actions/workflows/security-audit.yml/badge.svg)](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot/actions/workflows/security-audit.yml)
 [![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
@@ -405,13 +407,13 @@ uv run ruff format src/ && uv run ruff check src/ && uv run pytest
 
 ### CI/CD Pipeline
 
-The project uses GitHub Actions for continuous integration:
-- ✅ **Automated testing** on Python 3.11, 3.12, 3.13
-- ✅ **Code quality checks** (ruff format, ruff check, mypy)
-- ✅ **Security scanning** (safety, bandit)
-- ✅ **Docker image build** and health checks
-
-See [`.github/workflows/ci.yml`](.github/workflows/ci.yml) for the full pipeline configuration.
+The project uses modular GitHub Actions workflows for continuous integration:
+- ✅ **Automated testing** on Python 3.11, 3.12 ([`python-tests.yml`](.github/workflows/python-tests.yml))
+- ✅ **Code quality** — Ruff linting and formatting ([`python-lint.yml`](.github/workflows/python-lint.yml))
+- ✅ **Type checking** — Mypy static analysis ([`python-typecheck.yml`](.github/workflows/python-typecheck.yml))
+- ✅ **Security scanning** — Bandit and pip-audit ([`security-audit.yml`](.github/workflows/security-audit.yml))
+- ✅ **Documentation** — Auto-deploy to GitHub Pages ([`docs.yml`](.github/workflows/docs.yml))
+- ✅ **Docker builds** — Automated image builds ([`build-push-docker.yml`](.github/workflows/build-push-docker.yml))
 
 For detailed testing documentation, see [`docs/howto/testing.md`](docs/howto/testing.md).
 

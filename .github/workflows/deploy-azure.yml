@@ -1,4 +1,4 @@
-name: Deploy to Azure
+name: "Deploy: Azure App Service"
 
 concurrency:
   group: deploy-azure-${{ github.ref }}
@@ -6,7 +6,7 @@ concurrency:
 
 on:
 #   workflow_run:
-#     workflows: ["Build and Push to Docker Hub"]
+#     workflows: ["Docker: Build & Push"]
 #     types: [completed]
 #     branches: [main]
   workflow_dispatch:

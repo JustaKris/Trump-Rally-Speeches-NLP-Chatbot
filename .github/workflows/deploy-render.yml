@@ -1,4 +1,6 @@
-name: Deploy to Render (App too heavy for Render free tier)
+# Note: This app exceeds Render's free tier memory limits (requires ~2.5GB for RAG + models)
+# Deployment is available via manual workflow trigger for paid Render plans
+name: "Deploy: Render"
 
 concurrency:
   group: deploy-render-${{ github.ref }}
@@ -6,7 +8,7 @@ concurrency:
 
 on:
   # workflow_run:
-  #   workflows: ["Build and Push to Docker Hub"]
+  #   workflows: ["Docker: Build & Push"]
   #   types: [completed]
   #   branches: [main]
   workflow_dispatch:
