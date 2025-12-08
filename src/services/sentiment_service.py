@@ -82,9 +82,7 @@ class EnhancedSentimentAnalyzer:
             warnings.filterwarnings("ignore", message=".*TRAIN this model.*")
 
             # Model names are from configuration, not user input
-            self.sentiment_tokenizer = AutoTokenizer.from_pretrained(
-                self.sentiment_model_name
-            )  # nosec B615
+            self.sentiment_tokenizer = AutoTokenizer.from_pretrained(self.sentiment_model_name)  # nosec B615
             self.sentiment_model = AutoModelForSequenceClassification.from_pretrained(  # nosec B615
                 self.sentiment_model_name
             )
@@ -103,9 +101,7 @@ class EnhancedSentimentAnalyzer:
             warnings.filterwarnings("ignore", message=".*TRAIN this model.*")
 
             # Model names are from configuration, not user input
-            self.emotion_tokenizer = AutoTokenizer.from_pretrained(
-                self.emotion_model_name
-            )  # nosec B615
+            self.emotion_tokenizer = AutoTokenizer.from_pretrained(self.emotion_model_name)  # nosec B615
             self.emotion_model = AutoModelForSequenceClassification.from_pretrained(  # nosec B615
                 self.emotion_model_name
             )
