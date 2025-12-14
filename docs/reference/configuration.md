@@ -50,16 +50,18 @@ Use `.env` for **secrets and overrides only** (API keys, tokens, one-off tweaks)
 
 Edit `.env` and configure your preferred LLM provider (sensitive values like API keys stay here):
 
-**Option A: Google Gemini (Default)**
+#### Option A: Google Gemini (Default)
+
 ```env
 LLM_PROVIDER=gemini
 LLM_API_KEY=your_gemini_api_key_here
 LLM_MODEL_NAME=gemini-2.0-flash-exp
 ```
 
-Get a free key at: https://ai.google.dev/
+Get a free key at: <https://ai.google.dev/>
 
-**Option B: OpenAI**
+#### Option B: OpenAI
+
 ```bash
 # Install OpenAI support
 uv sync --group llm-openai
@@ -71,7 +73,8 @@ LLM_API_KEY=sk-your_openai_api_key_here
 LLM_MODEL_NAME=gpt-4o-mini
 ```
 
-**Option C: Anthropic (Claude)**
+#### Option C: Anthropic (Claude)
+
 ```bash
 # Install Anthropic support
 uv sync --group llm-anthropic
@@ -90,6 +93,7 @@ uv run uvicorn src.api:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 The app will automatically:
+
 - Load base defaults from `configs/<ENVIRONMENT>.yaml`
 - Apply Pydantic model defaults for any missing values
 - Override with environment variables / `.env` values
@@ -150,6 +154,7 @@ LLM_ENABLED="true"             # optional override
 #### Provider-Specific Examples
 
 **Gemini (Default - Always Available):**
+
 ```env
 LLM_PROVIDER="gemini"
 LLM_API_KEY="your_gemini_api_key"
@@ -159,6 +164,7 @@ LLM_MAX_OUTPUT_TOKENS="2048"
 ```
 
 **OpenAI (Optional - Install with `uv sync --group llm-openai`):**
+
 ```env
 LLM_PROVIDER="openai"
 LLM_API_KEY="sk-your_openai_api_key"
@@ -168,6 +174,7 @@ LLM_MAX_OUTPUT_TOKENS="2048"
 ```
 
 **Anthropic (Optional - Install with `uv sync --group llm-anthropic`):**
+
 ```env
 LLM_PROVIDER="anthropic"
 LLM_API_KEY="sk-ant-your_anthropic_api_key"
@@ -177,6 +184,7 @@ LLM_MAX_OUTPUT_TOKENS="2048"
 ```
 
 **Disable LLM:**
+
 ```env
 LLM_PROVIDER="none"
 LLM_ENABLED="false"
@@ -185,6 +193,7 @@ LLM_ENABLED="false"
 #### Switching Providers
 
 1. **Install optional provider** (if not already installed):
+
    ```bash
    uv sync --group llm-openai      # For OpenAI
    uv sync --group llm-anthropic   # For Anthropic
@@ -194,6 +203,7 @@ LLM_ENABLED="false"
 2. **Update `.env` file** with new provider settings
 
 3. **Restart application**:
+
    ```bash
    uv run uvicorn src.api:app --reload
    ```
@@ -374,7 +384,7 @@ The project uses `src/logging_config.py` for production-ready logging with autom
 
 Automatically enabled when `ENVIRONMENT=development`:
 
-```
+```text
 2025-11-04 12:34:56 | INFO     | src.api              | Application startup complete
 2025-11-04 12:34:57 | DEBUG    | src.rag_service      | Performing hybrid search
 ```
@@ -411,12 +421,13 @@ ENVIRONMENT="production"   # JSON logs
 ```
 
 The logging system automatically:
+
 - Detects environment and chooses appropriate format
 - Suppresses noisy third-party loggers (chromadb, httpx, transformers)
 - Configures uvicorn logs
 - Filters ChromaDB telemetry errors
 
-For detailed logging documentation, see [`docs/howto/logging.md`](../howto/logging.md).
+For detailed logging documentation, see [`docs/development/logging.md`](../development/logging.md).
 
 ## Azure Deployment
 
@@ -424,6 +435,7 @@ Azure App Service automatically loads environment variables. Configure them in:
 
 1. **Azure Portal**: App Service → Configuration → Application Settings
 2. **Azure CLI**:
+
    ```bash
    az webapp config appsettings set --name myapp --resource-group mygroup \
      --settings GEMINI_API_KEY="your_key" LOG_LEVEL="INFO"
@@ -497,6 +509,7 @@ GEMINI_API_KEY=""
 ### Settings not loading
 
 Check:
+
 1. `.env` file exists in project root (for secrets/overrides)
 2. A YAML config exists at `configs/<ENVIRONMENT>.yaml` (or `configs/development.yaml` by default)
 3. File encoding is UTF-8
@@ -505,7 +518,8 @@ Check:
 ### Invalid configuration
 
 Check logs at startup:
-```
+
+```text
 ERROR: ValidationError: 1 validation error for Settings
   Invalid log level. Must be one of: DEBUG, INFO, WARNING, ERROR, CRITICAL
 ```
@@ -522,12 +536,14 @@ python -c "from src.config.settings import get_settings; print(get_settings().ge
 If you were using environment variables directly:
 
 **Before:**
+
 ```python
 import os
 api_key = os.getenv("GEMINI_API_KEY")
 ```
 
 **After:**
+
 ```python
 from src.config import get_settings
 settings = get_settings()

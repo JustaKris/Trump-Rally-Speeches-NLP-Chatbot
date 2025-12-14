@@ -1,6 +1,6 @@
-# AI-Powered Topic Analysis
+# AI-Powered Topic Analysis API Reference
 
-This guide explains how to use the AI-powered topic analysis feature with semantic clustering and LLM-generated insights.
+This document provides complete API reference for the AI-powered topic analysis endpoint, including request/response formats, examples, and configuration options.
 
 ## Overview
 
@@ -325,6 +325,6 @@ The embedding model and LLM service are initialized once at startup and reused a
 
 ## See Also
 
-- [Architecture Documentation](../reference/architecture.md#enhanced-topic-extraction)
+- [Architecture Documentation](../reference/architecture.md) - System architecture overview
 - [API Reference](https://trump-speeches-nlp-chatbot.azurewebsites.net/docs#/nlp/analyze_topics_enhanced_analyze_topics_enhanced_post)
 - [RAG Features](rag-features.md) — Learn about the RAG system that also uses embeddings

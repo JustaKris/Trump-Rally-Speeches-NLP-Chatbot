@@ -56,20 +56,24 @@ uv run mkdocs gh-deploy --message "Update documentation"
 
 ## Project Structure
 
-```
+```text
 Trump-Rally-Speeches-NLP-Chatbot/
 ├── docs/                    # All documentation files
 │   ├── index.md            # Homepage
-│   ├── guides/             # Getting started guides
+│   ├── faq.md              # Frequently asked questions
+│   ├── guides/             # Getting started & step-by-step tutorials
 │   │   ├── quickstart.md
-│   │   └── deployment.md
-│   ├── howto/              # Task-oriented guides
-│   │   ├── testing.md
-│   │   ├── entity-analytics.md
+│   │   ├── deployment.md
 │   │   └── documentation.md    # This file
-│   └── reference/          # Technical reference
+│   ├── development/        # Development workflow & tooling
+│   │   ├── testing.md
+│   │   ├── linting.md
+│   │   └── ...
+│   └── reference/          # API & feature documentation
 │       ├── architecture.md
-│       └── rag-features.md
+│       ├── rag-features.md
+│       ├── topic-extraction.md
+│       └── entity-analytics.md
 ├── mkdocs.yml              # MkDocs configuration
 └── site/                   # Generated HTML (not committed)
 ```
@@ -83,18 +87,20 @@ Simply edit any `.md` file in the `docs/` folder. If you have `mkdocs serve` run
 ### 2. Add New Pages
 
 **Step 1:** Create a new markdown file in the appropriate folder:
+
 ```powershell
-# Example: Add a new how-to guide
-New-Item docs/howto/my-new-guide.md
+# Example: Add a new getting started guide
+New-Item docs/guides/my-new-guide.md
 ```
 
 **Step 2:** Add the page to navigation in `mkdocs.yml`:
+
 ```yaml
 nav:
   - Home: index.md
-  - How-To Guides:
-      - Testing: howto/testing.md
-      - My New Guide: howto/my-new-guide.md  # Add this line
+  - Getting Started:
+      - Quickstart: guides/quickstart.md
+      - My New Guide: guides/my-new-guide.md  # Add this line
 ```
 
 **Step 3:** Preview with `mkdocs serve` and verify it appears in the sidebar.
@@ -106,18 +112,22 @@ Edit the `nav` section in `mkdocs.yml`:
 ```yaml
 nav:
   - Home: index.md
+  - FAQ: faq.md
   
   - Getting Started:
       - Quickstart: guides/quickstart.md
       - Deployment: guides/deployment.md
+      - Documentation: guides/documentation.md
   
-  - How-To Guides:
-      - Testing: howto/testing.md
-      - Documentation: howto/documentation.md
+  - Development:
+      - Testing: development/testing.md
+      - Linting: development/linting.md
   
   - Reference:
       - Architecture: reference/architecture.md
       - RAG Features: reference/rag-features.md
+      - Topic Analysis: reference/topic-extraction.md
+      - Entity Analytics: reference/entity-analytics.md
 ```
 
 The order in `mkdocs.yml` determines the order in the sidebar.
@@ -296,10 +306,11 @@ graph LR
 The project includes a GitHub Action that automatically deploys documentation to GitHub Pages when you push to the `main` branch.
 
 **How it works:**
+
 1. You push changes to `main`
 2. GitHub Actions builds the docs
 3. Deploys to GitHub Pages automatically
-4. Live at: https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/
+4. Live at: <https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/>
 
 **Configuration:** See `.github/workflows/deploy-docs.yml`
 
@@ -313,6 +324,7 @@ uv run mkdocs gh-deploy
 ```
 
 This command:
+
 1. Builds the site (`mkdocs build`)
 2. Commits the `site/` folder to the `gh-pages` branch
 3. Pushes to GitHub
@@ -332,6 +344,7 @@ uv run mkdocs serve --dev-addr localhost:8001
 ### "Page not found" in Sidebar
 
 Check `mkdocs.yml` navigation and ensure:
+
 - The file path is correct (relative to `docs/`)
 - The file exists
 - The file has a `.md` extension
@@ -344,7 +357,7 @@ Check `mkdocs.yml` navigation and ensure:
 
 ### Build Warnings
 
-```
+```text
 WARNING - Doc file 'path/to/file.md' contains a link to 'broken-link.md'
 ```
 
@@ -362,9 +375,9 @@ Ensure images are in `docs/` folder and use relative paths:
 
 ### 1. Organize by Purpose
 
-- **`guides/`** — Getting started, tutorials
-- **`howto/`** — Task-oriented guides (how to do X)
-- **`reference/`** — Technical specs, API docs, architecture
+- **`guides/`** — Getting started, step-by-step tutorials
+- **`development/`** — Development workflow, tooling, code quality
+- **`reference/`** — API documentation, technical specs, feature references
 
 ### 2. Use Clear Titles
 
@@ -433,19 +446,21 @@ jobs:
 ### Triggers
 
 Documentation deploys automatically when:
+
 - You push to `main`
 - Changes are in `docs/` folder or `mkdocs.yml`
 
 ## Resources
 
-- **MkDocs Documentation:** https://www.mkdocs.org/
-- **Material for MkDocs:** https://squidfunk.github.io/mkdocs-material/
-- **Markdown Guide:** https://www.markdownguide.org/
-- **Live Documentation:** https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/
+- **MkDocs Documentation:** <https://www.mkdocs.org/>
+- **Material for MkDocs:** <https://squidfunk.github.io/mkdocs-material/>
+- **Markdown Guide:** <https://www.markdownguide.org/>
+- **Live Documentation:** <https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/>
 
 ## Summary
 
 **To work with docs:**
+
 1. Edit markdown files in `docs/`
 2. Run `uv run mkdocs serve --dev-addr localhost:8001` to preview
 3. Commit and push to `main`

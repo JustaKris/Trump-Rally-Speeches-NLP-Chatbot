@@ -1,22 +1,27 @@
-# Entity Analytics & Confidence Explainability - Implementation Summary
+# Entity Analytics & Confidence Explainability
 
 ## Overview
 
-Added two major UX enhancements to make the RAG system more transparent and researcher-friendly:
+This document describes the entity analytics and confidence explainability features of the RAG system, which provide transparency and insights into how the system retrieves and processes information.
 
-1. **Confidence Justification** - Human-readable explanations of why confidence is at a certain level
-2. **Entity Analytics** - Comprehensive metadata about entities including mentions, sentiment, and associations
+**Key Features:**
 
-## Features Implemented
+1. **Confidence Justification** — Human-readable explanations of confidence scores
+2. **Entity Analytics** — Comprehensive metadata about entities including mentions, sentiment, and associations
+3. **Entity Sentiment Analysis** — Sentiment scoring for entity mentions across the corpus
+4. **Entity Co-occurrence** — Associated terms and contextual relationships
 
-### 1. ✅ Confidence Explanation
+## Features
+
+### 1. Confidence Explanation
 
 **Problem**: "Confidence: MEDIUM" was opaque - users didn't know why
 
 **Solution**: Added natural language explanation that references key factors
 
 **Example Output**:
-```
+
+```text
 Confidence: MEDIUM (score: 0.59)
 Explanation: Overall confidence is MEDIUM (score: 0.59) based on weak semantic match 
 (similarity: 0.22), very consistent results (consistency: 1.00), 5 supporting context 
@@ -27,20 +32,22 @@ chunks, 'Biden' mentioned in all retrieved chunks.
 
 ---
 
-### 2. ✅ Entity Sentiment Analysis
+### 2. Entity Sentiment Analysis
 
 **Problem**: No insight into sentiment/tone about mentioned entities
 
 **Solution**: Integrated sentiment analyzer to calculate average sentiment across entity mentions
 
 **Example Output**:
-```
+
+```text
 Biden:
   Average sentiment: -0.61 (Negative)
   Sample size: 50 chunks
 ```
 
 **How it works**:
+
 - Analyzes up to 50 context chunks containing the entity
 - Uses FinBERT sentiment model (already in project)
 - Converts scores to -1 (negative) to +1 (positive)
@@ -50,19 +57,21 @@ Biden:
 
 ---
 
-### 3. ✅ Entity Co-occurrence Analysis
+### 3. Entity Co-occurrence Analysis
 
 **Problem**: No context about what topics/terms surround an entity
 
 **Solution**: Extract most common words appearing near the entity
 
 **Example Output**:
-```
+
+```text
 Biden:
   Associated terms: socialism, weakness, failure, china, corrupt
 ```
 
 **How it works**:
+
 - Extracts words from contexts containing the entity
 - Filters stopwords
 - Returns top 5 most frequent terms
@@ -173,7 +182,7 @@ if 'entity_statistics' in result:
 
 **Response Analytics**:
 
-```
+```text
 ======================================================================
 CONFIDENCE:
 ======================================================================
@@ -205,6 +214,7 @@ Trump:
 ```
 
 **Insights**:
+
 - Biden is mentioned in **85% of speeches** (30 out of 35)
 - Covers **25% of entire corpus**
 - Associated with terms like "socialism", "weakness" (when more specific query used)
@@ -330,15 +340,15 @@ def test_full_entity_analytics():
 
 ### Medium Priority
 
-4. **Sentiment over time** - Track sentiment changes across chronological speeches
-5. **Entity relationships** - Show connections between entities (co-mentions)
-6. **Improved associations** - Use TF-IDF instead of raw frequency
+1. **Sentiment over time** - Track sentiment changes across chronological speeches
+2. **Entity relationships** - Show connections between entities (co-mentions)
+3. **Improved associations** - Use TF-IDF instead of raw frequency
 
 ### Low Priority
 
-7. **Custom sentiment model** - Fine-tune for political speech domain
-8. **Entity disambiguation** - Distinguish "Biden" vs "Hunter Biden"
-9. **Visualization** - Charts for sentiment trends, word clouds for associations
+1. **Custom sentiment model** - Fine-tune for political speech domain
+2. **Entity disambiguation** - Distinguish "Biden" vs "Hunter Biden"
+3. **Visualization** - Charts for sentiment trends, word clouds for associations
 
 ---
 

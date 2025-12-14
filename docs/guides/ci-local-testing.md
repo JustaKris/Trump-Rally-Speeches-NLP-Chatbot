@@ -297,6 +297,7 @@ Before pushing, ensure these pass:
 - [ ] `uv run pymarkdown --config pyproject.toml scan docs/ README.md` ℹ️ (allowed to fail)
 
 **Legend:**
+
 - ✅ Must pass (blocks CI)
 - ℹ️ Informational (won't block CI)
 
@@ -312,7 +313,7 @@ Before pushing, ensure these pass:
 
 ## Additional Resources
 
-- [Testing Guide](../howto/testing.md) - Comprehensive testing documentation
-- [Linting Guide](linting.md) - Detailed linting configuration
-- [Security Guide](security.md) - Security best practices
-- [Markdown Linting](markdown-linting.md) - Documentation style guide
+- [Testing Guide](../development/testing.md) - Comprehensive testing documentation
+- [Linting Guide](../development/linting.md) - Detailed linting configuration
+- [Security Guide](../development/security.md) - Security best practices
+- [Markdown Linting](../development/markdown-linting.md) - Documentation style guide

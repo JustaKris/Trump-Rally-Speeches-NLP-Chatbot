@@ -40,7 +40,6 @@ from src.config.settings import get_settings
 settings = get_settings()
 settings.setup_logging()  # Configures based on environment
 ```
-```
 
 ## Configuration Options
 
@@ -385,9 +384,8 @@ if __name__ == "__main__":
 
 ## Related Documentation
 
-- [Development Setup](setup.md) - Initial project setup
-- [Contributing](contributing.md) - Code contribution guidelines
-- [Debugging](../troubleshooting/debugging.md) - Debugging techniques
+- [Testing Guide](testing.md) - Testing with proper logging
+- [Configuration Reference](../reference/configuration.md) - Full configuration options
 
 ---
 

@@ -57,6 +57,7 @@ target-version = "py311"
 ## Why Ruff Formatter?
 
 Ruff's formatter is designed to be a drop-in replacement for Black:
+
 - **100% Black-compatible** output
 - **10-100x faster** than Black
 - **Single tool** for both linting and formatting
@@ -569,7 +570,7 @@ Exit codes:
 - **[Linting Guide](linting.md)** - Code quality checks
 - **[Testing Guide](testing.md)** - Test practices and coverage
 - **[Code Style](code-style.md)** - General style guidelines
-- **[CI/CD Pipeline](ci-cd.md)** - Automated quality checks
+- **[CI/CD Local Testing](../guides/ci-local-testing.md)** - Running CI checks locally
 
 ## Resources
 

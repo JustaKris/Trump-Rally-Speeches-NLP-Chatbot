@@ -60,19 +60,14 @@ nav:
   - Getting Started:
       - Quickstart: guides/quickstart.md
       - Deployment: guides/deployment.md
-  
-  - How-To Guides:
-      - Testing: howto/testing.md
-      - AI Topic Analysis: howto/topic-extraction.md
-      - Entity Analytics: howto/entity-analytics.md
-      - Documentation: howto/documentation.md
-      - Logging: howto/logging.md
+      - Documentation: guides/documentation.md
+      - CI/CD Local Testing: guides/ci-local-testing.md
   
   - Development:
+      - Testing: development/testing.md
       - Code Style: development/code-style.md
       - Formatting: development/formatting.md
       - Linting: development/linting.md
-      - Testing: development/testing.md
       - Security: development/security.md
       - Logging Setup: development/logging.md
       - Markdown Linting: development/markdown-linting.md
@@ -81,6 +76,8 @@ nav:
       - Architecture: reference/architecture.md
       - RAG Features: reference/rag-features.md
       - Configuration: reference/configuration.md
+      - AI Topic Analysis: reference/topic-extraction.md
+      - Entity Analytics: reference/entity-analytics.md
   
   - Changelog: CHANGELOG.md
 

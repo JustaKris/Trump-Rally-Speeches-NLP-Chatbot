@@ -109,7 +109,7 @@ For detailed usage and configuration, see:
 - **[Testing Guide](testing.md)** - Test practices and coverage
 - **[Linting Guide](linting.md)** - Code quality checks
 - **[Formatting Guide](formatting.md)** - Code formatting standards
-- **[CI/CD Pipeline](ci-cd.md)** - Automated quality checks
+- **[CI/CD Local Testing](../guides/ci-local-testing.md)** - Running CI checks locally
 
 ## Pre-commit Hooks
 

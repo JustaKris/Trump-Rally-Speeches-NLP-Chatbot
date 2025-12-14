@@ -21,17 +21,9 @@ Quick setup and deployment:
 
 - **[Quickstart Guide](guides/quickstart.md)** — Local setup and first API calls
 - **[Deployment Guide](guides/deployment.md)** — Production deployment to Render, Azure, or Docker
+- **[Documentation Guide](guides/documentation.md)** — Working with MkDocs and contributing to documentation
+- **[CI/CD Local Testing](guides/ci-local-testing.md)** — Running all CI checks locally before pushing
 - **[FAQ](faq.md)** — Frequently asked questions and troubleshooting
-
-### How-To Guides
-
-Implementation details for specific features:
-
-- **[Testing & CI/CD](howto/testing.md)** — Testing strategy, code quality tools, continuous integration
-- **[Topic Analysis](howto/topic-extraction.md)** — Using AI-powered topic extraction with semantic clustering
-- **[Entity Analytics](howto/entity-analytics.md)** — Entity extraction and sentiment analysis
-- **[Documentation](howto/documentation.md)** — Contributing to project documentation
-- **[Logging](howto/logging.md)** — Logging configuration and best practices
 
 ### Development Resources
 
@@ -40,7 +32,7 @@ Code quality and development standards:
 - **[Code Style Guide](development/code-style.md)** — Python style guidelines and naming conventions
 - **[Formatting Guide](development/formatting.md)** — Ruff formatting standards
 - **[Linting Guide](development/linting.md)** — Code quality checks with Ruff and Mypy
-- **[Testing Guide](development/testing.md)** — pytest practices and coverage requirements
+- **[Testing Guide](development/testing.md)** — pytest practices, coverage requirements, and CI/CD
 - **[Security Guide](development/security.md)** — Security scanning with Bandit and pip-audit
 - **[Logging Setup](development/logging.md)** — Centralized logging configuration
 - **[Markdown Linting](development/markdown-linting.md)** — Documentation formatting standards
@@ -52,6 +44,8 @@ In-depth technical documentation:
 - **[System Architecture](reference/architecture.md)** — Component design, data flows, deployment patterns
 - **[RAG Features](reference/rag-features.md)** — RAG implementation details and optimization
 - **[Configuration Reference](reference/configuration.md)** — Complete configuration options
+- **[Topic Analysis API](reference/topic-extraction.md)** — AI-powered topic extraction with semantic clustering
+- **[Entity Analytics API](reference/entity-analytics.md)** — Entity extraction, sentiment analysis, and confidence scoring
 - **[Changelog](CHANGELOG.md)** — Version history and recent improvements
 
 ## Quick Links
@@ -129,7 +123,7 @@ Single-page application at the root (`/`) for testing all features without writi
 
 - **Architecture diagrams** in the [Architecture](reference/architecture.md) doc
 - **RAG implementation details** in [RAG Features](reference/rag-features.md)
-- **Testing strategy** in [Testing Guide](howto/testing.md)
+- **Testing strategy** in [Testing Guide](development/testing.md)
 - **Deployment options** in [Deployment Guide](guides/deployment.md)
 
 ## 📞 Support & Contributing
