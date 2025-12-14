@@ -201,21 +201,41 @@ Write a 2-3 sentence interpretation that:
 2. Explains WHY {dominant_emotion[0]} is the dominant emotion
 3. Connects both findings to specific aspects of the text content
 
-Focus on WHAT the speaker expresses emotion about, not just labeling emotions. Be specific and insightful.
+Focus on WHAT the speaker expresses emotion about, not just labeling emotions. Be specific and insightful. Keep it concise (2-3 sentences maximum).
 
 Example style: "The text expresses strong positive sentiment about economic achievements, with joy emerging from pride in policy success. However, underlying anger surfaces when discussing immigration, creating emotional complexity that explains the mixed sentiment profile."
 
-Your interpretation:"""
+Your interpretation (2-3 sentences):"""
 
-            # Generate using LLM provider interface
-            response = self.llm_service.generate_content(prompt)
+            # Generate using LLM provider interface with high token limit to prevent mid-sentence cutoff
+            # Using 2000 tokens to ensure complete responses (finish_reason=2 means MAX_TOKENS hit)
+            response = self.llm_service.generate_content(prompt, max_tokens=2000)
 
             # Check if response is valid (not blocked by safety filters)
             if not response or not hasattr(response, "text") or not response.text:
                 raise ValueError("LLM response was blocked or empty")
 
+            # Log response details for debugging
+            logger.debug(f"LLM response received. Has candidates: {hasattr(response, 'candidates')}")
+            if hasattr(response, "candidates") and response.candidates:
+                candidate = response.candidates[0]
+                if hasattr(candidate, "finish_reason"):
+                    finish_reason = candidate.finish_reason
+                    logger.debug(f"Finish reason: {finish_reason}")
+                    # Check if response was stopped prematurely (1=STOP is normal, others are issues)
+                    if finish_reason not in [None, 0, 1, "STOP", "FINISH_REASON_STOP"]:
+                        logger.warning(f"Response may be incomplete. Finish reason: {finish_reason}")
+                if hasattr(candidate, "safety_ratings"):
+                    logger.debug(f"Safety ratings: {candidate.safety_ratings}")
+
             # Extract text from response
             interpretation = response.text.strip()
+            logger.debug(f"Interpretation length: {len(interpretation)} chars, ends with: '{interpretation[-50:] if len(interpretation) > 50 else interpretation}'")
+            
+            # Check if interpretation appears truncated (doesn't end with punctuation)
+            if interpretation and interpretation[-1] not in ['.', '!', '?', '"', "'"]:
+                logger.warning(f"Interpretation may be truncated - doesn't end with punctuation: '{interpretation[-100:]}'")
+            
             if interpretation.startswith('"') and interpretation.endswith('"'):
                 interpretation = interpretation[1:-1]
 
