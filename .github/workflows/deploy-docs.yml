@@ -1,18 +1,18 @@
 name: "Docs: Build & Publish"
 
 on:
-  # pull_request:
-  #   branches: ["**"]
-  # push:
-  #   branches:
-  #     - main
-  #     - master
-  #   paths:
-  #     - "mkdocs.yml"
-  #     - "docs/**/*"
-  #     - "!docs/copilot-artifacts/**"
-  #     - "pyproject.toml"
-  #     - ".github/workflows/deploy-docs.yml"
+  pull_request:
+    branches: ["**"]
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - "mkdocs.yml"
+      - "docs/**/*"
+      - "!docs/copilot-artifacts/**"
+      - "pyproject.toml"
+      - ".github/workflows/deploy-docs.yml"
   workflow_dispatch:
 
 # Allow only one concurrent deployment
