@@ -64,8 +64,8 @@ jobs:
     env:
       AZURE_WEBAPP_NAME: 'Trump-Speeches-NLP-Chatbot'
       AZURE_HEALTH_INITIAL_DELAY: 60
-      AZURE_HEALTH_RETRIES: 20
-      AZURE_HEALTH_INTERVAL: 20
+      AZURE_HEALTH_RETRIES: 30
+      AZURE_HEALTH_INTERVAL: 30
       AZURE_HEALTH_PATH: "/health"
 
     steps:
