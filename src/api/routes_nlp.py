@@ -1,7 +1,7 @@
 """NLP analysis endpoints.
 
-Provides text analysis features including sentiment analysis, word frequency,
-topic extraction, and n-gram analysis.
+Provides text analysis features including sentiment analysis, topic extraction,
+and n-gram analysis.
 """
 
 import logging
@@ -15,7 +15,6 @@ from ..models import (
     SentimentResponse,
     StatsResponse,
     TextInput,
-    WordFrequencyResponse,
 )
 from ..services import EnhancedSentimentAnalyzer, NLPService
 from ..utils import clean_text
@@ -60,26 +59,6 @@ async def analyze_sentiment(
         )
     except Exception as e:
         logger.error(f"Sentiment analysis error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Analysis failed: {str(e)}"
-        )
-
-
-@router.post("/words", response_model=WordFrequencyResponse)
-async def analyze_word_frequency(
-    input: TextInput,
-    top_n: int = 50,
-    nlp_service: NLPService = Depends(get_nlp_service),
-):
-    """Analyze word frequency in the input text.
-
-    Returns the most common words with their frequencies, excluding stopwords.
-    """
-    try:
-        stats = nlp_service.analyze_word_frequency(input.text, top_n=top_n)
-        return WordFrequencyResponse(**stats)
-    except Exception as e:
-        logger.error(f"Word frequency error: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Analysis failed: {str(e)}"
         )

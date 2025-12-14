@@ -76,14 +76,6 @@ class SentimentResponse(BaseModel):
     num_chunks: int = Field(..., description="Number of text chunks analyzed")
 
 
-class WordFrequencyResponse(BaseModel):
-    """Response model for word frequency analysis."""
-
-    total_tokens: int
-    unique_tokens: int
-    top_words: List[Dict[str, Any]]
-
-
 class TopicResponse(BaseModel):
     """Response model for topic extraction."""
 

@@ -6,7 +6,7 @@ Get the Trump Speeches NLP Chatbot API running locally in minutes.
 
 - Python 3.11+ installed
 - uv installed ([install guide](https://docs.astral.sh/uv/getting-started/installation/))
-- Google Gemini API key ([get one free](https://ai.google.dev/))
+- Gemini API key ([get one free](https://ai.google.dev/)) or other LLM provider key
 
 ### Setup
 
@@ -15,7 +15,8 @@ Get the Trump Speeches NLP Chatbot API running locally in minutes.
    ```powershell
    uv sync
 
-   uv venv --python 3.12  # if you need to set a specific vesion
+   # If you need a specific Python version:
+   # uv venv --python 3.12
    ```
 
 2. **Configure Environment**
@@ -24,6 +25,11 @@ Get the Trump Speeches NLP Chatbot API running locally in minutes.
 
    ```bash
    GEMINI_API_KEY=your_api_key_here
+   
+   # Optional: Use different LLM provider
+   # LLM_PROVIDER=openai
+   # LLM_API_KEY=sk-your_openai_key
+   # LLM_MODEL_NAME=gpt-4o-mini
    ```
 
 3. **Run the API**
@@ -33,10 +39,11 @@ Get the Trump Speeches NLP Chatbot API running locally in minutes.
    ```
 
    The API will automatically:
+
    - Load configuration from `.env`
    - Initialize logging (colored output in development)
-   - Load FinBERT sentiment model (~440MB)
-   - Initialize Gemini LLM service
+   - Load ML models (FinBERT ~440MB, RoBERTa ~330MB, MPNet ~420MB)
+   - Initialize LLM provider (Gemini by default)
    - Load ChromaDB vector database with existing embeddings
    - Start FastAPI server
 
@@ -63,9 +70,7 @@ Get the Trump Speeches NLP Chatbot API running locally in minutes.
 ```powershell
 docker build -t trump-speeches-nlp-chatbot .
 docker run --rm -it -p 8000:8000 --env-file .env --name nlp-chatbot trump-speeches-nlp-chatbot
-
-
-docker run --rm -it -p 8000:8000 -v "${PWD}/data/chromadb:/app/data/chromadb" --env-file .env --name nlp-chatbot trump-speeches-nlp-api:torch-2.6.0
+```
 
 ### Using Docker Compose
 
@@ -147,7 +152,11 @@ Ensure your `.env` file exists with a valid `GEMINI_API_KEY`. Get a free key at 
 
 ### Model Download Taking Long
 
-First run downloads ~1-2 GB of models (FinBERT, MPNet embeddings). Subsequent runs are fast.
+First run downloads ~2GB of models (FinBERT, RoBERTa, MPNet embeddings). Subsequent runs are fast.
+
+### Switching LLM Providers
+
+See the [FAQ](../faq.md#how-do-i-switch-from-gemini-to-openai) for instructions on using OpenAI or Anthropic instead of Gemini.
 
 ### Port Already in Use
 
@@ -163,5 +172,8 @@ Ensure you're in the project root directory and have run `uv sync`.
 
 - Try the interactive web interface at <http://localhost:8000>
 - Explore API documentation at <http://localhost:8000/docs>
+- Read the [FAQ](../faq.md) for common questions
+- Check out [RAG Features](../reference/rag-features.md) for implementation details
+- Follow the [Deployment Guide](deployment.md) to deploy to production
 - Read about RAG improvements in `docs/RAG_IMPROVEMENTS.md`
 - Deploy to production with `docs/DEPLOYMENT.md`

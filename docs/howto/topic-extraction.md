@@ -7,10 +7,12 @@ This guide explains how to use the AI-powered topic analysis feature with semant
 The topic analysis system goes beyond simple word frequency by:
 
 1. **Semantic Clustering** — Groups related keywords using embeddings
-2. **AI-Generated Labels** — Creates meaningful topic names using Gemini
+2. **AI-Generated Labels** — Creates meaningful topic names using LLM
 3. **Contextual Snippets** — Shows keywords in actual use with highlighting
 4. **AI Summaries** — Provides interpretive analysis of main themes
 5. **Smart Filtering** — Excludes common verbs and weak clusters
+
+**Note:** Uses the configured LLM provider (Gemini, OpenAI, or Claude) for label generation and summaries.
 
 ## Basic vs Enhanced Topic Extraction
 
@@ -133,6 +135,7 @@ async function analyzeTopics(text) {
 ### Parameter Examples
 
 **Get more clusters:**
+
 ```bash
 curl -X POST "http://localhost:8000/analyze/topics?top_n=8&num_clusters=6" \
   -H "Content-Type: application/json" \
@@ -140,6 +143,7 @@ curl -X POST "http://localhost:8000/analyze/topics?top_n=8&num_clusters=6" \
 ```
 
 **Get more snippets per topic:**
+
 ```bash
 curl -X POST "http://localhost:8000/analyze/topics?snippets_per_topic=5" \
   -H "Content-Type: application/json" \
@@ -245,7 +249,7 @@ The system uses **KMeans clustering** on **MPNet embeddings** (768-dimensional v
 
 Cluster labels are generated using **Gemini LLM** with a specialized prompt:
 
-```
+```text
 Given these related keywords: economy, jobs, employment, market
 Generate a concise 2-4 word label that captures the main theme.
 ```
@@ -294,6 +298,7 @@ The embedding model and LLM service are initialized once at startup and reused a
 **Problem:** Empty `clustered_topics` array
 
 **Solutions:**
+
 - Ensure text has at least 50-100 words
 - Check that text contains meaningful content (not just stopwords)
 - Try increasing `top_n` parameter
@@ -303,6 +308,7 @@ The embedding model and LLM service are initialized once at startup and reused a
 **Problem:** `summary` field is `null`
 
 **Solutions:**
+
 - Ensure `GEMINI_API_KEY` is configured in `.env`
 - Check API logs for LLM errors
 - Verify Gemini API quota/limits
@@ -312,6 +318,7 @@ The embedding model and LLM service are initialized once at startup and reused a
 **Problem:** 503 error with "Topic service not initialized"
 
 **Solutions:**
+
 - Ensure application started successfully
 - Check startup logs for topic service initialization errors
 - Verify all dependencies are installed (`scikit-learn`, `sentence-transformers`)

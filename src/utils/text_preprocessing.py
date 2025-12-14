@@ -128,30 +128,3 @@ def chunk_text_for_bert(text: str, tokenizer, max_length: int = 510) -> List[dic
         chunks.append(encoding)
 
     return chunks
-
-
-def calculate_word_frequency(text: str, top_n: int = 20, remove_stopwords: bool = True) -> dict:
-    """Calculate word frequency distribution.
-
-    Args:
-        text: Input text to analyze
-        top_n: Number of top words to return
-        remove_stopwords: Whether to filter out stopwords
-
-    Returns:
-        Dictionary mapping words to their frequencies
-    """
-    # Clean and tokenize
-    cleaned = clean_text(text, remove_stopwords=remove_stopwords)
-    tokens = tokenize_text(cleaned)
-
-    # Filter out punctuation
-    tokens = [t for t in tokens if t.isalpha()]
-
-    # Count frequencies
-    from collections import Counter
-
-    freq = Counter(tokens)
-
-    # Return top N
-    return dict(freq.most_common(top_n))

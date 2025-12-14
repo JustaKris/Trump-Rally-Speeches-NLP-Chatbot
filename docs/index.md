@@ -9,9 +9,9 @@ This portfolio project demonstrates expertise in:
 - **Advanced RAG Architecture** — Modular design with dedicated components for search, confidence scoring, entity analytics, and document loading
 - **Hybrid Retrieval Systems** — Semantic search (MPNet 768d) combined with BM25 keyword matching and cross-encoder reranking
 - **Production API Development** — FastAPI with 12+ RESTful endpoints, modular route organization, type-safe Pydantic models
+- **Pluggable LLM Providers** — Support for Gemini, OpenAI, and Anthropic with unified interface and model-agnostic configuration
 - **Entity Analytics** — Automated entity extraction with sentiment analysis and contextual associations
 - **Professional DevOps** — Docker containerization, CI/CD pipelines, automated testing (65%+ coverage), code quality enforcement
-- **LLM Integration** — Google Gemini for context-aware answer generation with fallback extraction
 
 ## Documentation Structure
 
@@ -21,6 +21,7 @@ Quick setup and deployment:
 
 - **[Quickstart Guide](guides/quickstart.md)** — Local setup and first API calls
 - **[Deployment Guide](guides/deployment.md)** — Production deployment to Render, Azure, or Docker
+- **[FAQ](faq.md)** — Frequently asked questions and troubleshooting
 
 ### How-To Guides
 
@@ -37,7 +38,7 @@ Implementation details for specific features:
 Code quality and development standards:
 
 - **[Code Style Guide](development/code-style.md)** — Python style guidelines and naming conventions
-- **[Formatting Guide](development/formatting.md)** — Ruff and Black formatting standards
+- **[Formatting Guide](development/formatting.md)** — Ruff formatting standards
 - **[Linting Guide](development/linting.md)** — Code quality checks with Ruff and Mypy
 - **[Testing Guide](development/testing.md)** — pytest practices and coverage requirements
 - **[Security Guide](development/security.md)** — Security scanning with Bandit and pip-audit
@@ -74,20 +75,21 @@ curl -X POST http://localhost:8000/rag/ask \
 ```
 
 **Features:**
+
 - Modular RAG components: SearchEngine, ConfidenceCalculator, EntityAnalyzer, DocumentLoader
 - Semantic search using MPNet embeddings (768-dimensional)
 - Hybrid search combining vector similarity and BM25 keyword matching
 - Cross-encoder reranking for improved precision
 - Multi-factor confidence scoring (retrieval quality, consistency, coverage, entity mentions)
 - Entity extraction and analytics with sentiment analysis
-- Google Gemini LLM for answer generation
+- Pluggable LLM providers (Gemini/OpenAI/Anthropic) for answer generation
 
 ### NLP Endpoints
 
 Traditional and AI-powered NLP analysis:
-- **Sentiment Analysis** — FinBERT transformer model
+
+- **Sentiment Analysis** — Multi-model ensemble (FinBERT + RoBERTa + LLM interpretation)
 - **Topic Analysis** — AI-powered semantic clustering with contextual snippets and LLM-generated insights
-- **Word Frequency** — Statistical text analysis
 - **N-gram Analysis** — Bigram and trigram extraction
 
 ### Interactive Web Interface
@@ -97,21 +99,24 @@ Single-page application at the root (`/`) for testing all features without writi
 ## 🛠️ Technology Stack
 
 **AI/ML:**
+
 - ChromaDB (vector database)
-- sentence-transformers (MPNet)
-- Google Gemini (LLM)
-- Hugging Face Transformers (FinBERT)
+- sentence-transformers (MPNet embeddings)
+- Pluggable LLMs (Gemini, OpenAI, Claude)
+- Hugging Face Transformers (FinBERT, RoBERTa)
 
 **Backend:**
+
 - FastAPI (REST API)
 - Pydantic (validation)
 - NLTK (preprocessing)
 
 **DevOps:**
+
 - Docker + Docker Compose
 - GitHub Actions (CI/CD)
-- pytest (testing)
-- Black, flake8, mypy (code quality)
+- pytest (testing, 65%+ coverage)
+- Ruff (linting & formatting), mypy (type checking)
 
 ## 💡 Example Use Cases
 

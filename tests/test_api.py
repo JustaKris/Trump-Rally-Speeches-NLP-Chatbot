@@ -84,40 +84,6 @@ class TestSentimentEndpoint:
         assert response.status_code == 422
 
 
-class TestWordFrequencyEndpoint:
-    """Test suite for word frequency endpoint."""
-
-    @pytest.mark.integration
-    def test_word_frequency_valid_input(self, client):
-        """Test word frequency analysis with valid input."""
-        payload = {"text": "hello world hello python world world"}
-        response = client.post("/analyze/words", json=payload)
-
-        assert response.status_code == 200
-        data = response.json()
-        assert "total_tokens" in data
-        assert "unique_tokens" in data
-        assert "top_words" in data
-        assert isinstance(data["top_words"], list)
-
-    @pytest.mark.integration
-    def test_word_frequency_top_n_parameter(self, client):
-        """Test word frequency with top_n parameter."""
-        payload = {"text": "word " * 20}
-        response = client.post("/analyze/words?top_n=5", json=payload)
-
-        assert response.status_code == 200
-        data = response.json()
-        assert len(data["top_words"]) <= 5
-
-    @pytest.mark.integration
-    def test_word_frequency_empty_text(self, client):
-        """Test word frequency with empty text."""
-        payload = {"text": ""}
-        response = client.post("/analyze/words", json=payload)
-        assert response.status_code == 422
-
-
 class TestTopicEndpoint:
     """Test suite for topic extraction endpoint."""
 

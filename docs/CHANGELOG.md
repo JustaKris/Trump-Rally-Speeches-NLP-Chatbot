@@ -2,7 +2,69 @@
 
 All notable changes and improvements to the Trump Speeches NLP Chatbot API.
 
-## [Latest] - November 2025
+## [Latest] - December 2025
+
+### Added - Pluggable LLM Provider Architecture 🔌
+
+**Enhanced Modules: `src/services/llm/`**
+
+Major architectural improvement enabling support for multiple LLM providers with a unified interface:
+
+- **Provider Abstraction**:
+  - **`base.py`**: Abstract `LLMProvider` interface defining standard methods
+  - **`factory.py`**: Factory pattern with lazy imports for optional dependencies
+  - **`gemini.py`**: Google Gemini implementation (default, always available)
+  - **`openai.py`**: OpenAI GPT models (optional: `uv sync --group llm-openai`)
+  - **`anthropic.py`**: Anthropic Claude models (optional: `uv sync --group llm-anthropic`)
+
+- **Model-Agnostic Configuration**:
+  - Single config interface: `LLM_PROVIDER`, `LLM_API_KEY`, `LLM_MODEL_NAME`
+  - Easy provider switching via environment variables
+  - No code changes required to switch between providers
+
+- **Benefits**:
+  - **Flexibility**: Switch providers without code changes
+  - **Cost Optimization**: Choose cost-effective models per use case
+  - **Vendor Independence**: No lock-in to single LLM provider
+  - **Easy Testing**: Compare results across different models
+  - **Minimal Dependencies**: Only install providers you use
+
+**Configuration Example**:
+
+```bash
+# Use OpenAI instead of Gemini
+LLM_PROVIDER=openai
+LLM_API_KEY=sk-your_openai_key
+LLM_MODEL_NAME=gpt-4o-mini
+```
+
+### Enhanced - Documentation & Best Practices 📚
+
+- **Added LICENSE file**: Proper MIT license in root directory
+- **Added FAQ.md**: Comprehensive FAQ covering setup, usage, troubleshooting, architecture
+- **Updated all documentation**: Modernized to reflect Ruff (replacing Black/flake8/isort)
+- **Fixed markdown linting**: All MD032, MD031, MD040 issues resolved
+- **Updated pyproject.toml**: Ruff as single tool for formatting and linting
+
+### Enhanced - Dark Mode UI Improvements 🌙
+
+- **Fixed sentiment interpretation truncation**: Increased `max_tokens` from 800 → 2000
+- **Enhanced scrollbar visibility**: Custom purple scrollbar for dark mode
+- **Improved card contrast**: Better readability in low-light environments
+- **Professional color scheme**: Purple gradient (#667eea to #764ba2) maintained throughout
+
+### Enhanced - Architecture Documentation 📐
+
+- **Modernized Mermaid diagrams**: Updated all flowcharts with color coding and emojis
+- **Added project thumbnail**: Production-ready overview diagram
+- **Updated component descriptions**: Reflects modular RAG architecture
+- **Enhanced deployment diagrams**: Shows CI/CD pipelines and multi-cloud deployment
+
+**Version**: 0.3.0 (December 2025)
+
+---
+
+## [Previous] - November 2025
 
 ### Added - Enhanced AI-Powered Sentiment Analysis 🎭
 
@@ -13,7 +75,7 @@ Major upgrade to sentiment analysis using multi-model AI approach with contextua
 - **Multi-Model Architecture**:
   - **FinBERT**: Financial/political sentiment classification (positive/negative/neutral)
   - **RoBERTa-Emotion**: Six-emotion detection (anger, joy, fear, sadness, surprise, disgust)
-  - **Gemini LLM**: Contextual interpretation explaining WHY the models produced their results
+  - **LLM Provider**: Contextual interpretation explaining WHY the models produced their results (supports Gemini, OpenAI, Claude)
 
 - **Enhanced Response Schema**:
   - Sentiment scores (positive/negative/neutral) with confidence
@@ -22,7 +84,7 @@ Major upgrade to sentiment analysis using multi-model AI approach with contextua
   - Number of chunks processed for long documents
 
 - **Contextual Interpretation**:
-  - Gemini analyzes WHY text received specific sentiment scores
+  - LLM analyzes WHY text received specific sentiment scores
   - Explains dominant emotions in context of content
   - Provides specific, insightful analysis (not just emotion labels)
   - Example: "The text expresses strong positive sentiment about economic achievements, with joy emerging from pride in policy success. However, underlying anger surfaces when discussing immigration, creating emotional complexity that explains the mixed sentiment profile."
@@ -43,12 +105,14 @@ Major upgrade to sentiment analysis using multi-model AI approach with contextua
 **API Endpoint**: `POST /analyze/sentiment` (enhanced with emotions and contextual fields)
 
 **Frontend Updates**:
+
 - Prominent AI interpretation card with gradient background
 - Compact sentiment breakdown (3 bars)
 - Top 3 emotions display with progress bars
 - Clean, focused layout emphasizing AI insights
 
 **Benefits**:
+
 - Goes beyond binary positive/negative to understand emotional nuance
 - Provides explainable AI with clear reasoning
 - Detects emotional complexity and mixed sentiments
@@ -68,7 +132,7 @@ Revolutionary upgrade to topic extraction using semantic clustering and AI-gener
   - Example: "economy", "jobs", "employment" → clustered as "Economic Policy"
 
 - **AI-Generated Labels**:
-  - Uses Gemini LLM to create meaningful cluster labels
+  - Uses configured LLM to create meaningful cluster labels
   - Transforms ["border", "wall", "immigration"] → "Border Security"
   - Falls back to top keyword if LLM unavailable
 
@@ -79,7 +143,7 @@ Revolutionary upgrade to topic extraction using semantic clustering and AI-gener
   - Deduplicates nearby occurrences for variety
 
 - **AI-Generated Summaries**:
-  - Gemini provides 2-3 sentence interpretation of main themes
+  - LLM provides 2-3 sentence interpretation of main themes
   - Identifies dominant topics and interesting patterns
   - Objective, analytical perspective on content
 
@@ -91,6 +155,7 @@ Revolutionary upgrade to topic extraction using semantic clustering and AI-gener
 **API Endpoint**: `POST /analyze/topics` (replaced old frequency-based version)
 
 **Frontend Updates**:
+
 - Moved to second position in UI (right after RAG)
 - Renamed to "AI Topic Analysis"
 - Enhanced description explaining semantic clustering and LLM usage
@@ -98,11 +163,13 @@ Revolutionary upgrade to topic extraction using semantic clustering and AI-gener
 - Contextual snippets with keyword highlighting
 
 **Documentation**:
+
 - Guide: `docs/howto/topic-extraction.md` updated with current endpoint
 - Updated architecture documentation
 - Removed "enhanced" terminology throughout
 
 **Benefits**:
+
 - Goes beyond word frequency to understand semantic relationships
 - Provides human-interpretable topic labels
 - Shows real-world context with highlighted examples
@@ -135,6 +202,7 @@ Restructured RAG service into dedicated, testable components:
 - **Performance**: Unchanged - modular design maintains original efficiency
 
 **Benefits**:
+
 - Each component testable in isolation
 - Easier to understand and modify individual features
 - Better error tracking and debugging
@@ -154,6 +222,7 @@ Implemented professional logging with automatic environment detection:
 - **Uvicorn Integration**: Proper configuration of web server logs
 
 **Benefits**:
+
 - Deploy to Azure/Docker without code changes
 - Stream JSON logs to monitoring tools
 - Debug locally with colored, readable output
@@ -172,6 +241,7 @@ Created Pydantic Settings-based configuration system:
 - **Flexible**: Support for multiple LLM providers (Gemini, OpenAI, Anthropic)
 
 **Key Settings**:
+
 - Application: name, version, environment, log level
 - LLM: provider, API keys, models, parameters
 - RAG: chunk size, top-k, hybrid search, reranking
@@ -191,20 +261,22 @@ Implemented smart deduplication to prevent re-indexing existing chunks:
 - 100x faster re-indexing (skip embedding computation)
 
 **Before**: 1000+ warnings on every query
-```
+
+```text
 WARNING chromadb... Add of existing embedding ID: ToledoJan9_2020_chunk_0
 WARNING chromadb... Add of existing embedding ID: ToledoJan9_2020_chunk_1
 ...
 ```
 
 **After**: Clean logs with informative messages
-```
+
+```text
 INFO src.rag_service Adding 0 new chunks (skipped 1082 duplicates)
 ```
 
 ### Updated - Service Architecture
 
-**Dependency Injection Pattern**
+#### Dependency Injection Pattern
 
 Refactored services to accept configuration explicitly:
 
@@ -214,6 +286,7 @@ Refactored services to accept configuration explicitly:
 - All services use module-level loggers (`logging.getLogger(__name__)`)
 
 **Benefits**:
+
 - Easier testing (mock dependencies)
 - Clearer initialization flow
 - Better separation of concerns
@@ -232,6 +305,7 @@ Updated branding across application:
 - Fallback HTML pages
 
 **Key Changes**:
+
 - Specified technologies in descriptions (Gemini, ChromaDB, FinBERT)
 - Updated tab descriptions with specific features
 - Improved dataset explanations
@@ -240,6 +314,7 @@ Updated branding across application:
 ### Documentation
 
 **New/Updated Files**:
+
 - `docs/reference/configuration.md` - Complete configuration guide
 - `docs/howto/logging.md` - Logging best practices and formats
 - `docs/CHANGELOG.md` - This file
@@ -280,6 +355,7 @@ Updated branding across application:
 ### From Old Configuration (Direct Environment Variables)
 
 **Before**:
+
 ```python
 import os
 api_key = os.getenv("GEMINI_API_KEY")
@@ -287,6 +363,7 @@ print("Loading model...")
 ```
 
 **After**:
+
 ```python
 from src.config import get_settings
 import logging
@@ -301,11 +378,13 @@ logger.info("Loading model...")
 ### From Old Logging (Print Statements)
 
 **Before**:
+
 ```python
 print(f"Loaded {count} documents")
 ```
 
 **After**:
+
 ```python
 logger.info(f"Loaded {count} documents")
 ```
@@ -317,21 +396,25 @@ None. All changes are backwards-compatible or internal improvements.
 ## Upgrading
 
 1. **Update dependencies**:
+
    ```bash
    uv sync
    ```
 
 2. **Create `.env` file** (if not exists):
+
    ```bash
    cp .env.example .env
    ```
 
 3. **Set API key in `.env`**:
+
    ```env
    GEMINI_API_KEY=your_key_here
    ```
 
 4. **Run the application**:
+
    ```bash
    uv run uvicorn src.api:app --reload
    ```

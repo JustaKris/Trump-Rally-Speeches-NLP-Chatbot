@@ -93,12 +93,12 @@ This guide covers deploying the Trump Speeches NLP Chatbot API to various platfo
    uv run pytest
    uv run pytest -v --cov=src
    
-   # Run code formatters
-   uv run black src/
-   uv run isort src/
+   # Run code formatter
+   uv run ruff format src/
    
-   # Run linters
-   uv run flake8 src/
+   # Run linter
+   uv run ruff check src/
+   uv run ruff check src/ --fix  # Auto-fix issues
    uv run mypy src/
    
    # Run Python scripts
@@ -562,7 +562,7 @@ All workflows are located in `.github/workflows/`:
 
 - **`ci.yml`** - Tests & Linting
   - Runs on: All pushes and PRs to `main`, `develop`, `feature/*`
-  - Jobs: Unit tests, integration tests, code quality checks (flake8, black, isort, mypy)
+  - Jobs: Unit tests, integration tests, code quality checks (Ruff, mypy)
   - Python versions tested: 3.11, 3.12, 3.13
 
 - **`security.yml`** - Security Scans
@@ -685,27 +685,40 @@ All workflows are located in `.github/workflows/`:
 
 ### Required Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PORT` | Port to run the application | `8000` |
-| `PYTHONUNBUFFERED` | Disable Python output buffering | `1` |
+| Variable | Description |
+|----------|-------------|
+| `GEMINI_API_KEY` | Google Gemini API key (required) |
+| `PORT` | Port to run the application - Default: 8000 |
+| `PYTHONUNBUFFERED` | Disable Python output buffering - Default: 1 |
+
+### LLM Provider Configuration
+
+| Variable | Description |
+|----------|-------------|
+| `LLM_PROVIDER` | LLM provider (gemini/openai/anthropic) - Default: gemini |
+| `LLM_API_KEY` | API key for the selected provider (defaults to GEMINI_API_KEY) |
+| `LLM_MODEL_NAME` | Model name for the LLM - Default: gemini-2.0-flash-exp |
+| `LLM_TEMPERATURE` | Temperature for LLM responses - Default: 0.7 |
+| `LLM_MAX_OUTPUT_TOKENS` | Max tokens for LLM responses - Default: 2048 |
 
 ### Optional Variables
 
-| Variable | Description | Description |
+| Variable | Description | Default |
 |----------|-------------|-------------|
+| `ENVIRONMENT` | Environment (production/staging/development) | development |
+| `LOG_LEVEL` | Logging level (INFO/DEBUG/WARNING/ERROR) | INFO |
 | `PYTHON_VERSION` | Python version (for Render) | `3.12.0` |
 | `WEBSITES_PORT` | Port for Azure App Service | `8000` |
 
 ### RAG-Specific Configuration
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `CHROMADB_PERSIST_DIR` | Directory for ChromaDB persistence | `./data/chromadb` |
-| `RAG_COLLECTION_NAME` | Name of the vector collection | `speeches` |
-| `RAG_CHUNK_SIZE` | Text chunk size for embeddings | `2048` |
-| `RAG_CHUNK_OVERLAP` | Overlap between chunks | `150` |
-| `EMBEDDING_MODEL` | sentence-transformers model | `all-MiniLM-L6-v2` |
+| Variable | Description |
+|----------|-------------|
+| `CHROMADB_PERSIST_DIR` | Directory for ChromaDB persistence - Default: ./data/chromadb |
+| `RAG_COLLECTION_NAME` | Name of the vector collection - Default: speeches |
+| `RAG_CHUNK_SIZE` | Text chunk size for embeddings - Default: 2048 |
+| `RAG_CHUNK_OVERLAP` | Overlap between chunks - Default: 150 |
+| `EMBEDDING_MODEL` | sentence-transformers model - Default: all-mpnet-base-v2 |
 
 **Note:** ChromaDB data is persisted to disk. Ensure the persist directory is included in volume mounts for Docker deployments to maintain indexed documents across restarts.
 

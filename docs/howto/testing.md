@@ -8,11 +8,11 @@ This repository uses uv to manage virtual environments and run commands in a rep
 
 ```powershell
 # Install project dependencies (including dev groups defined in pyproject)
-uv sync            # sync all default groups
-uv sync --group dev  # sync only dev dependencies (if grouped)
+uv sync               # sync all default dependencies
+uv sync --group dev   # sync dev dependencies group
 
 # Run a command inside the project's environment
-uv run <command>   # e.g. `uv run pytest` or `uv run black src/ tests/`
+uv run <command>   # e.g. `uv run pytest` or `uv run ruff format src/`
 ```
 
 If you prefer to use Poetry directly, the original Poetry commands are still valid and left as alternatives in this document.
@@ -64,30 +64,27 @@ start htmlcov/index.html  # Windows
 
 ## Code Quality Tools
 
-### Formatting
+### Formatting with Ruff
 
 ```powershell
-# Format code with Black (via uv)
-uv run black src/ tests/
+# Format code with Ruff
+uv run ruff format src/ tests/
 
 # Check formatting without changes
-uv run black --check src/ tests/
-
-# Sort imports with isort
-uv run isort src/ tests/
-
-# Check imports without changes
-uv run isort --check-only src/ tests/
+uv run ruff format --check src/ tests/
 ```
 
-### Linting
+### Linting with Ruff
 
 ```powershell
-# Run flake8
-uv run flake8 src/ tests/
+# Run Ruff linter
+uv run ruff check src/ tests/
+
+# Auto-fix issues
+uv run ruff check src/ tests/ --fix
 
 # Show detailed statistics
-uv run flake8 src/ tests/ --count --statistics --show-source
+uv run ruff check src/ tests/ --statistics
 ```
 
 ### Type Checking
@@ -100,9 +97,11 @@ uv run mypy src/ tests/
 ### Run All Quality Checks
 
 ```powershell
-# Run everything at once (uv wrapper)
-uv run black src/ tests/ && uv run isort src/ tests/ && uv run flake8 src/ tests/ && uv run mypy src/ tests/ && uv run pytest
-uv run black src/ tests/ ; uv run isort src/ tests/ ; uv run flake8 src/ tests/ ; uv run mypy src/ tests/ ; uv run pytest
+# Run everything at once
+uv run ruff format src/ tests/ && uv run ruff check src/ tests/ && uv run mypy src/ tests/ && uv run pytest
+
+# PowerShell (semicolon separator)
+uv run ruff format src/ tests/ ; uv run ruff check src/ tests/ ; uv run mypy src/ tests/ ; uv run pytest
 ```
 
 ## Pre-commit Setup (Optional)
@@ -127,10 +126,11 @@ poetry run pre-commit install
 ## CI/CD Pipeline
 
 The GitHub Actions workflow runs automatically on:
+
 - **Push** to `main`, `develop`, or `feature/*` branches
 - **Pull requests** to `main` or `develop`
 
-### Pipeline Jobs:
+### Pipeline Jobs
 
 1. **Test Suite** - Runs on Python 3.11, 3.12, 3.13
    - Unit tests
@@ -138,13 +138,11 @@ The GitHub Actions workflow runs automatically on:
    - Coverage reporting
 
 2. **Code Quality** - Linting and formatting checks
-   - flake8
-   - black
-   - isort
-   - mypy
+   - Ruff (formatting and linting)
+   - mypy (type checking)
 
 3. **Security** - Security scanning
-   - safety (dependency vulnerabilities)
+   - pip-audit (dependency vulnerabilities)
    - bandit (code security issues)
 
 4. **Build** - Docker image build (on main branch only)
@@ -153,7 +151,7 @@ The GitHub Actions workflow runs automatically on:
 
 ## Test Structure
 
-```
+```text
 tests/
 ├── __init__.py
 ├── test_preprocessing.py  # Unit tests for text processing

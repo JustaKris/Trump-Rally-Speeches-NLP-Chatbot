@@ -55,6 +55,7 @@ theme:
 # The order here determines the order in the docs site
 nav:
   - Home: index.md
+  - FAQ: faq.md
   
   - Getting Started:
       - Quickstart: guides/quickstart.md
@@ -79,6 +80,9 @@ nav:
   - Reference:
       - Architecture: reference/architecture.md
       - RAG Features: reference/rag-features.md
+      - Configuration: reference/configuration.md
+  
+  - Changelog: CHANGELOG.md
 
 # Markdown extensions - adds powerful features to your markdown
 markdown_extensions:

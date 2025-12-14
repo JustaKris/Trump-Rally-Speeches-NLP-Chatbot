@@ -140,7 +140,6 @@ FastAPI application with modular route organization.
 - `/rag/stats` - Collection statistics
 - `/rag/index` - Document indexing
 - `/analyze/sentiment` - Sentiment analysis
-- `/analyze/words` - Word frequency analysis
 - `/analyze/topics` - AI-powered topic extraction with semantic clustering
 - `/analyze/ngrams` - N-gram analysis
 - `/health` - Health check
@@ -413,9 +412,9 @@ Data loading and analysis helpers.
 
 **Modules:**
 
-- `io_helpers.py` - Speech loading from directory
-- `formatters.py` - Word frequency statistics
-- `text_preprocessing.py` - Basic topic extraction (TF-IDF) and dataset statistics
+- `io_helpers.py` - Speech loading and dataset statistics
+- `formatters.py` - Response formatting utilities
+- `text_preprocessing.py` - Text cleaning and tokenization
 
 ### 8. **AI-Powered Topic Analysis** (`src/services/topic_service.py`)
 
@@ -684,7 +683,6 @@ RAGSearchRequest
 
 # Response Models
 SentimentResponse
-WordFrequencyResponse
 TopicResponse
 StatsResponse
 RAGAnswerResponse

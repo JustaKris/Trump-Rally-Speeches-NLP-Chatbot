@@ -4,9 +4,8 @@ This module provides helper functions for loading speech data and
 computing aggregate statistics.
 """
 
-from collections import Counter
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 import pandas as pd
 
@@ -93,62 +92,3 @@ def get_dataset_statistics() -> Dict[str, Any]:
         "years": df["year"].unique().tolist(),
         "locations": df["location"].unique().tolist(),
     }
-
-
-def get_word_frequency_stats(text: str, top_n: int = 50) -> Dict[str, Any]:
-    """Get word frequency statistics from text.
-
-    Args:
-        text: Input text to analyze
-        top_n: Number of top words to include
-
-    Returns:
-        Dictionary with word frequency data
-    """
-    from .text_preprocessing import clean_text, tokenize_text
-
-    # Clean and tokenize
-    cleaned = clean_text(text, remove_stopwords=True)
-    tokens = tokenize_text(cleaned)
-
-    # Filter alphabetic tokens only
-    tokens = [t for t in tokens if t.isalpha() and len(t) > 2]
-
-    # Count frequencies
-    freq = Counter(tokens)
-    top_words = freq.most_common(top_n)
-
-    return {
-        "total_tokens": len(tokens),
-        "unique_tokens": len(set(tokens)),
-        "top_words": [{"word": word, "count": count} for word, count in top_words],
-    }
-
-
-def extract_topics(text: str, top_n: int = 10) -> List[Dict[str, Any]]:
-    """Extract key topics/themes from text based on word frequency.
-
-    Args:
-        text: Input text to analyze
-        top_n: Number of topics to extract
-
-    Returns:
-        List of topic dictionaries with word and relevance score
-    """
-    stats = get_word_frequency_stats(text, top_n=top_n)
-
-    # Normalize counts to 0-1 range for relevance score
-    top_words = stats["top_words"]
-    if not top_words:
-        return []
-
-    max_count = top_words[0]["count"]
-
-    return [
-        {
-            "topic": word_data["word"],
-            "relevance": round(word_data["count"] / max_count, 3),
-            "mentions": word_data["count"],
-        }
-        for word_data in top_words
-    ]

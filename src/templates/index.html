@@ -472,7 +472,6 @@
                 <button class="tab active" data-tab="rag">🧠 AI Q&A (RAG)</button>
                 <button class="tab" data-tab="topics">🏷️ AI Topic Analysis</button>
                 <button class="tab" data-tab="sentiment">🎭 Sentiment Analysis</button>
-                <button class="tab" data-tab="words">📝 Word Frequency</button>
                 <button class="tab" data-tab="stats">📊 Demo Dataset</button>
             </div>
             
@@ -560,33 +559,6 @@
                                 <div id="emotionScores"></div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Word Frequency Tab -->
-            <div class="tab-content" id="words">
-                <h2>📝 Word Frequency Analysis</h2>
-                <p style="margin: 15px 0; color: #aaa;">Identify the most common words in your text, with stopwords automatically removed.</p>
-                <textarea id="wordsText" placeholder="Enter text to analyze..."></textarea>
-                <button class="analyze" onclick="analyzeWords()">Analyze Words</button>
-                
-                <div class="loading" id="wordsLoading">
-                    <div class="spinner"></div>
-                    <p style="margin-top: 15px; color: #aaa;">Analyzing word frequency...</p>
-                </div>
-                
-                <div class="error" id="wordsError"></div>
-                
-                <div class="results" id="wordsResults">
-                    <div class="result-card">
-                        <div class="result-title">Top Words</div>
-                        <div class="word-cloud" id="wordCloud"></div>
-                    </div>
-                    
-                    <div class="result-card">
-                        <div class="result-title">Statistics</div>
-                        <div id="wordStats"></div>
                     </div>
                 </div>
             </div>
@@ -779,54 +751,6 @@
             `;
             
             showResults('sentimentResults');
-        }
-        
-        // Word Frequency Analysis
-        async function analyzeWords() {
-            const text = document.getElementById('wordsText').value.trim();
-            if (!text) {
-                showError('wordsError', 'Please enter some text to analyze');
-                return;
-            }
-            
-            hideError('wordsError');
-            hideResults('wordsResults');
-            showLoading('wordsLoading');
-            
-            try {
-                const response = await fetch('/analyze/words?top_n=30', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({text})
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`API error: ${response.statusText}`);
-                }
-                
-                const data = await response.json();
-                displayWordResults(data);
-            } catch (error) {
-                showError('wordsError', error.message);
-            } finally {
-                hideLoading('wordsLoading');
-            }
-        }
-        
-        function displayWordResults(data) {
-            const cloud = document.getElementById('wordCloud');
-            cloud.innerHTML = data.top_words
-                .map(w => `<span class="word-tag" title="${w.count} occurrences">${w.word} (${w.count})</span>`)
-                .join('');
-            
-            const stats = document.getElementById('wordStats');
-            stats.innerHTML = `
-                <p><strong>Total Tokens:</strong> ${data.total_tokens.toLocaleString()}</p>
-                <p><strong>Unique Tokens:</strong> ${data.unique_tokens.toLocaleString()}</p>
-                <p><strong>Vocabulary Richness:</strong> ${((data.unique_tokens / data.total_tokens) * 100).toFixed(1)}%</p>
-            `;
-            
-            showResults('wordsResults');
         }
         
         // Topic Extraction

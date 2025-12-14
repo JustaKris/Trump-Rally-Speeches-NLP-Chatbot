@@ -15,7 +15,6 @@ from .schemas import (
     StatsResponse,
     TextInput,
     TopicResponse,
-    WordFrequencyResponse,
 )
 
 __all__ = [
@@ -26,7 +25,6 @@ __all__ = [
     "RAGSearchRequest",
     # Response models
     "SentimentResponse",
-    "WordFrequencyResponse",
     "TopicResponse",
     "EnhancedTopicResponse",
     "StatsResponse",
