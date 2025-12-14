@@ -37,7 +37,7 @@ class APISettings(BaseSettings):
         extra="ignore",
     )
 
-    host: str = "0.0.0.0"
+    host: str = "0.0.0.0"  # nosec: B104 - Intentional for containerized deployment
     port: int = Field(default_factory=lambda: int(os.getenv("PORT", 8000)), ge=1, le=65535)
     reload: bool = False
     cors_origins: list[str] = ["*"]

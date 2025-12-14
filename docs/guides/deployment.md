@@ -560,14 +560,32 @@ This project includes automated CI/CD pipelines using GitHub Actions. The workfl
 
 All workflows are located in `.github/workflows/`:
 
-- **`ci.yml`** - Tests & Linting
-  - Runs on: All pushes and PRs to `main`, `develop`, `feature/*`
-  - Jobs: Unit tests, integration tests, code quality checks (Ruff, mypy)
-  - Python versions tested: 3.11, 3.12, 3.13
+- **`python-tests.yml`** - Python Tests
+  - Runs on: All pushes and PRs
+  - Jobs: Unit tests with coverage (pytest)
+  - Python versions tested: 3.11, 3.12
+  - Coverage requirement: 60%
 
-- **`security.yml`** - Security Scans
+- **`python-lint.yml`** - Python Linting
+  - Runs on: All pushes and PRs affecting Python files
+  - Jobs: Ruff linting and format checking
+  - Python versions tested: 3.11, 3.12
+
+- **`python-typecheck.yml`** - Type Checking
+  - Runs on: All pushes and PRs affecting Python files
+  - Jobs: Mypy type checking
+  - Python versions tested: 3.11, 3.12
+  - Status: Allowed to fail (informational)
+
+- **`security-audit.yml`** - Security Scans
   - Runs on: All pushes and PRs, plus weekly schedule (Mondays 9 AM UTC)
-  - Jobs: Dependency vulnerability scanning (pip-audit), code security analysis (bandit)
+  - Jobs: Bandit security scan, pip-audit dependency vulnerabilities
+  - Status: Allowed to fail (informational)
+
+- **`markdown-lint.yml`** - Documentation Linting
+  - Runs on: All pushes and PRs affecting markdown files
+  - Jobs: pymarkdownlnt documentation quality checks
+  - Status: Allowed to fail (informational)
 
 - **`deploy-render.yml`** - Render Deployment
   - Runs on: Push to `main` branch only
@@ -578,6 +596,14 @@ All workflows are located in `.github/workflows/`:
   - Runs on: Push to `main` branch (manual trigger also available)
   - Jobs: Build & push to ACR/Docker Hub, deploy to Azure Web App, health check
   - Supports both ACR and Docker Hub registries
+
+- **`deploy-docs.yml`** - Documentation Deployment
+  - Runs on: Push to `main` affecting docs
+  - Jobs: Build MkDocs site, deploy to GitHub Pages
+
+- **`build-push-docker.yml`** - Docker Build
+  - Runs on: Push to `main` branch
+  - Jobs: Build and push Docker images to registry
 
 ### Deployment Architecture
 

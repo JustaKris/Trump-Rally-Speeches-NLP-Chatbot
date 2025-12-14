@@ -17,14 +17,14 @@ Security best practices include:
 ### Running Locally
 
 ```powershell
-# Scan source code
-uv run bandit -r src/
+# Scan source code (as used in CI)
+uv run bandit -r src/ scripts/ -c pyproject.toml
 
 # Generate JSON report for CI
-uv run bandit -r src/ -f json -o bandit-report.json
+uv run bandit -r src/ scripts/ -c pyproject.toml -f json -o bandit-report.json
 
 # Show only high severity
-uv run bandit -r src/ -ll
+uv run bandit -r src/ scripts/ -c pyproject.toml -ll
 ```
 
 ### Common Issues & Fixes

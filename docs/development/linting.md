@@ -5,17 +5,23 @@ Code quality checks and linting using Ruff, Mypy, and Bandit for maintaining hig
 ## Quick Start
 
 ```powershell
-# Run all linting checks
+# Run all linting checks (as used in CI)
 uv run ruff check src/ scripts/ tests/
+
+# Check formatting (as used in CI)
+uv run ruff format --check src/ scripts/ tests/
 
 # Auto-fix issues where possible
 uv run ruff check --fix src/ scripts/ tests/
 
-# Type checking
+# Format code
+uv run ruff format src/ scripts/ tests/
+
+# Type checking (as used in CI)
 uv run mypy src/ scripts/ tests/ --ignore-missing-imports
 
-# Security scan
-uv run bandit -r src/
+# Security scan (as used in CI)
+uv run bandit -r src/ scripts/ -c pyproject.toml
 ```
 
 ## Ruff Linter
@@ -25,8 +31,14 @@ Ruff is an extremely fast Python linter written in Rust, combining the functiona
 ### Basic Usage
 
 ```powershell
-# Lint all source code
-uv run ruff check src/
+# Lint all source code (as used in CI)
+uv run ruff check src/ scripts/ tests/
+
+# Check formatting (as used in CI)
+uv run ruff format --check src/ scripts/ tests/
+
+# Format all code
+uv run ruff format src/ scripts/ tests/
 
 # Lint specific files
 uv run ruff check src/services/rag_service.py
@@ -85,17 +97,14 @@ Static type checking catches bugs before runtime.
 ### Mypy Usage
 
 ```powershell
-# Type check source code
+# Type check all code (as used in CI)
+uv run mypy src/ scripts/ tests/ --ignore-missing-imports
+
+# Type check source code only
 uv run mypy src/
 
-# Include scripts and tests
-uv run mypy src/ scripts/ tests/
-
-# Ignore missing imports
-uv run mypy src/ --ignore-missing-imports
-
 # Show error codes
-uv run mypy src/ --show-error-codes
+uv run mypy src/ scripts/ tests/ --show-error-codes --ignore-missing-imports
 ```
 
 ### Mypy Configuration

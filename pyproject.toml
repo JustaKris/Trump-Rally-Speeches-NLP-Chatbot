@@ -278,15 +278,13 @@ output = "reports/coverage/coverage.xml"
 exclude_dirs = [
     ".venv",
     "venv",
-    "tests",
-    "scripts",
     "notebooks",
     "site",
     ".pytest_cache",
     "__pycache__",
 ]
 # B101: assert_used - Asserts are acceptable in test/dev code
-# B104: hardcoded_bind_all_interfaces - Dev server binds are intentional
+# B104: hardcoded_bind_all_interfaces - Dev server binds are intentional (0.0.0.0 for containers)
 # B108: hardcoded_tmp_directory - Temp paths are controlled
 # B110: try_except_pass - Intentional silent failures in data parsing/cleanup
 # B608: hardcoded_sql_expressions - DuckDB queries with parameterized values (not user input)

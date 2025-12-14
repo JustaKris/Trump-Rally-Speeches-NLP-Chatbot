@@ -125,6 +125,7 @@ def configure_logging(
     level = level.upper()
 
     # Choose the correct formatter depending on environment
+    formatter: logging.Formatter
     if use_json:
         formatter = JsonFormatter(datefmt="%Y-%m-%d %H:%M:%S")
     else:

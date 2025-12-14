@@ -247,7 +247,7 @@ class TopicExtractionService:
             )
 
         # Sort clusters by total mentions (most important first)
-        clusters.sort(key=lambda x: x["total_mentions"], reverse=True)
+        clusters.sort(key=lambda x: x["total_mentions"], reverse=True)  # type: ignore[arg-type, return-value]
 
         return clusters
 

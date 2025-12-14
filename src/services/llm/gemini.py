@@ -59,8 +59,9 @@ class GeminiLLM(LLMProvider):
         genai.configure(api_key=self.api_key)  # type: ignore[attr-defined]
 
         # Use centralized safety settings from constants
-        self.model = genai.GenerativeModel(  # type: ignore[arg-type]
-            model_name, safety_settings=GEMINI_SAFETY_SETTINGS
+        self.model = genai.GenerativeModel(
+            model_name,
+            safety_settings=GEMINI_SAFETY_SETTINGS,  # type: ignore[arg-type]
         )
 
         # Generation config
@@ -101,7 +102,9 @@ class GeminiLLM(LLMProvider):
 
         # Pass safety settings directly to generate_content for reliability
         return self.model.generate_content(
-            prompt, generation_config=gen_config, safety_settings=GEMINI_SAFETY_SETTINGS
+            prompt,
+            generation_config=gen_config,
+            safety_settings=GEMINI_SAFETY_SETTINGS,  # type: ignore[arg-type]
         )
 
     def generate_answer(

@@ -68,40 +68,65 @@ start htmlcov/index.html  # Windows
 
 ```powershell
 # Format code with Ruff
-uv run ruff format src/ tests/
+uv run ruff format src/ scripts/ tests/
 
-# Check formatting without changes
-uv run ruff format --check src/ tests/
+# Check formatting without changes (as used in CI)
+uv run ruff format --check src/ scripts/ tests/
 ```
 
 ### Linting with Ruff
 
 ```powershell
-# Run Ruff linter
-uv run ruff check src/ tests/
+# Run Ruff linter (as used in CI)
+uv run ruff check src/ scripts/ tests/
 
 # Auto-fix issues
-uv run ruff check src/ tests/ --fix
+uv run ruff check --fix src/ scripts/ tests/
 
 # Show detailed statistics
-uv run ruff check src/ tests/ --statistics
+uv run ruff check src/ scripts/ tests/ --statistics
 ```
 
 ### Type Checking
 
 ```powershell
-# Run mypy type checker
-uv run mypy src/ tests/
+# Run mypy type checker (as used in CI)
+uv run mypy src/ scripts/ tests/ --ignore-missing-imports
+```
+
+### Security Scanning
+
+```powershell
+# Run Bandit security scan (as used in CI)
+uv run bandit -r src/ scripts/ -c pyproject.toml
+
+# Generate JSON report for CI
+uv run bandit -r src/ scripts/ -c pyproject.toml -f json -o bandit-report.json
+
+# Check for dependency vulnerabilities
+uv run pip-audit --desc --skip-editable
+```
+
+### Markdown Linting
+
+```powershell
+# Lint documentation (as used in CI)
+uv run pymarkdown --config pyproject.toml scan docs/ README.md
 ```
 
 ### Run All Quality Checks
 
 ```powershell
-# Run everything at once
-uv run ruff format src/ tests/ && uv run ruff check src/ tests/ && uv run mypy src/ tests/ && uv run pytest
+# Run all checks matching CI pipeline
+uv run ruff format --check src/ scripts/ tests/
+uv run ruff check src/ scripts/ tests/
+uv run mypy src/ scripts/ tests/ --ignore-missing-imports
+uv run bandit -r src/ scripts/ -c pyproject.toml
+uv run pymarkdown --config pyproject.toml scan docs/ README.md
+uv run pytest
 
 # PowerShell (semicolon separator)
-uv run ruff format src/ tests/ ; uv run ruff check src/ tests/ ; uv run mypy src/ tests/ ; uv run pytest
+uv run ruff format --check src/ scripts/ tests/ ; uv run ruff check src/ scripts/ tests/ ; uv run mypy src/ scripts/ tests/ --ignore-missing-imports ; uv run bandit -r src/ scripts/ -c pyproject.toml ; uv run pytest
 ```
 
 ## Pre-commit Setup (Optional)
@@ -125,29 +150,47 @@ poetry run pre-commit install
 
 ## CI/CD Pipeline
 
-The GitHub Actions workflow runs automatically on:
-
-- **Push** to `main`, `develop`, or `feature/*` branches
-- **Pull requests** to `main` or `develop`
+The GitHub Actions workflows run automatically on pushes and pull requests.
 
 ### Pipeline Jobs
 
-1. **Test Suite** - Runs on Python 3.11, 3.12, 3.13
-   - Unit tests
-   - Integration tests (without ML model)
-   - Coverage reporting
+1. **Python Tests** (`python-tests.yml`)
+   - Runs on Python 3.11 and 3.12
+   - Downloads NLTK data (punkt, stopwords, punkt_tab)
+   - Runs all tests with coverage
+   - Enforces minimum 60% coverage
+   - Uploads coverage reports to Codecov
 
-2. **Code Quality** - Linting and formatting checks
-   - Ruff (formatting and linting)
-   - mypy (type checking)
+2. **Python Linting** (`python-lint.yml`)
+   - Runs on Python 3.11 and 3.12
+   - Checks: `uv run ruff check src/ scripts/ tests/`
+   - Checks: `uv run ruff format --check src/ scripts/ tests/`
 
-3. **Security** - Security scanning
-   - pip-audit (dependency vulnerabilities)
-   - bandit (code security issues)
+3. **Type Checking** (`python-typecheck.yml`)
+   - Runs on Python 3.11 and 3.12
+   - Checks: `uv run mypy src/ scripts/ tests/ --ignore-missing-imports`
+   - Status: Allowed to fail (informational only)
 
-4. **Build** - Docker image build (on main branch only)
-   - Builds image
-   - Tests health endpoint
+4. **Security Audit** (`security-audit.yml`)
+   - Runs on all pushes/PRs + weekly schedule
+   - Checks: `uv run bandit -r src/ scripts/ -c pyproject.toml`
+   - Checks: `uv run pip-audit --desc --skip-editable`
+   - Status: Allowed to fail (informational only)
+
+5. **Markdown Lint** (`markdown-lint.yml`)
+   - Runs when markdown files change
+   - Checks: `uv run pymarkdown --config pyproject.toml scan docs/ README.md`
+   - Status: Allowed to fail (informational only)
+
+6. **Docker Build** (`build-push-docker.yml`)
+   - Runs on push to main branch
+   - Builds and pushes Docker images
+
+### Coverage Reports
+
+Coverage reports are automatically uploaded to:
+- **Codecov**: For PR comments and history tracking
+- **GitHub Artifacts**: HTML reports available for 30 days
 
 ## Test Structure
 
