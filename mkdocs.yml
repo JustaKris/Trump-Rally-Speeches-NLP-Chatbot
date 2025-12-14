@@ -3,9 +3,9 @@
 
 # Site metadata
 site_name: Trump Speeches NLP Chatbot
-site_description: Production-ready NLP Chatbot API with RAG, semantic search, and sentiment analysis
+site_description: Production-ready NLP Chatbot API with RAG, multi-model sentiment analysis, and AI-powered topic extraction
 site_author: Kristiyan Bonev
-site_url: https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot
+site_url: https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/
 
 # Repository information (adds "Edit on GitHub" links)
 repo_name: JustaKris/Trump-Rally-Speeches-NLP-Chatbot
@@ -132,6 +132,13 @@ plugins:
   - search:                     # Built-in search plugin
       separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
       lang: en
+
+# Exclude patterns - files/folders not to include in the docs
+exclude_docs: |
+  copilot-artifacts/
+  **/.git
+  **/.venv
+  **/__pycache__
 
 # Extra CSS/JS (optional - for future customization)
 # extra_css:

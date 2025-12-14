@@ -11,7 +11,28 @@ This portfolio project demonstrates expertise in:
 - **Production API Development** — FastAPI with 12+ RESTful endpoints, modular route organization, type-safe Pydantic models
 - **Pluggable LLM Providers** — Support for Gemini, OpenAI, and Anthropic with unified interface and model-agnostic configuration
 - **Entity Analytics** — Automated entity extraction with sentiment analysis and contextual associations
-- **Professional DevOps** — Docker containerization, CI/CD pipelines, automated testing (65%+ coverage), code quality enforcement
+- **Modern Python Tooling** — uv for dependency management, Ruff for linting/formatting, comprehensive type hints
+- **Professional DevOps** — Docker containerization, CI/CD pipelines, automated testing (65%+ coverage), security scanning
+
+**Getting Started:**
+
+```bash
+# Install uv (modern Python package manager)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Clone and setup
+git clone https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot.git
+cd Trump-Rally-Speeches-NLP-Chatbot
+uv sync  # Install all dependencies
+
+# Configure (copy .env.example to .env and add your LLM_API_KEY)
+cp .env.example .env
+
+# Run locally
+uv run uvicorn src.main:app --reload
+```
+
+→ **[Full Quickstart Guide](guides/quickstart.md)**
 
 ## Documentation Structure
 
@@ -54,11 +75,13 @@ In-depth technical documentation:
 
 ## Quick Links
 
-- **[GitHub Repository](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot)** — Source code and issue tracking
-- **[API Documentation (Swagger)](https://trump-speeches-nlp-chatbot.azurewebsites.net/docs)** — Interactive API documentation (local)
-- **[API Documentation (ReDoc)](https://trump-speeches-nlp-chatbot.azurewebsites.net/redoc)** — Alternative API documentation
+- **[GitHub Repository](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot)** — Source code, issues, and contributions
+- **[Live API (Azure)](https://trump-speeches-nlp-chatbot.azurewebsites.net)** — Interactive web app (may take 1-2 min to cold start)
+- **[API Docs (Swagger)](https://trump-speeches-nlp-chatbot.azurewebsites.net/docs)** — Interactive API documentation
+- **[API Docs (ReDoc)](https://trump-speeches-nlp-chatbot.azurewebsites.net/redoc)** — Alternative API documentation
+- **[Documentation Site](https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/)** — This documentation
 
-> NOTE: The Azure Web App links above point to a deployed instance that may take a minute or two to start (cold start) after a deployment or if idle. If the site doesn't load immediately, please wait 1–2 minutes and try again.
+> **Note:** The Azure Web App uses free tier hosting. If idle, the first request may take 1-2 minutes to wake the service (cold start). Subsequent requests are fast.
 
 ## Core Features
 
@@ -136,23 +159,29 @@ Single-page application at the root (`/`) for testing all features without writi
 
 **AI/ML:**
 
-- ChromaDB (vector database)
-- sentence-transformers (MPNet embeddings)
-- Pluggable LLMs (Gemini, OpenAI, Claude)
-- Hugging Face Transformers (FinBERT, RoBERTa)
+- ChromaDB 0.5+ (vector database)
+- sentence-transformers 3.3+ (MPNet embeddings)
+- Pluggable LLMs: Gemini (default), OpenAI GPT, Anthropic Claude
+- Hugging Face Transformers 4.57+ (FinBERT, RoBERTa)
+- scikit-learn 1.7+ (clustering, BM25)
 
 **Backend:**
 
-- FastAPI (REST API)
-- Pydantic (validation)
-- NLTK (preprocessing)
+- FastAPI 0.116+ (REST API with async support)
+- Pydantic 2.0+ (validation and settings)
+- NLTK 3.9+ (text preprocessing)
+- Python 3.11+ (modern Python with type hints)
 
-**DevOps:**
+**Development & DevOps:**
 
-- Docker + Docker Compose
-- GitHub Actions (CI/CD)
-- pytest (testing, 65%+ coverage)
-- Ruff (linting & formatting), mypy (type checking)
+- **uv** (fast, modern dependency management)
+- **Docker + Docker Compose** (containerization)
+- **GitHub Actions** (CI/CD pipelines)
+- **pytest 8.3+** (testing framework, 65%+ coverage)
+- **Ruff 0.6+** (linting & formatting, replaces Black/Flake8/isort)
+- **mypy 1.13+** (static type checking)
+- **Bandit + pip-audit** (security scanning)
+- **MkDocs Material** (documentation site)
 
 ## 💡 Example Use Cases
 
