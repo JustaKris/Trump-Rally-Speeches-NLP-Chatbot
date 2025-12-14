@@ -139,9 +139,10 @@ This guide covers deploying the Trump Speeches NLP Chatbot API to various platfo
    ```
 
 7. **Access the application:**
-   - Frontend: http://localhost:8000
-   - API Docs: http://localhost:8000/docs
-   - ReDoc: http://localhost:8000/redoc
+
+   - Frontend: <http://localhost:8000>
+   - API Docs: <http://localhost:8000/docs>
+   - ReDoc: <http://localhost:8000/redoc>
 
 ---
 
@@ -306,7 +307,7 @@ image:
 
 ### Step 3: Deploy to Render
 
-**Option A: Using Blueprint (Recommended)**
+#### Option A: Using Blueprint (Recommended)
 
 1. Go to Render Dashboard → "Blueprints"
 2. Click "New Blueprint Instance"
@@ -314,7 +315,7 @@ image:
 4. Render will detect `.render/render.yaml` and configure everything automatically
 5. Click "Apply" to create the service
 
-**Option B: Manual Configuration**
+#### Option B: Manual Configuration
 
 1. Go to Render Dashboard → "New +" → "Web Service"
 2. Choose "Deploy an existing image from a registry"
@@ -336,6 +337,7 @@ git push origin main
 ```
 
 This will:
+
 1. Build the Docker image
 2. Push it to Docker Hub
 3. Render automatically detects the new image and deploys it
@@ -355,6 +357,7 @@ Your API will be available at: `https://trump-speeches-nlp-chatbot.onrender.com`
 ### Upgrading from Free Tier
 
 For better performance:
+
 - **Starter Plan:** $7/month (512 MB RAM, 0.5 CPU)
 - No cold starts
 - Faster response times
@@ -364,7 +367,7 @@ For better performance:
 
 ## Azure App Service Deployment
 
-### Deployment Strategy
+### Deployment Strategy (UI)
 
 This project supports two Azure deployment approaches:
 
@@ -373,7 +376,7 @@ This project supports two Azure deployment approaches:
 
 Both use the same GitHub Actions workflow with conditional logic.
 
-### Prerequisites
+### Prerequisites (Azure)
 
 - Azure account (free tier available)
 - Azure CLI installed: <https://docs.microsoft.com/en-us/cli/azure/install-azure-cli>
@@ -456,6 +459,7 @@ git push origin main
 ```
 
 GitHub Actions will automatically:
+
 1. Build Docker image
 2. Push to Azure Container Registry
 3. Deploy to Azure Web App
@@ -467,7 +471,7 @@ GitHub Actions will automatically:
 
 This approach shares the same Docker images used for Render deployment.
 
-#### Step 1: Create Azure Resources
+#### Step 1: Create Azure Resources (CLI)
 
 ```powershell
 # Login to Azure
@@ -577,7 +581,7 @@ All workflows are located in `.github/workflows/`:
 
 ### Deployment Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │                     Push to main branch                     │
 └────────────┬────────────────────────────────────────────────┘
@@ -613,19 +617,19 @@ All workflows are located in `.github/workflows/`:
 
 #### Required for Azure Deployment
 
-3. **`AZURE_CREDENTIALS`** - Service principal credentials (JSON format)
+1. **`AZURE_CREDENTIALS`** - Service principal credentials (JSON format)
 
    ```powershell
    az ad sp create-for-rbac --name "github-actions-trump-nlp" --sdk-auth --role contributor --scopes /subscriptions/{subscription-id}/resourceGroups/trump-nlp-rg
    ```
 
-4. **`AZURE_WEBAPP_NAME`** - Your Azure Web App name (e.g., `trump-speeches-nlp`)
+2. **`AZURE_WEBAPP_NAME`** - Your Azure Web App name (e.g., `trump-speeches-nlp`)
 
 #### Required for Azure Container Registry (Optional)
 
-5. **`AZURE_REGISTRY_LOGIN_SERVER`** - ACR login server (e.g., `trumpnlpacr.azurecr.io`)
-6. **`AZURE_REGISTRY_USERNAME`** - ACR admin username
-7. **`AZURE_REGISTRY_PASSWORD`** - ACR admin password
+1. **`AZURE_REGISTRY_LOGIN_SERVER`** - ACR login server (e.g., `trumpnlpacr.azurecr.io`)
+2. **`AZURE_REGISTRY_USERNAME`** - ACR admin username
+3. **`AZURE_REGISTRY_PASSWORD`** - ACR admin password
 
    Get ACR credentials:
 
@@ -688,8 +692,8 @@ All workflows are located in `.github/workflows/`:
 
 ### Optional Variables
 
-| Variable | Description |
-|----------|-------------|
+| Variable | Description | Description |
+|----------|-------------|-------------|
 | `PYTHON_VERSION` | Python version (for Render) | `3.12.0` |
 | `WEBSITES_PORT` | Port for Azure App Service | `8000` |
 
@@ -733,21 +737,25 @@ All workflows are located in `.github/workflows/`:
 ### RAG Performance Considerations
 
 **Memory Requirements:**
+
 - **Without RAG:** ~1.5GB RAM
 - **With RAG:** ~2.5GB RAM (includes embeddings model + vector store)
 - **Recommended:** 4GB RAM for production with concurrent users
 
 **Storage Requirements:**
+
 - **Base application:** ~1GB
 - **ChromaDB index:** ~50-100MB per 10,000 chunks
 - **Embedding model:** ~80MB
 
 **Startup Time:**
+
 - **Without RAG:** 10-15 seconds
 - **With RAG:** 30-60 seconds (model loading + document indexing)
 - **Tip:** Documents are auto-indexed on first startup if collection is empty
 
 **Query Performance:**
+
 - **Semantic search:** ~50-200ms per query
 - **Question answering:** ~200-500ms (includes search + answer generation)
 - **Tip:** Results improve with more indexed documents
@@ -759,7 +767,8 @@ All workflows are located in `.github/workflows/`:
 ### Environment Variable Parsing Errors in Docker
 
 **Error:**
-```
+
+```python
 pydantic_core._pydantic_core.ValidationError: 13 validation errors for Settings
   environment
     Input should be 'development', 'staging' or 'production' [type=literal_error, input_value='"development"  # develop...', input_type=str]
@@ -816,6 +825,7 @@ LLM_ENABLED="true"
 ```
 
 **Key Rules for `.env` files:**
+
 - ❌ No quotes around values (not needed and causes parsing errors)
 - ❌ No inline comments (use separate lines or comment blocks)
 - ✅ Booleans as `true` or `false` (lowercase, no quotes)

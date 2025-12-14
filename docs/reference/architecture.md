@@ -15,43 +15,98 @@ This document provides a comprehensive overview of the Trump Speeches NLP Chatbo
 
 ---
 
+## Project Overview (Thumbnail)
+
+```mermaid
+%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#667eea', 'primaryTextColor':'#fff', 'primaryBorderColor':'#764ba2', 'lineColor':'#667eea', 'secondaryColor':'#764ba2', 'tertiaryColor':'#1a1a2e'}}}%%
+flowchart TB
+    subgraph Client["🌐 Client Layer"]
+        UI["Dark Mode UI<br/>Interactive Dashboard"]
+    end
+    
+    subgraph API["⚡ FastAPI Backend"]
+        Routes["RESTful Endpoints<br/>Async Request Handling"]
+    end
+    
+    subgraph AI["🤖 AI Services"]
+        RAG["RAG System<br/>Hybrid Search + LLM"]
+        Sentiment["Sentiment Analysis<br/>Multi-Model + AI"]
+        Topics["Topic Extraction<br/>Semantic Clustering"]
+    end
+    
+    subgraph Data["💾 Data & Models"]
+        Vector["ChromaDB<br/>Vector Storage"]
+        Models["Transformers<br/>FinBERT • RoBERTa • MPNet"]
+        LLM["LLM Providers<br/>Gemini • OpenAI • Claude"]
+    end
+    
+    UI <-->|HTTP/JSON| Routes
+    Routes --> RAG
+    Routes --> Sentiment
+    Routes --> Topics
+    RAG <--> Vector
+    RAG --> LLM
+    Sentiment --> Models
+    Sentiment --> LLM
+    Topics --> Models
+    Topics --> LLM
+    
+    style Client fill:#667eea,stroke:#764ba2,stroke-width:3px,color:#fff
+    style API fill:#764ba2,stroke:#667eea,stroke-width:3px,color:#fff
+    style AI fill:#1a1a2e,stroke:#667eea,stroke-width:2px,color:#e0e0e0
+    style Data fill:#2a2a3a,stroke:#667eea,stroke-width:2px,color:#e0e0e0
+```
+
+---
+
 ## High-Level Architecture
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#f0f3ff', 'primaryTextColor':'#333', 'primaryBorderColor':'#667eea', 'lineColor':'#667eea', 'secondaryColor':'#e9ecef', 'tertiaryColor':'#fff'}}}%%
 graph TB
-    Client[Client/Browser]
-    Frontend[Static Frontend<br/>HTML/CSS/JS]
-    API[FastAPI Application<br/>REST API]
+    Client["👤 Client/Browser<br/><small>Chrome, Firefox, Safari</small>"]
+    Frontend["🎨 Static Frontend<br/><small>HTML/CSS/JS • Dark Mode UI</small>"]
+    API["⚡ FastAPI Application<br/><small>REST API • Async • Uvicorn</small>"]
     
-    subgraph "NLP Services"
-        Sentiment[Enhanced Sentiment<br/>FinBERT + RoBERTa + LLM]
-        Preprocessing[Text Preprocessing<br/>NLTK]
-        Topics[AI Topic Analysis<br/>Semantic Clustering + LLM]
-        RAG[RAG Service<br/>ChromaDB + Embeddings]
-        LLM[LLM Providers<br/>Gemini/OpenAI/Claude]
+    subgraph NLP["🧠 AI/NLP Services"]
+        direction TB
+        Sentiment["📊 Sentiment Analysis<br/><small>FinBERT + RoBERTa + LLM</small>"]
+        Topics["🏷️ Topic Analysis<br/><small>Semantic Clustering + LLM</small>"]
+        RAG["🔍 RAG System<br/><small>Hybrid Search + ChromaDB</small>"]
+        LLMService["🤖 LLM Providers<br/><small>Gemini • OpenAI • Claude</small>"]
     end
     
-    subgraph "Data Layer"
-        Speeches[Demo Dataset<br/>Political Speeches]
-        VectorDB[(ChromaDB<br/>Vector Store)]
-        Models[ML Models<br/>Transformers]
+    subgraph Data["💾 Data Layer"]
+        direction TB
+        Speeches["📚 Demo Dataset<br/><small>35+ Political Speeches</small>"]
+        VectorDB[("🗄️ ChromaDB<br/><small>Vector Store • Persistent</small>")]
+        Models["🎯 ML Models<br/><small>PyTorch • Transformers</small>"]
     end
     
-    Client -->|HTTP Requests| Frontend
-    Frontend -->|API Calls| API
-    API --> Sentiment
-    API --> Preprocessing
-    API --> Topics
-    API --> RAG
+    Client <-->|"HTTP Requests"| Frontend
+    Frontend <-->|"REST API Calls<br/>/rag/ask, /analyze/*"| API
     
-    Sentiment --> LLM
-    Sentiment --> Models
-    Topics --> LLM
-    RAG --> LLM
-    RAG --> VectorDB
-    RAG --> Models
-    Preprocessing --> Speeches
-    Topics --> Speeches
+    API -->|"Analyze Sentiment"| Sentiment
+    API -->|"Extract Topics"| Topics
+    API -->|"Answer Questions"| RAG
+    
+    Sentiment -->|"Generate Interpretation"| LLMService
+    Sentiment -->|"Classify Emotions"| Models
+    Topics -->|"Generate Labels"| LLMService
+    Topics -->|"Cluster Keywords"| Models
+    RAG -->|"Generate Answers"| LLMService
+    RAG <-->|"Semantic Search"| VectorDB
+    RAG -->|"Embed Queries"| Models
+    
+    Topics -.->|"Load Data"| Speeches
+    VectorDB -.->|"Indexed From"| Speeches
+    
+    style Client fill:#667eea,stroke:#764ba2,stroke-width:3px,color:#fff
+    style Frontend fill:#764ba2,stroke:#667eea,stroke-width:3px,color:#fff
+    style API fill:#667eea,stroke:#764ba2,stroke-width:3px,color:#fff
+    style NLP fill:#f0f3ff,stroke:#667eea,stroke-width:2px
+    style Data fill:#e9ecef,stroke:#667eea,stroke-width:2px
+    style LLMService fill:#fff,stroke:#667eea,stroke-width:2px
 ```
 
 ---
@@ -63,6 +118,7 @@ graph TB
 FastAPI application with modular route organization.
 
 **Responsibilities:**
+
 - HTTP request handling
 - Input validation (Pydantic models)
 - Error handling and logging
@@ -71,12 +127,14 @@ FastAPI application with modular route organization.
 - Dependency injection for services
 
 **Route Modules:**
+
 - `routes_chatbot.py` - RAG question-answering endpoints
 - `routes_nlp.py` - Traditional NLP analysis endpoints
 - `routes_health.py` - Health checks and system status
 - `dependencies.py` - Service dependency injection
 
 **Endpoints:**
+
 - `/rag/ask` - RAG question answering
 - `/rag/search` - Semantic search
 - `/rag/stats` - Collection statistics
@@ -92,29 +150,44 @@ FastAPI application with modular route organization.
 AI-powered multi-model sentiment analysis with emotion detection and contextual interpretation.
 
 **Architecture:**
+
 - **FinBERT Model**: Financial/political sentiment classification (positive/negative/neutral)
 - **RoBERTa Emotion Model**: Six-emotion detection (anger, joy, fear, sadness, surprise, disgust)
 - **LLM Integration**: Contextual interpretation explaining WHY the models produced their results (supports Gemini, OpenAI, Anthropic)
 
 **Key Features:**
+
 - Three-class sentiment classification with confidence scores
 - Six-emotion detection with individual probabilities
-- AI-generated contextual interpretation (2-3 sentences)
+- AI-generated contextual interpretation (2-3 sentences, max 2000 tokens)
 - Automatic text chunking for long documents
 - Configurable via environment variables (model names, temperature, max tokens)
+- Dark mode UI with enhanced visualization
 
 **Processing Flow:**
+
 ```mermaid
-graph LR
-    Input[Raw Text] --> Chunk[Text Chunking<br/>510 tokens max]
-    Chunk --> Sentiment[FinBERT<br/>Sentiment Scores]
-    Chunk --> Emotion[RoBERTa<br/>Emotion Scores]
-    Sentiment --> LLM[LLM Provider<br/>Contextual Analysis]
-    Emotion --> LLM
-    LLM --> Output[Sentiment + Emotions<br/>+ Interpretation]
+%%{init: {'theme':'base'}}%%
+flowchart LR
+    Input["📝 Raw Text"] --> Chunk["📄 Text Chunking<br/><small>510 tokens max</small>"]
+    Chunk --> Sentiment["🎯 FinBERT<br/><small>Sentiment Scores</small>"]
+    Chunk --> Emotion["🎭 RoBERTa<br/><small>Emotion Scores</small>"]
+    Sentiment --> Aggregate["📊 Aggregate Results<br/><small>Average across chunks</small>"]
+    Emotion --> Aggregate
+    Aggregate --> LLM["🤖 LLM Provider<br/><small>Contextual Analysis<br/>2000 token limit</small>"]
+    LLM --> Output["✨ Complete Analysis<br/><small>Sentiment + Emotions<br/>+ AI Interpretation</small>"]
+    
+    style Input fill:#f0f3ff,stroke:#667eea,stroke-width:2px
+    style Chunk fill:#fff,stroke:#667eea,stroke-width:1px
+    style Sentiment fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    style Emotion fill:#fce4ec,stroke:#e91e63,stroke-width:2px
+    style Aggregate fill:#fff,stroke:#667eea,stroke-width:1px
+    style LLM fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    style Output fill:#667eea,stroke:#764ba2,stroke-width:3px,color:#fff
 ```
 
 **Response Schema:**
+
 ```python
 {
     "sentiment": "positive",
@@ -143,10 +216,12 @@ Orchestrates the RAG pipeline, coordinating modular components for intelligent q
 
 **Architecture:**
 The RAG service now uses a modular design with dedicated components:
+
 - **Orchestration:** Manages ChromaDB collection and coordinates components
 - **Delegation:** Delegates to specialized services for search, confidence, entities, and loading
 
 **Components Used:**
+
 - `SearchEngine` (from `services/rag/search_engine.py`)
 - `ConfidenceCalculator` (from `services/rag/confidence.py`)
 - `EntityAnalyzer` (from `services/rag/entity_analyzer.py`)
@@ -158,6 +233,7 @@ The RAG service now uses a modular design with dedicated components:
 Pluggable LLM provider abstraction with support for multiple AI models.
 
 **Architecture:**
+
 - **Abstract Base Class** (`base.py`): Defines the `LLMProvider` interface
 - **Factory Pattern** (`factory.py`): Creates providers with lazy imports for optional dependencies
 - **Provider Implementations**:
@@ -166,6 +242,7 @@ Pluggable LLM provider abstraction with support for multiple AI models.
   - `anthropic.py` - Anthropic Claude models (optional: `uv sync --group llm-anthropic`)
 
 **Features:**
+
 - **Model-Agnostic Configuration**: Single config interface (`LLM_API_KEY`, `LLM_MODEL_NAME`)
 - **Easy Provider Switching**: Change providers via `LLM_PROVIDER` environment variable
 - **Optional Dependencies**: Only install providers you need
@@ -177,6 +254,7 @@ Pluggable LLM provider abstraction with support for multiple AI models.
 - **Error Handling**: Graceful degradation with informative fallbacks
 
 **Provider Interface:**
+
 ```python
 class LLMProvider(ABC):
     @abstractmethod
@@ -191,6 +269,7 @@ class LLMProvider(ABC):
 ```
 
 **Usage Example:**
+
 ```python
 from src.services.llm import create_llm_provider
 
@@ -218,6 +297,7 @@ Modular, testable components for RAG functionality.
 Hybrid search engine combining multiple retrieval strategies.
 
 **Features:**
+
 - **Semantic Search:** MPNet embeddings (768d) with cosine similarity
 - **BM25 Search:** Keyword-based sparse retrieval
 - **Hybrid Search:** Configurable weighting of semantic + BM25 scores
@@ -225,6 +305,7 @@ Hybrid search engine combining multiple retrieval strategies.
 - **Deduplication:** Removes duplicate results by ID
 
 **Search Modes:**
+
 - `semantic` - Pure vector similarity search
 - `hybrid` - Combines semantic + BM25 (default weights: 0.7/0.3)
 - `reranking` - Optional cross-encoder for top results
@@ -234,17 +315,20 @@ Hybrid search engine combining multiple retrieval strategies.
 Multi-factor confidence scoring for RAG answers.
 
 **Confidence Factors (weighted):**
+
 - **Retrieval Quality (40%):** Average semantic similarity of results
 - **Consistency (25%):** Score variance (low variance = high confidence)
 - **Coverage (20%):** Normalized chunk count (more chunks = better coverage)
 - **Entity Coverage (15%):** Percentage of results mentioning query entities
 
 **Confidence Levels:**
+
 - **High:** combined_score ≥ 0.7
 - **Medium:** 0.4 ≤ combined_score < 0.7
 - **Low:** combined_score < 0.4
 
 **Output:**
+
 - Confidence level (high/medium/low)
 - Numeric confidence score (0-1)
 - Detailed explanation
@@ -255,6 +339,7 @@ Multi-factor confidence scoring for RAG answers.
 Entity extraction and statistical analysis.
 
 **Capabilities:**
+
 - **Entity Extraction:** Identifies capitalized words (filtered for stopwords, question words)
 - **Mention Counting:** Tracks entity mentions across corpus
 - **Speech Coverage:** Identifies which documents mention each entity
@@ -263,6 +348,7 @@ Entity extraction and statistical analysis.
 - **Corpus Percentage:** Percentage of documents mentioning entity
 
 **Statistics Output:**
+
 ```python
 {
     "mention_count": 524,
@@ -283,6 +369,7 @@ Entity extraction and statistical analysis.
 Smart document loading and chunking.
 
 **Features:**
+
 - **Recursive Text Splitting:** LangChain RecursiveCharacterTextSplitter
 - **Configurable Chunking:** Default 2048 chars (~512-768 tokens)
 - **Overlap:** 150 char overlap for context continuity
@@ -290,6 +377,7 @@ Smart document loading and chunking.
 - **Directory Loading:** Batch loading from directories with progress tracking
 
 **Chunking Strategy:**
+
 ```python
 chunk_size = 2048       # ~512-768 tokens (full context)
 chunk_overlap = 150     # ~100-150 tokens (preserve continuity)
@@ -300,6 +388,7 @@ chunk_overlap = 150     # ~100-150 tokens (preserve continuity)
 Google Gemini integration for answer generation.
 
 **Features:**
+
 - **Context-Aware Prompting:** Builds prompts with retrieved context
 - **Entity-Focused Generation:** Emphasizes entity mentions when applicable
 - **Fallback Extraction:** Returns context snippets if LLM fails
@@ -311,6 +400,7 @@ Google Gemini integration for answer generation.
 Text cleaning and normalization utilities.
 
 **Functions:**
+
 - Stopword removal (NLTK)
 - Tokenization
 - Special character removal
@@ -322,6 +412,7 @@ Text cleaning and normalization utilities.
 Data loading and analysis helpers.
 
 **Modules:**
+
 - `io_helpers.py` - Speech loading from directory
 - `formatters.py` - Word frequency statistics
 - `text_preprocessing.py` - Basic topic extraction (TF-IDF) and dataset statistics
@@ -331,6 +422,7 @@ Data loading and analysis helpers.
 Advanced topic extraction with semantic clustering and LLM-generated insights.
 
 **Features:**
+
 - **Semantic Clustering:** Groups related keywords using sentence embeddings (MPNet) and KMeans
 - **AI-Generated Labels:** Uses LLM to create meaningful cluster labels (e.g., "Border Security" instead of just "wall")
 - **Contextual Snippets:** Extracts text passages showing keywords in use with highlighting
@@ -338,18 +430,30 @@ Advanced topic extraction with semantic clustering and LLM-generated insights.
 - **Smart Filtering:** Excludes common verbs and low-relevance clusters (< 50% avg relevance)
 
 **Processing Pipeline:**
+
 ```mermaid
-graph LR
-    Text[Input Text] --> Extract[Extract Keywords<br/>TF-IDF + Filtering]
-    Extract --> Embed[Generate Embeddings<br/>MPNet]
-    Embed --> Cluster[Semantic Clustering<br/>KMeans]
-    Cluster --> Label[Generate Labels<br/>LLM Provider]
-    Label --> Snippets[Extract Snippets<br/>Context Windows]
-    Snippets --> Summary[Generate Summary<br/>LLM Provider]
-    Summary --> Output[Clustered Topics<br/>+ Snippets + Summary]
+%%{init: {'theme':'base'}}%%
+flowchart TB
+    Text["📝 Input Text"] --> Extract["🔍 Extract Keywords<br/><small>TF-IDF + Filtering</small>"]
+    Extract --> Embed["🎯 Generate Embeddings<br/><small>MPNet (768d)</small>"]
+    Embed --> Cluster["🔄 Semantic Clustering<br/><small>KMeans Algorithm</small>"]
+    Cluster --> Label["🏷️ Generate Labels<br/><small>LLM Provider</small>"]
+    Label --> Snippets["📄 Extract Snippets<br/><small>Context Windows</small>"]
+    Snippets --> Summary["✨ Generate Summary<br/><small>LLM Provider</small>"]
+    Summary --> Output["📊 Final Output<br/><small>Clustered Topics<br/>+ Snippets + Summary</small>"]
+    
+    style Text fill:#f0f3ff,stroke:#667eea,stroke-width:2px
+    style Extract fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    style Embed fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    style Cluster fill:#e1f5fe,stroke:#03a9f4,stroke-width:2px
+    style Label fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    style Snippets fill:#fff,stroke:#667eea,stroke-width:1px
+    style Summary fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    style Output fill:#667eea,stroke:#764ba2,stroke-width:3px,color:#fff
 ```
 
 **Key Advantages:**
+
 - Groups synonyms and related concepts automatically (e.g., "economy", "jobs", "employment" → "Economic Policy")
 - Provides real-world context with highlighted examples
 - Ranks by semantic relevance, not just frequency
@@ -363,34 +467,44 @@ graph LR
 Modular architecture for Retrieval-Augmented Generation.
 
 ```mermaid
-graph TB
-    subgraph "RAG Service (Orchestrator)"
-        Orchestrator[RAGService<br/>Collection Management]
+%%{init: {'theme':'base'}}%%
+flowchart TB
+    subgraph Orchestrator["🎯 RAG Service (Orchestrator)"]
+        RagService["RAGService<br/><small>Collection Management<br/>Component Coordination</small>"]
     end
     
-    subgraph "Indexing Components"
-        Loader[DocumentLoader<br/>Chunking & Metadata]
-        Embedder[Embedding Model<br/>all-mpnet-base-v2]
-        DB[(ChromaDB<br/>Vector Store)]
+    subgraph Indexing["📚 Indexing Pipeline"]
+        direction LR
+        Loader["📄 DocumentLoader<br/><small>Chunking & Metadata</small>"]
+        Embedder["🎯 Embedding Model<br/><small>all-mpnet-base-v2<br/>768 dimensions</small>"]
+        DB[("🗄️ ChromaDB<br/><small>Vector Store<br/>Persistent</small>")]
+        
+        Loader --> Embedder
+        Embedder --> DB
     end
     
-    subgraph "Query Components"
-        Search[SearchEngine<br/>Hybrid Retrieval]
-        Entities[EntityAnalyzer<br/>Extraction & Stats]
-        Confidence[ConfidenceCalculator<br/>Multi-factor Scoring]
-        LLM[LLMProvider<br/>Answer Generation]
+    subgraph Query["🔍 Query Pipeline"]
+        direction TB
+        Search["🔎 SearchEngine<br/><small>Hybrid Retrieval<br/>Semantic + BM25</small>"]
+        Entities["🏷️ EntityAnalyzer<br/><small>Extraction & Stats</small>"]
+        Confidence["📊 ConfidenceCalculator<br/><small>Multi-factor Scoring</small>"]
+        LLM["🤖 LLM Provider<br/><small>Answer Generation<br/>Gemini/OpenAI/Claude</small>"]
     end
     
-    Orchestrator --> Loader
-    Loader --> Embedder
-    Embedder --> DB
+    RagService -.->|"Index Documents"| Loader
+    RagService <-->|"Query"| Search
+    Search <-->|"Retrieve"| DB
+    RagService -->|"Extract Entities"| Entities
+    Entities <-->|"Analyze"| DB
+    RagService -->|"Calculate"| Confidence
+    RagService -->|"Generate Answer"| LLM
     
-    Orchestrator --> Search
-    Search --> DB
-    Orchestrator --> Entities
-    Entities --> DB
-    Orchestrator --> Confidence
-    Orchestrator --> LLM
+    style Orchestrator fill:#667eea,stroke:#764ba2,stroke-width:3px,color:#fff
+    style Indexing fill:#f0f3ff,stroke:#667eea,stroke-width:2px
+    style Query fill:#e9ecef,stroke:#667eea,stroke-width:2px
+    style RagService fill:#764ba2,stroke:#667eea,stroke-width:2px,color:#fff
+    style DB fill:#fff,stroke:#667eea,stroke-width:2px
+    style LLM fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
 ```
 
 ### RAG Workflow Details
@@ -448,12 +562,14 @@ graph TB
 **3. Confidence Scoring:**
 
 Multi-factor calculation combining:
+
 - **Retrieval Quality (40%):** Average semantic similarity (0-1)
 - **Consistency (25%):** Score variance (low variance = high confidence)
 - **Coverage (20%):** Number of supporting chunks (normalized)
 - **Entity Coverage (15%):** % of chunks mentioning query entities
 
 **Confidence Levels:**
+
 - **High:** combined_score ≥ 0.7
 - **Medium:** 0.4 ≤ combined_score < 0.7
 - **Low:** combined_score < 0.4
@@ -465,49 +581,92 @@ Multi-factor calculation combining:
 ### Sentiment Analysis Flow
 
 ```mermaid
+%%{init: {'theme':'base'}}%%
 sequenceDiagram
-    participant User
-    participant Frontend
-    participant API
-    participant SentimentAnalyzer
-    participant FinBERT
+    autonumber
+    participant User as 👤 User
+    participant UI as 🎨 Dark Mode UI
+    participant API as ⚡ FastAPI
+    participant Service as 📊 SentimentAnalyzer
+    participant FinBERT as 🎯 FinBERT Model
+    participant RoBERTa as 🎭 RoBERTa Model
+    participant LLM as 🤖 LLM Provider
     
-    User->>Frontend: Enter text
-    Frontend->>API: POST /analyze/sentiment
-    API->>SentimentAnalyzer: analyze_sentiment(text)
-    SentimentAnalyzer->>SentimentAnalyzer: Chunk text (512 tokens)
+    User->>UI: Enter text for analysis
+    UI->>API: POST /analyze/sentiment
+    API->>Service: analyze_sentiment(text)
+    Service->>Service: Chunk text (510 tokens)
+    
     loop For each chunk
-        SentimentAnalyzer->>FinBERT: Classify chunk
-        FinBERT-->>SentimentAnalyzer: Scores
+        Service->>FinBERT: Classify sentiment
+        FinBERT-->>Service: Sentiment scores
+        Service->>RoBERTa: Classify emotions
+        RoBERTa-->>Service: Emotion scores
     end
-    SentimentAnalyzer->>SentimentAnalyzer: Aggregate scores
-    SentimentAnalyzer-->>API: Sentiment + Confidence
-    API-->>Frontend: JSON Response
-    Frontend-->>User: Display results
+    
+    Service->>Service: Aggregate scores across chunks
+    Service->>LLM: Generate contextual interpretation<br/>(max 2000 tokens)
+    LLM-->>Service: AI interpretation
+    Service-->>API: Complete analysis results
+    API-->>UI: JSON Response
+    UI-->>User: Display with dark theme<br/>sentiment + emotions + interpretation
+    
+    Note over Service,LLM: LLM receives:<br/>- Text sample (600 chars)<br/>- Sentiment scores<br/>- Emotion scores
+    Note over UI,User: Results shown in dark mode<br/>with enhanced visualization
 ```
 
 ### RAG Question Answering Flow
 
 ```mermaid
+%%{init: {'theme':'base'}}%%
 sequenceDiagram
-    participant User
-    participant Frontend
-    participant API
-    participant RAGService
-    participant ChromaDB
-    participant Embeddings
+    autonumber
+    participant User as 👤 User
+    participant UI as 🎨 Dark Mode UI
+    participant API as ⚡ FastAPI
+    participant RAG as 🔍 RAG Service
+    participant Search as 🔎 SearchEngine
+    participant DB as 🗄️ ChromaDB
+    participant Embed as 🎯 Embeddings
+    participant Conf as 📊 Confidence
+    participant Entity as 🏷️ EntityAnalyzer
+    participant LLM as 🤖 LLM Provider
     
-    User->>Frontend: Ask question
-    Frontend->>API: POST /rag/ask
-    API->>RAGService: ask(question)
-    RAGService->>Embeddings: Encode question
-    Embeddings-->>RAGService: Query vector
-    RAGService->>ChromaDB: Search similar vectors
-    ChromaDB-->>RAGService: Top-k chunks
-    RAGService->>RAGService: Generate answer
-    RAGService-->>API: Answer + Context + Sources
-    API-->>Frontend: JSON Response
-    Frontend-->>User: Display answer & context
+    User->>UI: Ask question
+    UI->>API: POST /rag/ask
+    API->>RAG: ask(question, top_k=5)
+    
+    RAG->>Entity: Extract entities from question
+    Entity-->>RAG: Entity list
+    
+    RAG->>Embed: Encode question
+    Embed-->>RAG: Query vector (768d)
+    
+    RAG->>Search: hybrid_search(query_vector)
+    Search->>DB: Semantic search (cosine similarity)
+    Search->>DB: BM25 search (keyword matching)
+    DB-->>Search: Retrieved chunks
+    Search->>Search: Combine & rerank results
+    Search-->>RAG: Top-k chunks (deduplicated)
+    
+    RAG->>Conf: calculate_confidence(results, entities)
+    Conf-->>RAG: Confidence score + explanation
+    
+    opt Entity Statistics
+        RAG->>Entity: analyze_entities(entities, corpus)
+        Entity->>DB: Query entity mentions
+        Entity-->>RAG: Entity stats & sentiment
+    end
+    
+    RAG->>LLM: generate_answer(question, context, entities)
+    LLM-->>RAG: Generated answer
+    
+    RAG-->>API: Complete RAG response<br/>(answer + confidence + sources + entities)
+    API-->>UI: JSON Response
+    UI-->>User: Display answer with dark theme<br/>context + sources + confidence
+    
+    Note over Search,DB: Hybrid Search:<br/>70% semantic + 30% BM25<br/>Optional cross-encoder reranking
+    Note over Conf: Multi-factor scoring:<br/>40% retrieval quality<br/>25% consistency<br/>20% coverage<br/>15% entity coverage
 ```
 
 ---
@@ -534,22 +693,34 @@ RAGStatsResponse
 
 ### Middleware Stack
 
-```
-User Request
-    ↓
-CORS Middleware (allow all origins in dev)
-    ↓
-FastAPI Routing
-    ↓
-Pydantic Validation
-    ↓
-Endpoint Handler
-    ↓
-Business Logic (Services)
-    ↓
-Response Serialization
-    ↓
-HTTP Response
+```mermaid
+%%{init: {'theme':'base'}}%%
+flowchart TB
+    Request["📨 User Request<br/><small>HTTP/HTTPS</small>"]
+    CORS["🌐 CORS Middleware<br/><small>Allow origins config</small>"]
+    Routing["🔀 FastAPI Routing<br/><small>Endpoint matching</small>"]
+    Validation["✅ Pydantic Validation<br/><small>Request models</small>"]
+    Handler["⚙️ Endpoint Handler<br/><small>Business logic</small>"]
+    Services["🧠 Business Logic<br/><small>RAG, Sentiment, Topics</small>"]
+    Serialize["📦 Response Serialization<br/><small>JSON encoding</small>"]
+    Response["📬 HTTP Response<br/><small>200/4xx/5xx</small>"]
+    
+    Request --> CORS
+    CORS --> Routing
+    Routing --> Validation
+    Validation --> Handler
+    Handler --> Services
+    Services --> Serialize
+    Serialize --> Response
+    
+    style Request fill:#f0f3ff,stroke:#667eea,stroke-width:2px
+    style CORS fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    style Routing fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    style Validation fill:#e1f5fe,stroke:#03a9f4,stroke-width:2px
+    style Handler fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    style Services fill:#667eea,stroke:#764ba2,stroke-width:2px,color:#fff
+    style Serialize fill:#fff,stroke:#667eea,stroke-width:1px
+    style Response fill:#667eea,stroke:#764ba2,stroke-width:3px,color:#fff
 ```
 
 ### Error Handling Strategy
@@ -573,25 +744,37 @@ except Exception as e:
 ### Docker Multi-Stage Build
 
 ```mermaid
-graph TB
-    subgraph "Stage 1: Builder"
-        UV[uv Package Manager]
-        Deps[Install Dependencies]
+%%{init: {'theme':'base'}}%%
+flowchart LR
+    subgraph Stage1["🔨 Stage 1: Builder"]
+        direction TB
+        UV["⚡ uv Package Manager<br/><small>Fast Python installer</small>"]
+        Deps["📦 Install Dependencies<br/><small>Production + optional groups</small>"]
         UV --> Deps
     end
     
-    subgraph "Stage 2: Runtime"
-        Slim[Python 3.12-slim]
-        Copy[Copy Dependencies]
-        App[Copy Application Code]
-        Models[Download Models<br/>NLTK + Transformers]
+    subgraph Stage2["🚀 Stage 2: Runtime"]
+        direction TB
+        Slim["🐍 Python 3.12-slim<br/><small>Minimal base image</small>"]
+        Copy["📋 Copy Dependencies<br/><small>From builder stage</small>"]
+        App["📁 Copy Application Code<br/><small>src/, data/</small>"]
+        Models["🎯 Download ML Models<br/><small>NLTK + Transformers</small>"]
+        User["👤 Non-root User<br/><small>appuser (UID 1000)</small>"]
         
         Slim --> Copy
         Copy --> App
         App --> Models
+        Models --> User
     end
     
-    Deps -.->|Python packages| Copy
+    Deps -.->|"Python packages<br/>wheel files"| Copy
+    
+    style Stage1 fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    style Stage2 fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    style UV fill:#fff,stroke:#2196f3,stroke-width:1px
+    style Deps fill:#fff,stroke:#2196f3,stroke-width:1px
+    style Models fill:#fff9c4,stroke:#fbc02d,stroke-width:2px
+    style User fill:#c8e6c9,stroke:#4caf50,stroke-width:2px
 ```
 
 ### Deployment Options
@@ -599,13 +782,31 @@ graph TB
 #### Option 1: Render (via Docker Hub)
 
 ```mermaid
-graph LR
-    GH[GitHub Actions] -->|Build & Push| DH[Docker Hub]
-    DH -->|Auto-deploy| Render[Render Platform]
-    Render -->|Serve| Users[End Users]
+%%{init: {'theme':'base'}}%%
+flowchart LR
+    GH["⚙️ GitHub Actions<br/><small>CI/CD Pipeline</small>"]
+    Build["🔨 Build Docker Image<br/><small>Multi-stage build</small>"]
+    Test["✅ Run Tests<br/><small>pytest + linting</small>"]
+    DH["🐳 Docker Hub<br/><small>Public registry</small>"]
+    Render["🌐 Render Platform<br/><small>Auto-deploy on push</small>"]
+    Users["👥 End Users<br/><small>HTTPS access</small>"]
+    
+    GH --> Build
+    Build --> Test
+    Test -->|"Push latest tag"| DH
+    DH -->|"Webhook trigger"| Render
+    Render -->|"Serve API"| Users
+    
+    style GH fill:#f0f3ff,stroke:#667eea,stroke-width:2px
+    style Build fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    style Test fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    style DH fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    style Render fill:#667eea,stroke:#764ba2,stroke-width:3px,color:#fff
+    style Users fill:#c8e6c9,stroke:#4caf50,stroke-width:2px
 ```
 
 **Flow:**
+
 1. Push to `main` branch
 2. GitHub Actions builds Docker image
 3. Push to Docker Hub (`trump-speeches-nlp-chatbot:latest`)
@@ -615,45 +816,103 @@ graph LR
 
 #### Option 2: Azure Web App
 
-**Via ACR:**
+**Via ACR (Recommended):**
+
 ```mermaid
-graph LR
-    GH[GitHub Actions] -->|Build & Push| ACR[Azure Container<br/>Registry]
-    ACR -->|Deploy| Azure[Azure Web App]
-    Azure -->|Serve| Users[End Users]
+%%{init: {'theme':'base'}}%%
+flowchart LR
+    GH["⚙️ GitHub Actions<br/><small>CI/CD Pipeline</small>"]
+    Build["🔨 Build Docker Image<br/><small>Multi-stage build</small>"]
+    ACR["☁️ Azure Container Registry<br/><small>Private registry</small>"]
+    Azure["🌐 Azure Web App<br/><small>Managed container hosting</small>"]
+    Users["👥 End Users<br/><small>HTTPS access</small>"]
+    
+    GH --> Build
+    Build -->|"Push to ACR"| ACR
+    ACR -->|"Deploy container"| Azure
+    Azure -->|"Serve API"| Users
+    
+    style GH fill:#f0f3ff,stroke:#667eea,stroke-width:2px
+    style Build fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    style ACR fill:#e1f5fe,stroke:#03a9f4,stroke-width:2px
+    style Azure fill:#667eea,stroke:#764ba2,stroke-width:3px,color:#fff
+    style Users fill:#c8e6c9,stroke:#4caf50,stroke-width:2px
 ```
 
-**Via Docker Hub:**
+**Via Docker Hub (Alternative):**
+
 ```mermaid
-graph LR
-    GH[GitHub Actions] -->|Build & Push| DH[Docker Hub]
-    DH -->|Deploy| Azure[Azure Web App]
-    Azure -->|Serve| Users[End Users]
+%%{init: {'theme':'base'}}%%
+flowchart LR
+    GH["⚙️ GitHub Actions<br/><small>CI/CD Pipeline</small>"]
+    Build["🔨 Build Docker Image<br/><small>Multi-stage build</small>"]
+    DH["🐳 Docker Hub<br/><small>Public registry</small>"]
+    Azure["🌐 Azure Web App<br/><small>Managed container hosting</small>"]
+    Users["👥 End Users<br/><small>HTTPS access</small>"]
+    
+    GH --> Build
+    Build -->|"Push to Docker Hub"| DH
+    DH -->|"Deploy container"| Azure
+    Azure -->|"Serve API"| Users
+    
+    style GH fill:#f0f3ff,stroke:#667eea,stroke-width:2px
+    style Build fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    style DH fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    style Azure fill:#667eea,stroke:#764ba2,stroke-width:3px,color:#fff
+    style Users fill:#c8e6c9,stroke:#4caf50,stroke-width:2px
 ```
 
 ### CI/CD Pipeline
 
 ```mermaid
-graph TB
-    Push[Push to main] --> CI[CI Workflow]
-    Push --> Security[Security Scan]
+%%{init: {'theme':'base'}}%%
+flowchart TB
+    Push["📝 Push to main<br/><small>Git commit</small>"]
     
-    CI --> Tests[Unit Tests<br/>Pytest]
-    CI --> Lint[Code Quality<br/>flake8, black, mypy]
+    subgraph CI["✅ CI Workflow"]
+        direction TB
+        Tests["🧪 Unit Tests<br/><small>pytest • 3.11/3.12/3.13</small>"]
+        Lint["📋 Code Quality<br/><small>flake8 • black • mypy</small>"]
+    end
     
-    Security --> PipAudit[pip-audit<br/>Dependency Check]
-    Security --> Bandit[bandit<br/>Security Analysis]
+    subgraph Security["🔒 Security Scan"]
+        direction TB
+        PipAudit["🔍 pip-audit<br/><small>Dependency vulnerabilities</small>"]
+        Bandit["🛡️ bandit<br/><small>Security analysis</small>"]
+    end
     
-    Tests --> Build[Build Docker Image]
-    Lint --> Build
-    PipAudit --> Build
-    Bandit --> Build
+    subgraph Build["🔨 Build & Deploy"]
+        direction TB
+        Docker["🐳 Build Docker Image<br/><small>Multi-stage • Optimized</small>"]
+        DHPush["📤 Push to Docker Hub<br/><small>Latest + versioned tags</small>"]
+        ACRPush["☁️ Push to ACR<br/><small>Azure Container Registry</small>"]
+    end
     
-    Build --> DHPush[Push to Docker Hub]
-    Build --> ACRPush[Push to ACR]
+    subgraph Deploy["🌐 Deployment"]
+        direction LR
+        RenderDeploy["🟢 Deploy to Render<br/><small>Auto-deploy via webhook</small>"]
+        AzureDeploy["🔵 Deploy to Azure<br/><small>Azure Web App</small>"]
+    end
     
-    DHPush --> RenderDeploy[Deploy to Render]
-    ACRPush --> AzureDeploy[Deploy to Azure]
+    Push --> CI
+    Push --> Security
+    
+    Tests --> Docker
+    Lint --> Docker
+    PipAudit --> Docker
+    Bandit --> Docker
+    
+    Docker --> DHPush
+    Docker --> ACRPush
+    
+    DHPush --> RenderDeploy
+    ACRPush --> AzureDeploy
+    
+    style Push fill:#f0f3ff,stroke:#667eea,stroke-width:2px
+    style CI fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    style Security fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    style Build fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    style Deploy fill:#667eea,stroke:#764ba2,stroke-width:2px,color:#fff
 ```
 
 ---
@@ -665,36 +924,44 @@ The system uses a pluggable LLM provider abstraction that allows switching betwe
 ### Architecture Pattern
 
 ```mermaid
-graph TB
-    Config[Environment Config<br/>LLM_PROVIDER, LLM_API_KEY]
-    Factory[LLM Factory<br/>create_llm_provider]
-    Base[LLMProvider<br/>Abstract Interface]
+%%{init: {'theme':'base'}}%%
+flowchart TB
+    Config["⚙️ Environment Config<br/><small>LLM_PROVIDER<br/>LLM_API_KEY<br/>LLM_MODEL_NAME</small>"]
+    Factory["🏭 LLM Factory<br/><small>create_llm_provider()</small>"]
+    Base["📋 LLMProvider<br/><small>Abstract Interface</small>"]
     
-    subgraph "Providers"
-        Gemini[GeminiLLM<br/>Always Available]
-        OpenAI[OpenAILLM<br/>Optional]
-        Anthropic[AnthropicLLM<br/>Optional]
+    subgraph Providers["🤖 LLM Providers"]
+        direction LR
+        Gemini["✅ Gemini<br/><small>Always Available<br/>Default</small>"]
+        OpenAI["🔵 OpenAI<br/><small>Optional<br/>--group llm-openai</small>"]
+        Anthropic["🟣 Anthropic<br/><small>Optional<br/>--group llm-anthropic</small>"]
     end
     
-    subgraph "Services"
-        RAG[RAG Service]
-        Sentiment[Sentiment Analysis]
-        Topics[Topic Analysis]
+    subgraph Services["🧠 AI Services"]
+        direction TB
+        RAG["🔍 RAG Service<br/><small>Answer generation</small>"]
+        Sentiment["📊 Sentiment Analysis<br/><small>Interpretation</small>"]
+        Topics["🏷️ Topic Analysis<br/><small>Summaries & labels</small>"]
     end
     
     Config --> Factory
     Factory --> Base
-    Base --> Gemini
-    Base --> OpenAI
-    Base --> Anthropic
-    
-    Gemini -.->|Implements| Base
-    OpenAI -.->|Implements| Base
-    Anthropic -.->|Implements| Base
+    Base -.->|"Implements"| Gemini
+    Base -.->|"Implements"| OpenAI
+    Base -.->|"Implements"| Anthropic
     
     RAG --> Factory
     Sentiment --> Factory
     Topics --> Factory
+    
+    style Config fill:#f0f3ff,stroke:#667eea,stroke-width:2px
+    style Factory fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    style Base fill:#e1f5fe,stroke:#03a9f4,stroke-width:2px
+    style Providers fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    style Services fill:#667eea,stroke:#764ba2,stroke-width:2px,color:#fff
+    style Gemini fill:#c8e6c9,stroke:#4caf50,stroke-width:2px
+    style OpenAI fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    style Anthropic fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
 ```
 
 ### Provider Interface
@@ -740,18 +1007,21 @@ def create_llm_provider() -> LLMProvider:
 ### Provider Implementations
 
 **Gemini Provider** (Default):
+
 - Always available (base dependency)
 - Uses `google-generativeai` package
 - Supports Gemini 1.5/2.0 models
 - Provider-specific: Safety settings configuration
 
 **OpenAI Provider** (Optional):
+
 - Requires: `uv sync --group llm-openai`
 - Uses `openai` package
 - Supports GPT-3.5/GPT-4/GPT-4o models
 - Provider-specific: None (pure API)
 
 **Anthropic Provider** (Optional):
+
 - Requires: `uv sync --group llm-anthropic`
 - Uses `anthropic` package
 - Supports Claude 3/3.5 models
@@ -773,6 +1043,7 @@ LLM_MAX_OUTPUT_TOKENS=2048
 ### Switching Providers
 
 **From Gemini to OpenAI:**
+
 ```bash
 # 1. Install OpenAI support
 uv sync --group llm-openai
@@ -787,6 +1058,7 @@ uv run uvicorn src.api:app --reload
 ```
 
 **From Gemini to Anthropic:**
+
 ```bash
 # 1. Install Anthropic support
 uv sync --group llm-anthropic
@@ -841,6 +1113,7 @@ uv run uvicorn src.api:app --reload
 | **Security** | pip-audit, bandit | Latest |
 
 **Testing Strategy:**
+
 - **Unit Tests:** Component-level testing for SearchEngine, ConfidenceCalculator, EntityAnalyzer, DocumentLoader
 - **Integration Tests:** Full RAG pipeline testing
 - **Coverage:** 65%+ overall, 90%+ for core RAG components
@@ -873,23 +1146,51 @@ uv run uvicorn src.api:app --reload
 #### 1. Horizontal Scaling
 
 ```mermaid
-graph TB
-    LB[Load Balancer]
-    API1[API Instance 1]
-    API2[API Instance 2]
-    API3[API Instance 3]
-    SharedDB[(Shared ChromaDB<br/>Postgres pgvector)]
+%%{init: {'theme':'base'}}%%
+flowchart TB
+    Users["👥 Users<br/><small>Concurrent requests</small>"]
+    LB["⚖️ Load Balancer<br/><small>Nginx / Azure LB</small>"]
     
+    subgraph Instances["🚀 API Instances"]
+        direction LR
+        API1["⚡ Instance 1<br/><small>FastAPI + Models</small>"]
+        API2["⚡ Instance 2<br/><small>FastAPI + Models</small>"]
+        API3["⚡ Instance 3<br/><small>FastAPI + Models</small>"]
+    end
+    
+    subgraph SharedData["💾 Shared Data Layer"]
+        direction TB
+        Cache["🔴 Redis Cache<br/><small>Query results<br/>Embeddings</small>"]
+        SharedDB[("🗄️ Shared Vector DB<br/><small>pgvector / Pinecone</small>")]
+        Storage["☁️ Shared Storage<br/><small>S3 / Azure Blob<br/>Models + Data</small>"]
+    end
+    
+    Users --> LB
     LB --> API1
     LB --> API2
     LB --> API3
     
-    API1 --> SharedDB
-    API2 --> SharedDB
-    API3 --> SharedDB
+    API1 <--> Cache
+    API2 <--> Cache
+    API3 <--> Cache
+    
+    API1 <--> SharedDB
+    API2 <--> SharedDB
+    API3 <--> SharedDB
+    
+    API1 -.->|"Load models"| Storage
+    API2 -.->|"Load models"| Storage
+    API3 -.->|"Load models"| Storage
+    
+    style Users fill:#f0f3ff,stroke:#667eea,stroke-width:2px
+    style LB fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    style Instances fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    style SharedData fill:#667eea,stroke:#764ba2,stroke-width:2px,color:#fff
+    style Cache fill:#ffebee,stroke:#f44336,stroke-width:2px
 ```
 
 **Required Changes:**
+
 - Replace ChromaDB with pgvector (Postgres) or Pinecone
 - Use shared model storage (S3/Azure Blob)
 - Add Redis for caching
@@ -897,11 +1198,13 @@ graph TB
 #### 2. Vertical Scaling
 
 **Current Requirements:**
+
 - RAM: ~2.5GB (models + API)
 - CPU: 1-2 cores
 - Storage: ~1.5GB (models + data)
 
 **Optimized for:**
+
 - RAM: 4-8GB for concurrent requests
 - CPU: 4+ cores for parallel processing
 - Storage: 5GB+ for larger datasets
@@ -909,12 +1212,14 @@ graph TB
 #### 3. Performance Optimizations
 
 **Already Implemented:**
+
 - Multi-stage Docker builds
 - Model pre-loading on startup
 - Async request handling
 - Efficient text chunking
 
 **Future Improvements:**
+
 - Model quantization (reduce size)
 - GPU acceleration (CUDA support)
 - Response caching (Redis)
@@ -964,18 +1269,21 @@ graph TB
 ### Recommended Metrics
 
 **Application Metrics:**
+
 - Request count (by endpoint)
 - Response time (p50, p95, p99)
 - Error rate (4xx, 5xx)
 - Model inference time
 
 **System Metrics:**
+
 - CPU usage
 - Memory usage
 - Disk I/O
 - Network I/O
 
 **Business Metrics:**
+
 - Total analyses performed
 - Most used endpoints
 - Average sentiment scores
@@ -1038,13 +1346,30 @@ request_duration = Histogram('api_request_duration_seconds', 'Request duration')
 ## Development Workflow
 
 ```mermaid
-graph LR
-    Dev[Local Development] -->|Test| Test[pytest]
-    Test -->|Lint| Lint[black, flake8, mypy]
-    Lint -->|Commit| Git[Git Push]
-    Git -->|Trigger| CI[GitHub Actions]
-    CI -->|Build| Docker[Docker Build]
-    Docker -->|Deploy| Env[Render/Azure]
+%%{init: {'theme':'base'}}%%
+flowchart LR
+    Dev["💻 Local Development<br/><small>uv venv + FastAPI</small>"]
+    Test["🧪 Testing<br/><small>pytest • 65% coverage</small>"]
+    Lint["📋 Linting<br/><small>black • flake8 • mypy</small>"]
+    Git["📝 Git Push<br/><small>Commit to main</small>"]
+    CI["⚙️ GitHub Actions<br/><small>CI/CD pipeline</small>"]
+    Docker["🐳 Docker Build<br/><small>Multi-stage • Optimized</small>"]
+    Env["🌐 Deploy<br/><small>Render / Azure</small>"]
+    
+    Dev --> Test
+    Test --> Lint
+    Lint --> Git
+    Git --> CI
+    CI --> Docker
+    Docker --> Env
+    
+    style Dev fill:#f0f3ff,stroke:#667eea,stroke-width:2px
+    style Test fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    style Lint fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    style Git fill:#e1f5fe,stroke:#03a9f4,stroke-width:2px
+    style CI fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+    style Docker fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    style Env fill:#667eea,stroke:#764ba2,stroke-width:3px,color:#fff
 ```
 
 ---
@@ -1056,6 +1381,7 @@ graph LR
 Each RAG component has dedicated unit tests ensuring isolation and reliability:
 
 **Test Files:**
+
 - `tests/test_search_engine.py` - SearchEngine component tests (18 tests)
 - `tests/test_confidence.py` - ConfidenceCalculator tests (11 tests)  
 - `tests/test_entity_analyzer.py` - EntityAnalyzer tests (20 tests)
@@ -1063,6 +1389,7 @@ Each RAG component has dedicated unit tests ensuring isolation and reliability:
 - `tests/test_rag_integration.py` - Full RAG pipeline integration tests (28 tests)
 
 **Coverage:**
+
 - Overall: 65%+
 - Core RAG components: 90%+
 - SearchEngine: 94%
@@ -1071,6 +1398,7 @@ Each RAG component has dedicated unit tests ensuring isolation and reliability:
 - EntityAnalyzer: 73%
 
 **Testing Approach:**
+
 - **Unit Tests:** Isolated component testing with mocked dependencies
 - **Integration Tests:** Full pipeline testing with real ChromaDB
 - **Fixtures:** Reusable pytest fixtures for component setup
@@ -1080,6 +1408,7 @@ Each RAG component has dedicated unit tests ensuring isolation and reliability:
 ### Continuous Integration
 
 GitHub Actions workflow runs on every push:
+
 - Python 3.11, 3.12, 3.13 matrix testing
 - Unit tests with coverage reporting
 - Integration tests (excluding model loading)
@@ -1100,6 +1429,6 @@ GitHub Actions workflow runs on every push:
 
 ---
 
-**Last Updated:** November 2025  
-**Version:** 0.2.0  
+**Last Updated:** December 2025  
+**Version:** 0.3.0  
 **Maintainer:** Kristiyan Bonev

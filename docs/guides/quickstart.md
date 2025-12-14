@@ -21,6 +21,7 @@ Get the Trump Speeches NLP Chatbot API running locally in minutes.
 2. **Configure Environment**
 
    Create a `.env` file in the project root:
+
    ```bash
    GEMINI_API_KEY=your_api_key_here
    ```
@@ -40,7 +41,8 @@ Get the Trump Speeches NLP Chatbot API running locally in minutes.
    - Start FastAPI server
 
    **Expected startup output**:
-   ```
+
+   ```text
    2025-11-04 12:34:56 | INFO     | src.api              | Application: Trump Speeches NLP Chatbot API v0.1.0
    2025-11-04 12:34:56 | INFO     | src.api              | Environment: development
    2025-11-04 12:34:56 | INFO     | src.api              | ✓ Sentiment analysis model loaded successfully
@@ -133,7 +135,8 @@ print(response.json())
 ### "RAG service not initialized"
 
 The API auto-indexes documents on first startup. This takes ~30-60 seconds. Check the logs for progress:
-```
+
+```text
 INFO:     Loading documents into RAG service...
 INFO:     Loaded 35 documents into RAG service!
 ```
