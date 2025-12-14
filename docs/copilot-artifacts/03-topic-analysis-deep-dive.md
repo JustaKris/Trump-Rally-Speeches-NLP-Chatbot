@@ -1,6 +1,6 @@
 # Topic Analysis Deep Dive: Semantic Clustering Explained
 
-**Understanding AI-Powered Theme Extraction and Topic Discovery**
+## Understanding AI-Powered Theme Extraction and Topic Discovery
 
 ---
 
@@ -11,6 +11,7 @@ Topic analysis is the computational task of automatically identifying, extractin
 
 **The Goal:**
 Transform unstructured text into structured insights:
+
 - **What** are the main topics?
 - **How** are topics related to each other?
 - **Where** in the text do topics appear?
@@ -18,6 +19,7 @@ Transform unstructured text into structured insights:
 
 **Beyond Word Frequency:**
 Your system doesn't just count words—it uses AI to:
+
 - Group related concepts semantically ("economy" + "jobs" → "Economic Policy")
 - Generate meaningful topic labels using LLMs
 - Show contextual examples of topics in use
@@ -30,6 +32,7 @@ Your system doesn't just count words—it uses AI to:
 ### Traditional Approach: Word Counting
 
 **Method:**
+
 ```python
 # Count words
 words = text.split()
@@ -40,6 +43,7 @@ top_10 = freq.most_common(10)
 ```
 
 **Problems:**
+
 1. **Stopwords dominate** ("the", "and", "to")
 2. **No semantic grouping** ("economy" and "jobs" counted separately)
 3. **No context** (can't tell *how* word is used)
@@ -48,6 +52,7 @@ top_10 = freq.most_common(10)
 ### Your Solution: Semantic Clustering
 
 **Method:**
+
 1. Extract important keywords (filtered, no stopwords)
 2. Convert keywords to semantic embeddings
 3. Cluster similar keywords together using AI
@@ -56,7 +61,8 @@ top_10 = freq.most_common(10)
 6. Provide AI-generated summary
 
 **Result:**
-```
+
+```text
 Cluster 1: "Economic Policy"
 - Keywords: economy (40), jobs (35), market (28), growth (22)
 - Snippet: "The **economy** is booming with **job** creation..."
@@ -75,7 +81,9 @@ Cluster 2: "Border Security"
 **Goal:** Identify important words that represent topics
 
 **Process:**
+
 ```python
+
 def extract_keywords(text: str, top_n: int = 20) -> List[Dict]:
     # 1. Clean text
     cleaned = clean_text(text, remove_stopwords=True)
@@ -109,7 +117,8 @@ def extract_keywords(text: str, top_n: int = 20) -> List[Dict]:
 ```
 
 **Example:**
-```
+
+```text
 Input: Long political speech
 
 Output:
@@ -135,7 +144,9 @@ Words with similar meanings should cluster together in vector space.
 **Model:** MPNet (`all-mpnet-base-v2`)
 
 **Process:**
+
 ```python
+
 from sentence_transformers import SentenceTransformer
 
 model = SentenceTransformer("all-mpnet-base-v2")
@@ -147,7 +158,8 @@ print(embeddings.shape)  # (6, 768)
 ```
 
 **Visualization (Simplified to 2D):**
-```
+
+```text
         economy •
            jobs •  ← Close together (economic cluster)
          market •
@@ -163,12 +175,14 @@ print(embeddings.shape)  # (6, 768)
 **Algorithm:** KMeans (unsupervised learning)
 
 **How KMeans Works:**
+
 1. **Initialize:** Randomly place K cluster centers in 768-dimensional space
 2. **Assign:** Assign each keyword to nearest cluster center
 3. **Update:** Move cluster centers to mean of assigned keywords
 4. **Repeat:** Until cluster assignments stabilize
 
 **Your Implementation:**
+
 ```python
 from sklearn.cluster import KMeans
 
@@ -194,7 +208,8 @@ for keyword, label in zip(keywords, cluster_labels):
 ```
 
 **Example Result:**
-```
+
+```text
 Cluster 0: ["economy", "jobs", "market", "growth", "prosperity"]
 Cluster 1: ["border", "immigration", "wall", "security", "illegal"]
 Cluster 2: ["media", "fake", "news", "press", "cnn"]
@@ -209,7 +224,8 @@ Cluster 2: ["media", "fake", "news", "press", "cnn"]
 **Solution:** Use Gemini LLM to generate labels
 
 **Prompt:**
-```
+
+```text
 You are a topic labeling expert. Given a cluster of related keywords from a 
 political speech, generate a concise, descriptive label (2-4 words) that 
 captures the main theme.
@@ -220,12 +236,15 @@ Generate a label that represents this topic cluster.
 ```
 
 **Gemini Response:**
-```
+
+```text
 "Economic Policy"
 ```
 
 **Fallback:** If LLM unavailable, use most frequent keyword as label:
+
 ```python
+
 label = max(cluster_keywords, key=lambda k: k["count"])["word"].title()
 ```
 
@@ -234,7 +253,9 @@ label = max(cluster_keywords, key=lambda k: k["count"])["word"].title()
 **Goal:** Show keywords in actual context with highlighting
 
 **Process:**
+
 ```python
+
 def extract_snippets(
     text: str,
     cluster_keywords: List[str],
@@ -276,7 +297,8 @@ def extract_snippets(
 ```
 
 **Example:**
-```
+
+```text
 Cluster: "Economic Policy" (keywords: economy, jobs, market)
 
 Snippets:
@@ -290,7 +312,8 @@ Snippets:
 **Goal:** Provide interpretive analysis of main themes
 
 **Gemini Prompt:**
-```
+
+```text
 You are analyzing the main topics in a political speech. Here are the topic 
 clusters identified:
 
@@ -307,7 +330,8 @@ their significance in the speech. Be objective and concise.
 ```
 
 **Gemini Response:**
-```
+
+```text
 "The speech emphasizes economic achievements as a central theme, with frequent 
 references to job creation and market performance. Border security emerges as 
 a secondary but substantial focus, highlighting immigration enforcement. Media 
@@ -324,7 +348,8 @@ criticism serves as a recurring rhetorical device throughout the discourse."
 A mathematical space where each dimension represents a learned feature.
 
 **Example (Simplified to 3D):**
-```
+
+```text
 "economy" = [0.8, 0.2, -0.1]
            ↑    ↑     ↑
          dim1 dim2  dim3
@@ -334,7 +359,8 @@ A mathematical space where each dimension represents a learned feature.
 ```
 
 **Distance Calculation:**
-```
+
+```text
 distance(economy, jobs) = sqrt((0.8-0.75)² + (0.2-0.25)² + (-0.1-(-0.05))²)
                         = sqrt(0.0025 + 0.0025 + 0.0025)
                         = 0.0866  (very close)
@@ -350,7 +376,8 @@ Same principle, just with 768 numbers instead of 3.
 ### KMeans Convergence
 
 **Iteration 1:**
-```
+
+```text
 Initial centers (random):
 C1 = [0.5, 0.5, ...]
 C2 = [-0.5, 0.8, ...]
@@ -365,7 +392,8 @@ Assign keywords to nearest center:
 ```
 
 **Iteration 2:**
-```
+
+```text
 Update centers to mean of assigned keywords:
 C1 = mean([economy, jobs, market]) = [0.76, 0.23, ...]
 C2 = mean([border, immigration, wall]) = [-0.25, 0.85, ...]
@@ -375,12 +403,14 @@ Re-assign based on new centers:
 ```
 
 **Iteration N:**
-```
+
+```text
 Centers stabilize (no keywords switching):
 Convergence achieved!
 ```
 
 **Why KMeans?**
+
 - **Fast** — Converges in few iterations
 - **Deterministic** — With fixed random seed, always same result
 - **Scalable** — Works well with high-dimensional data
@@ -393,6 +423,7 @@ Convergence achieved!
 ### Auto-Cluster Determination
 
 **Your Logic:**
+
 ```python
 num_keywords = len(keywords)
 
@@ -407,11 +438,13 @@ else:
 ```
 
 **Reasoning:**
+
 - **Too few clusters** → Overly broad topics (everything is "Politics")
 - **Too many clusters** → Overly specific topics ("Jobs in Ohio", "Jobs in Michigan")
 - **Sweet spot** → 3-6 clusters for typical speeches
 
 **Can Override:**
+
 ```python
 # API call with custom cluster count
 POST /analyze/topics?num_clusters=5
@@ -422,13 +455,16 @@ POST /analyze/topics?num_clusters=5
 **Purpose:** Exclude weak clusters with low relevance
 
 **Configuration (YAML):**
+
 ```yaml
+
 topic:
   topic_relevance_threshold: 0.3
   topic_min_clusters: 3
 ```
 
 **Logic:**
+
 ```python
 # Filter clusters by relevance
 filtered = [c for c in clusters if c["avg_relevance"] >= 0.3]
@@ -444,7 +480,9 @@ Some clusters have low-frequency keywords that aren't truly important topics.
 ### Excluded Verbs
 
 **Configuration:**
+
 ```python
+
 excluded_verbs = [
     "said", "going", "know", "think", "get", "got", "want",
     "make", "take", "come", "see", "look", "tell", "give"
@@ -455,7 +493,8 @@ excluded_verbs = [
 These verbs appear frequently but don't represent topics.
 
 **Example:**
-```
+
+```text
 Without filtering: "said" appears 100 times
 With filtering: "economy" (40), "jobs" (35), "border" (30) become top topics
 ```
@@ -469,7 +508,9 @@ With filtering: "economy" (40), "jobs" (35), "border" (30) become top topics
 **Use Case:** Quickly understand what a long speech is about
 
 **Workflow:**
+
 ```python
+
 result = analyze_topics(speech_text, top_n=5)
 
 print("Main Topics:")
@@ -480,7 +521,8 @@ print(f"\nSummary: {result['summary']}")
 ```
 
 **Output:**
-```
+
+```text
 Main Topics:
 - Economic Policy (120 mentions)
 - Border Security (85 mentions)
@@ -495,7 +537,9 @@ with recurring criticism of media coverage.
 **Use Case:** Compare topics across multiple speeches
 
 **Workflow:**
+
 ```python
+
 speeches = load_all_speeches()
 topic_evolution = []
 
@@ -515,7 +559,9 @@ plot_topic_timeline(topic_evolution)
 **Use Case:** Categorize documents by topic
 
 **Workflow:**
+
 ```python
+
 def categorize_document(text):
     result = analyze_topics(text, top_n=1)
     primary_topic = result["clustered_topics"][0]["label"]
@@ -532,7 +578,9 @@ for doc in documents:
 **Use Case:** Find speeches discussing specific topics
 
 **Workflow:**
+
 ```python
+
 def find_speeches_about(topic_keyword):
     matching_speeches = []
     
@@ -559,7 +607,8 @@ immigration_speeches = find_speeches_about("immigration")
 ### Latency Breakdown
 
 **Typical Request (1000 words):**
-```
+
+```text
 Keyword extraction: 100-200ms
 Embedding generation: 200-500ms (depends on keyword count)
 KMeans clustering: 50-100ms
@@ -570,7 +619,8 @@ Total: ~3-5 seconds
 ```
 
 **Long Text (5000 words):**
-```
+
+```text
 Keyword extraction: 300-500ms
 Embedding generation: 500-1000ms (more keywords)
 KMeans clustering: 100-200ms
@@ -582,7 +632,9 @@ Total: ~5-8 seconds
 ### Optimization Opportunities
 
 **Batch Embedding Generation:**
+
 ```python
+
 # Instead of one at a time
 embeddings = [model.encode(kw) for kw in keywords]  # Slow
 
@@ -591,14 +643,18 @@ embeddings = model.encode(keywords)  # Faster
 ```
 
 **Cache Topic Results:**
+
 ```python
+
 @lru_cache(maxsize=100)
 def analyze_topics_cached(text_hash):
     return analyze_topics(text_hash)
 ```
 
 **Parallel LLM Calls:**
+
 ```python
+
 async def generate_labels(clusters):
     tasks = [generate_label_async(cluster) for cluster in clusters]
     labels = await asyncio.gather(*tasks)
@@ -608,10 +664,12 @@ async def generate_labels(clusters):
 ### Memory Usage
 
 **Models:**
+
 - Sentence-transformers (MPNet): ~500 MB
 - Scikit-learn (KMeans): Minimal (~10 MB)
 
 **Runtime:**
+
 - Embeddings: ~50-100 MB per request (temporary)
 - Cluster assignments: <1 MB
 
@@ -624,7 +682,9 @@ async def generate_labels(clusters):
 ### Unit Tests
 
 **Keyword Extraction:**
+
 ```python
+
 def test_keyword_extraction():
     text = "economy jobs economy market jobs economy"
     keywords = extract_keywords(text, top_n=3)
@@ -635,7 +695,9 @@ def test_keyword_extraction():
 ```
 
 **Clustering:**
+
 ```python
+
 def test_clustering():
     keywords = [
         {"word": "economy", "count": 10},
@@ -649,7 +711,9 @@ def test_clustering():
 ```
 
 **Snippet Extraction:**
+
 ```python
+
 def test_snippet_extraction():
     text = "The economy is strong. Later, the border needs security."
     keywords = ["economy", "border"]
@@ -663,6 +727,7 @@ def test_snippet_extraction():
 ### Integration Tests
 
 ```python
+
 def test_full_topic_analysis():
     text = load_sample_speech()
     result = analyze_topics(text, top_n=5)
@@ -685,12 +750,15 @@ def test_full_topic_analysis():
 **Symptoms:** Empty `clustered_topics` array
 
 **Diagnosis:**
+
 - Text too short (<50 words)
 - All words are stopwords
 - Filtered too aggressively
 
 **Solutions:**
+
 ```python
+
 # Check keyword count
 keywords = extract_keywords(text)
 print(f"Keywords found: {len(keywords)}")
@@ -705,12 +773,15 @@ print(f"Keywords found: {len(keywords)}")
 **Symptoms:** Labels like "Great" or "Country" instead of "Economic Policy"
 
 **Diagnosis:**
+
 - LLM not available
 - Fallback to most frequent keyword
 - Keyword isn't descriptive
 
 **Solutions:**
+
 ```python
+
 # Check LLM configuration
 print(f"LLM available: {llm_service is not None}")
 
@@ -723,10 +794,13 @@ print(f"LLM available: {llm_service is not None}")
 **Symptoms:** Results feel over-/under-granular
 
 **Diagnosis:**
+
 - Auto-determined cluster count doesn't fit use case
 
 **Solutions:**
+
 ```python
+
 # Manually specify cluster count
 POST /analyze/topics?num_clusters=4
 
@@ -740,16 +814,19 @@ POST /analyze/topics?num_clusters=4
 ### Alternative Clustering Algorithms
 
 **DBSCAN (Density-Based):**
+
 - Doesn't require specifying K
 - Can find arbitrarily shaped clusters
 - More expensive computationally
 
 **Hierarchical Clustering:**
+
 - Creates dendrogram of cluster relationships
 - Good for understanding topic hierarchies
 - Slower than KMeans
 
 **Why You Use KMeans:**
+
 - Fast and deterministic
 - Works well with fixed K
 - Good enough for most use cases
@@ -758,16 +835,19 @@ POST /analyze/topics?num_clusters=4
 ### Topic Modeling Alternatives
 
 **LDA (Latent Dirichlet Allocation):**
+
 - Classical topic modeling algorithm
 - Assumes documents are mixtures of topics
 - Probabilistic approach
 
 **BERTopic:**
+
 - Modern transformer-based topic modeling
 - Uses embeddings + clustering (similar to your approach)
 - More complex, better for large corpora
 
 **Why Your Approach:**
+
 - Simpler and more transparent
 - Semantic clustering with embeddings
 - LLM-generated labels for interpretability
@@ -778,17 +858,20 @@ POST /analyze/topics?num_clusters=4
 ## Next Steps
 
 **Continue Learning:**
+
 - **`04-technical-architecture.md`** — Overall system design and patterns
 - **`05-llm-integration.md`** — Deep dive on LLM usage
 - **`06-concepts-glossary.md`** — Quick reference for all terms
 
 **Practice Explaining:**
+
 - What's the difference between word frequency and semantic clustering?
 - Why use KMeans instead of DBSCAN?
 - How do embeddings enable semantic grouping?
 - What value does the LLM add?
 
 **Interview Questions:**
+
 - Why not just use LDA or BERTopic?
 - How would you handle multilingual text?
 - What's the computational complexity of your approach?

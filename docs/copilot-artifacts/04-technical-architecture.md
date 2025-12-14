@@ -1,6 +1,6 @@
 # Technical Architecture Deep Dive: System Design & Patterns
 
-**Understanding the Software Engineering Behind Your AI Project**
+Understanding the Software Engineering Behind Your AI Project
 
 ---
 
@@ -8,7 +8,7 @@
 
 ### High-Level Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │                     PRESENTATION LAYER                       │
 │                                                              │
@@ -55,23 +55,27 @@
 
 ### Design Principles
 
-**1. Separation of Concerns**
+#### 1. Separation of Concerns
+
 - Each layer has distinct responsibilities
 - Changes in one layer don't cascade
 - Easy to test in isolation
 
-**2. Dependency Injection**
+#### 2. Dependency Injection
+
 - Components receive dependencies rather than creating them
 - Easier to mock and test
 - More flexible configuration
 
-**3. Single Responsibility**
+#### 3. Single Responsibility
+
 - Each service does one thing well
 - DocumentLoader loads documents
 - SearchEngine searches documents
 - ConfidenceCalculator calculates confidence
 
-**4. Interface Abstraction**
+#### 4. Interface Abstraction
+
 - LLM providers are pluggable
 - Can swap Gemini for OpenAI without changing business logic
 - Easy to add new providers
@@ -83,6 +87,7 @@
 ### 1. Presentation Layer
 
 **Responsibilities:**
+
 - Handle HTTP requests/responses
 - Validate input
 - Format output
@@ -91,6 +96,7 @@
 **Components:**
 
 **FastAPI Routes:**
+
 ```python
 # src/api/routes/qa_routes.py
 @router.post("/ask", response_model=QAResponse)
@@ -110,6 +116,7 @@ async def ask_question(request: QuestionRequest):
 ```
 
 **Streamlit UI:**
+
 ```python
 # src/main.py
 def main():
@@ -128,6 +135,7 @@ def main():
 ```
 
 **Key Pattern:**
+
 - No business logic in presentation layer
 - Just input/output handling
 - Delegates to service layer
@@ -135,12 +143,14 @@ def main():
 ### 2. Application Layer (Service Layer)
 
 **Responsibilities:**
+
 - Implement business logic
 - Orchestrate data layer components
 - Handle complex workflows
 - Apply business rules
 
-**Example: RAG Service**
+#### Example: RAG Service
+
 ```python
 # src/services/rag_service.py
 class RAGService:
@@ -200,11 +210,13 @@ class RAGService:
 ```
 
 **Key Pattern:**
+
 - Services coordinate multiple data layer components
 - Each service method is a complete business operation
 - Services have no knowledge of presentation layer
 
-**Example: Sentiment Service**
+#### Example: Sentiment Service
+
 ```python
 # src/services/sentiment_service.py
 class SentimentService:
@@ -267,6 +279,7 @@ class SentimentService:
 ### 3. Data Layer
 
 **Responsibilities:**
+
 - Data access and persistence
 - External API calls
 - File I/O
@@ -275,6 +288,7 @@ class SentimentService:
 **Components:**
 
 **DocumentLoader:**
+
 ```python
 # src/core/document_loader.py
 class DocumentLoader:
@@ -303,6 +317,7 @@ class DocumentLoader:
 ```
 
 **SearchEngine:**
+
 ```python
 # src/core/search_engine.py
 class SearchEngine:
@@ -346,6 +361,7 @@ class SearchEngine:
 ```
 
 **ChromaDB Wrapper:**
+
 ```python
 # src/core/vector_database.py
 class ChromaVectorDatabase:
@@ -403,6 +419,7 @@ class ChromaVectorDatabase:
 **Solution:** Define interface, implement concrete strategies
 
 **Interface:**
+
 ```python
 # src/services/llm/base.py
 from abc import ABC, abstractmethod
@@ -425,6 +442,7 @@ class LLMProvider(ABC):
 ```
 
 **Concrete Implementations:**
+
 ```python
 # src/services/llm/gemini_provider.py
 class GeminiProvider(LLMProvider):
@@ -475,6 +493,7 @@ class OpenAIProvider(LLMProvider):
 ```
 
 **Factory:**
+
 ```python
 # src/services/llm/factory.py
 class LLMFactory:
@@ -497,6 +516,7 @@ class LLMFactory:
 ```
 
 **Usage:**
+
 ```python
 # Swap providers without changing business logic
 provider = LLMFactory.create_provider(
@@ -514,6 +534,7 @@ llm_service = LLMService(provider=provider)
 **Solution:** Singleton to cache loaded models
 
 **Implementation:**
+
 ```python
 # src/utils/model_cache.py
 class ModelCache:
@@ -544,6 +565,7 @@ roberta = cache.get_model("roberta", load_roberta_model)
 **Solution:** Builder to construct confidence calculation
 
 **Implementation:**
+
 ```python
 # src/core/confidence_calculator.py
 class ConfidenceCalculator:
@@ -592,6 +614,7 @@ confidence_calc = (
 **Solution:** Repository for each data source
 
 **Implementation:**
+
 ```python
 # src/repositories/document_repository.py
 class DocumentRepository:
@@ -622,6 +645,7 @@ class DocumentRepository:
 **Solution:** Observer pattern for event logging
 
 **Implementation:**
+
 ```python
 # src/utils/event_logger.py
 class EventLogger:
@@ -669,6 +693,7 @@ logger.log_event("ANSWER_GENERATED", {"confidence": 0.85})
 ### Environment-Based Configuration
 
 **Development:**
+
 ```yaml
 # configs/development.yaml
 llm:
@@ -691,6 +716,7 @@ logging:
 ```
 
 **Production:**
+
 ```yaml
 # configs/production.yaml
 llm:
@@ -713,6 +739,7 @@ logging:
 ```
 
 **Loading:**
+
 ```python
 # src/config/loader.py
 def load_config(env: str = "development") -> Dict:
@@ -747,6 +774,7 @@ def override_with_env(config: Dict) -> Dict:
 **Solution:** DI container to manage object graph
 
 **Implementation:**
+
 ```python
 # src/container.py
 from dependency_injector import containers, providers
@@ -808,6 +836,7 @@ class Container(containers.DeclarativeContainer):
 ```
 
 **Usage:**
+
 ```python
 # Wire container to modules
 container = Container()
@@ -966,6 +995,7 @@ embeddings = model.encode(texts)  # Batch encode
 ### Layered Error Handling
 
 **Data Layer:**
+
 ```python
 class SearchEngine:
     def search(self, query: str):
@@ -978,6 +1008,7 @@ class SearchEngine:
 ```
 
 **Service Layer:**
+
 ```python
 class RAGService:
     async def answer_question(self, question: str):
@@ -993,6 +1024,7 @@ class RAGService:
 ```
 
 **Presentation Layer:**
+
 ```python
 @router.post("/ask")
 async def ask(request: QuestionRequest):
@@ -1011,16 +1043,19 @@ async def ask(request: QuestionRequest):
 ## Next Steps
 
 **Continue Learning:**
+
 - **`05-llm-integration.md`** — Deep dive on LLM provider integration
 - **`06-concepts-glossary.md`** — Quick reference for all terms
 
 **Practice Explaining:**
+
 - What design patterns does your project use?
 - Why use layered architecture?
 - How does dependency injection help?
 - What's the benefit of strategy pattern for LLM providers?
 
 **Interview Questions:**
+
 - Explain the separation of concerns in your architecture
 - How would you add a new LLM provider?
 - What testing strategies do you use?

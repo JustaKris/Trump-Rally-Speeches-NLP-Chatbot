@@ -1,6 +1,6 @@
 # Sentiment Analysis Deep Dive: Multi-Model Ensemble Explained
 
-**Understanding Emotion Detection and Sentiment Classification**
+## Understanding Emotion Detection and Sentiment Classification
 
 ---
 
@@ -11,12 +11,14 @@ Sentiment analysis is the computational task of identifying and categorizing opi
 
 **The Goal:**
 Determine whether text is:
+
 - **Positive** (e.g., praise, optimism, success)
 - **Negative** (e.g., criticism, anger, failure)
 - **Neutral** (e.g., factual, balanced, informational)
 
 **Beyond Simple Classification:**
 Your system doesn't just say "positive" or "negative"—it provides:
+
 - Fine-grained emotion detection (anger, joy, fear, sadness, etc.)
 - Confidence scores for each classification
 - AI-generated contextual interpretation explaining *why*
@@ -31,7 +33,8 @@ Your system doesn't just say "positive" or "negative"—it provides:
 No single model is perfect for all aspects of sentiment.
 
 **Example:**
-```
+
+```text
 Text: "The radical left is destroying our country, but we're fighting back!"
 
 Single Model Approach:
@@ -39,13 +42,14 @@ Single Model Approach:
 - Misses: The defiant tone, the "fighting back" rallying cry
 ```
 
-**Your Solution: Use Multiple Specialized Models**
+#### Your Solution: Use Multiple Specialized Models
 
 1. **FinBERT** — Political/financial sentiment (positive/negative/neutral)
 2. **RoBERTa-Emotion** — 7 specific emotions (anger, joy, fear, sadness, surprise, disgust, neutral)
 3. **Gemini LLM** — Contextual interpretation explaining emotional tone
 
 **Why This Works:**
+
 - Each model focuses on different aspects
 - Combined output provides richer understanding
 - Cross-validation between models increases confidence
@@ -62,17 +66,20 @@ Single Model Approach:
 Classifies text into three sentiment categories with probability scores.
 
 **Training Data:**
+
 - Financial news articles and reports
 - Political and economic discourse
 - Formal, policy-oriented language
 
 **Why FinBERT for Political Speeches?**
+
 - Political speeches use similar language to financial discourse
 - Trained on formal, persuasive text
 - Better than generic sentiment models (which train on movie reviews)
 - Produces reliable confidence scores
 
 **Output Example:**
+
 ```python
 Input: "The economy is booming, we've added millions of jobs!"
 
@@ -85,12 +92,14 @@ Output: {
 ```
 
 **How It Works (Simplified):**
+
 1. **Tokenization** — Split text into subword tokens
 2. **Encoding** — Pass through BERT transformer (12 layers)
 3. **Classification Head** — Final layer predicts probabilities
 4. **Softmax** — Normalize to sum to 1.0
 
 **Technical Details:**
+
 - **Architecture:** BERT-base (110M parameters)
 - **Max Length:** 512 tokens
 - **Processing:** Chunks long texts, averages predictions
@@ -104,6 +113,7 @@ Output: {
 Detects 7 specific emotions with probability scores.
 
 **Emotions:**
+
 1. 😠 **Anger** — Frustration, hostility, outrage
 2. 😊 **Joy** — Happiness, celebration, optimism
 3. 😨 **Fear** — Anxiety, threat, danger
@@ -113,17 +123,20 @@ Detects 7 specific emotions with probability scores.
 7. 😐 **Neutral** — Factual, informational, balanced
 
 **Training Data:**
+
 - 58,000 emotion-labeled texts
 - Social media posts, news, dialogue
 - Diverse sources for generalization
 
 **Why This Model?**
+
 - State-of-the-art for emotion detection
 - Balanced across emotion categories
 - Distilled for faster inference
 - Provides nuanced emotional profile
 
 **Output Example:**
+
 ```python
 Input: "They're burning Minneapolis! This is outrageous!"
 
@@ -139,12 +152,14 @@ Output: {
 ```
 
 **How It Works:**
+
 1. **Tokenization** — RoBERTa-style byte-pair encoding
 2. **Encoding** — DistilRoBERTa transformer (6 layers—faster than full)
 3. **Emotion Head** — 7-class classification layer
 4. **Softmax** — Normalize probabilities
 
 **Technical Details:**
+
 - **Architecture:** DistilRoBERTa (82M parameters, distilled from 125M)
 - **Max Length:** 512 tokens
 - **Processing:** Handles text chunking automatically
@@ -156,12 +171,14 @@ Output: {
 
 **What It Does:**
 Generates a 2-3 sentence human-readable explanation of:
+
 - **WHY** the text has its sentiment classification
 - **WHY** certain emotions dominate
 - **WHAT** specifically triggers those emotions
 
 **Input to Gemini:**
-```
+
+```text
 You are analyzing the emotional and sentimental tone of a text excerpt...
 
 TEXT ANALYZED:
@@ -185,7 +202,8 @@ Write a 2-3 sentence interpretation that:
 ```
 
 **Output from Gemini:**
-```
+
+```text
 "The text expresses strong negative sentiment due to the depiction of 
 Minneapolis burning, conveying a sense of crisis and destruction. Anger 
 emerges as the dominant emotion, reflecting outrage at perceived urban 
@@ -194,6 +212,7 @@ tone and emotional intensity."
 ```
 
 **Why Add LLM Interpretation?**
+
 - **Numbers aren't enough** — Users want to understand *why*
 - **Contextual understanding** — LLM connects sentiment to content
 - **Educational** — Helps users learn to read sentiment signals
@@ -201,11 +220,13 @@ tone and emotional intensity."
 
 **Fallback Behavior:**
 If Gemini is unavailable (no API key, rate limit, error):
+
 ```python
 fallback = f"The text shows {sentiment} sentiment with {emotion} as the dominant emotion."
 ```
 
 **Technical Details:**
+
 - **Model:** Gemini 2.0 Flash (fast, cost-effective)
 - **Temperature:** 0.3 (focused, less creative)
 - **Max Tokens:** 1024 (plenty for 2-3 sentences)
@@ -223,6 +244,7 @@ fallback = f"The text shows {sentiment} sentiment with {emotion} as the dominant
 **Problem:** Transformer models have token limits (512 tokens)
 
 **Your Solution:**
+
 ```python
 def chunk_text_for_bert(text: str, max_length: int = 510) -> List[str]:
     """Split long texts into 510-token chunks."""
@@ -239,7 +261,8 @@ def chunk_text_for_bert(text: str, max_length: int = 510) -> List[str]:
 ```
 
 **Example:**
-```
+
+```text
 Long speech (1500 words):
 ├── Chunk 1: Tokens 0-510
 ├── Chunk 2: Tokens 510-1020
@@ -251,6 +274,7 @@ Each chunk processed independently, results averaged.
 #### Step 2: FinBERT Sentiment Analysis
 
 **Process Each Chunk:**
+
 ```python
 def analyze_sentiment_scores(text: str) -> Dict:
     chunks = chunk_text_for_bert(text)
@@ -296,6 +320,7 @@ def analyze_sentiment_scores(text: str) -> Dict:
 #### Step 3: RoBERTa Emotion Detection
 
 **Process Each Chunk:**
+
 ```python
 def analyze_emotions(text: str) -> Dict[str, float]:
     chunks = chunk_text_for_bert(text)
@@ -330,6 +355,7 @@ def analyze_emotions(text: str) -> Dict[str, float]:
 #### Step 4: Gemini Contextual Interpretation
 
 **Generate Explanation:**
+
 ```python
 def generate_contextual_interpretation(
     text: str,
@@ -380,6 +406,7 @@ Keep it concise, analytical, and objective.
 #### Step 5: Combine All Results
 
 **Final Response:**
+
 ```python
 def analyze_sentiment(text: str) -> Dict:
     # Step 2: FinBERT
@@ -417,13 +444,15 @@ def analyze_sentiment(text: str) -> Dict:
 ### Example Analysis
 
 **Input Text:**
-```
+
+```text
 "The economy is booming like never before! We've added 11 million jobs, 
 manufacturing is returning to America, and unemployment is at historic 
 lows. This is what winning looks like!"
 ```
 
 **Output:**
+
 ```json
 {
   "sentiment": "positive",
@@ -450,20 +479,24 @@ lows. This is what winning looks like!"
 ### Interpreting the Results
 
 **Sentiment Classification:**
+
 - **Dominant:** Positive (89% confidence)
 - **Interpretation:** Very confident classification, clear positive framing
 
 **Emotion Breakdown:**
+
 - **Primary:** Joy (75%)—celebration of achievements
 - **Secondary:** Surprise (12%)—"booming like never before" suggests unexpected success
 - **Low emotions:** Negative emotions nearly absent (anger 3%, sadness 1%)
 
 **Contextual Interpretation:**
+
 - Connects sentiment to specific content (economic achievements)
 - Explains *why* joy dominates (pride in policy outcomes)
 - Links language choices to emotional tone ("winning", "booming")
 
 **Number of Chunks:**
+
 - 1 chunk—short text, processed in single pass
 - More chunks = longer text, averaged predictions
 
@@ -474,13 +507,15 @@ lows. This is what winning looks like!"
 ### 1. **Emotional Nuance**
 
 **Traditional Approach:**
-```
+
+```text
 Input: "They're destroying our country, but we won't let them!"
 Output: Negative sentiment
 ```
 
 **Your Approach:**
-```
+
+```text
 Input: "They're destroying our country, but we won't let them!"
 Output:
 - Sentiment: Negative (72%)
@@ -494,7 +529,8 @@ Output:
 ### 2. **Cross-Validation**
 
 **If Models Disagree:**
-```
+
+```text
 FinBERT: Negative (60%)
 RoBERTa: Joy (55%) + Anger (30%)
 Interpretation: Mixed signals detected
@@ -505,10 +541,12 @@ This indicates **complex emotional landscape** (not simple positive/negative).
 ### 3. **Explainability**
 
 **Users Get:**
+
 - Not just "negative"
 - But "negative because X, with anger due to Y, reflecting Z"
 
 **Value:**
+
 - Builds trust in the system
 - Educational for users
 - Helps identify model weaknesses
@@ -522,6 +560,7 @@ This indicates **complex emotional landscape** (not simple positive/negative).
 **Use Case:** Track emotional tone across multiple speeches
 
 **Approach:**
+
 ```python
 speeches = load_all_speeches()
 emotional_profile = []
@@ -544,6 +583,7 @@ plot_sentiment_timeline(emotional_profile)
 **Use Case:** Analyze public reaction to events
 
 **Approach:**
+
 - Collect tweets/posts about an event
 - Run sentiment analysis on each
 - Aggregate to understand overall sentiment
@@ -554,6 +594,7 @@ plot_sentiment_timeline(emotional_profile)
 **Use Case:** Understand customer satisfaction
 
 **Approach:**
+
 - Analyze product reviews
 - Categorize by sentiment and emotion
 - Identify pain points (high sadness/disgust = bad UX)
@@ -564,6 +605,7 @@ plot_sentiment_timeline(emotional_profile)
 **Use Case:** Flag potentially harmful content
 
 **Approach:**
+
 - High anger + high disgust = potential toxicity
 - High fear + negative sentiment = alarming content
 - Use for prioritization in moderation queues
@@ -575,6 +617,7 @@ plot_sentiment_timeline(emotional_profile)
 ### Model Loading Strategy
 
 **Lazy Loading:**
+
 ```python
 class EnhancedSentimentAnalyzer:
     def __init__(self):
@@ -591,6 +634,7 @@ class EnhancedSentimentAnalyzer:
 ```
 
 **Benefits:**
+
 - Faster startup (don't load models until needed)
 - Lower memory (only load what's used)
 - Models cached after first use
@@ -598,11 +642,13 @@ class EnhancedSentimentAnalyzer:
 ### Memory Management
 
 **Models in Memory:**
+
 - FinBERT: ~440 MB
 - RoBERTa-Emotion: ~330 MB
 - **Total:** ~770 MB
 
 **Optimization:**
+
 - Load once, reuse for all requests
 - Use CPU inference (GPU for production scale)
 - Consider model quantization for smaller footprint
@@ -610,7 +656,8 @@ class EnhancedSentimentAnalyzer:
 ### Latency Breakdown
 
 **Typical Request (500 words):**
-```
+
+```text
 Text chunking: 10ms
 FinBERT inference: 500ms (1 chunk)
 RoBERTa inference: 400ms (1 chunk)
@@ -619,7 +666,8 @@ Total: ~2.4 seconds
 ```
 
 **Long Text (2000 words):**
-```
+
+```text
 Text chunking: 20ms
 FinBERT inference: 2000ms (4 chunks)
 RoBERTa inference: 1600ms (4 chunks)
@@ -630,6 +678,7 @@ Total: ~5.1 seconds
 ### Optimization Ideas
 
 **Batch Processing:**
+
 ```python
 # Instead of processing chunks sequentially
 for chunk in chunks:
@@ -640,6 +689,7 @@ results = model(chunks)  # Faster (uses GPU parallelism)
 ```
 
 **Async LLM:**
+
 ```python
 # Don't block on Gemini
 async def analyze_sentiment(text):
@@ -653,6 +703,7 @@ async def analyze_sentiment(text):
 ```
 
 **Caching:**
+
 ```python
 # Cache LLM interpretations (expensive)
 @lru_cache(maxsize=100)
@@ -667,6 +718,7 @@ def get_interpretation(text_hash):
 ### Unit Tests
 
 **Model Initialization:**
+
 ```python
 def test_models_load_successfully():
     analyzer = EnhancedSentimentAnalyzer()
@@ -675,6 +727,7 @@ def test_models_load_successfully():
 ```
 
 **Sentiment Classification:**
+
 ```python
 def test_positive_sentiment():
     text = "The economy is booming, jobs are growing!"
@@ -684,6 +737,7 @@ def test_positive_sentiment():
 ```
 
 **Emotion Detection:**
+
 ```python
 def test_anger_detection():
     text = "They're destroying our country! This is outrageous!"
@@ -694,6 +748,7 @@ def test_anger_detection():
 ### Integration Tests
 
 **Full Pipeline:**
+
 ```python
 def test_complete_sentiment_analysis():
     text = "Sample political speech text..."
@@ -722,11 +777,13 @@ def test_complete_sentiment_analysis():
 **Symptoms:** Everything gets neutral classification (33/33/33 split)
 
 **Diagnosis:**
+
 - Model not loaded properly
 - Input text too short or empty
 - Model weights corrupted
 
 **Solutions:**
+
 ```python
 # Check model outputs
 logits = model(**inputs).logits
@@ -741,11 +798,13 @@ print(f"Input length: {len(text)}")  # Should be > 10 characters
 **Symptoms:** `contextual_sentiment` is generic fallback
 
 **Diagnosis:**
+
 - API key not set (`LLM_API_KEY`)
 - Rate limit reached
 - Gemini returned empty response
 
 **Solutions:**
+
 ```python
 # Check API key
 import os
@@ -761,11 +820,13 @@ logger.debug(f"Finish reason: {response.finish_reason}")
 **Symptoms:** Requests taking >10 seconds
 
 **Diagnosis:**
+
 - Long text (many chunks)
 - CPU-only inference
 - No batching
 
 **Solutions:**
+
 - Limit input length
 - Use GPU (see deployment docs)
 - Implement batching
@@ -776,17 +837,20 @@ logger.debug(f"Finish reason: {response.finish_reason}")
 ## Next Steps
 
 **Continue Learning:**
+
 - **`03-topic-analysis-deep-dive.md`** — Semantic clustering and topic extraction
 - **`05-llm-integration.md`** — Deep dive on LLM integration patterns
 - **`06-concepts-glossary.md`** — Quick reference for all concepts
 
 **Practice Explaining:**
+
 - Why use 3 models instead of 1?
 - How does chunking work and why?
 - What makes FinBERT good for political text?
 - How does the LLM add value?
 
 **Interview Questions:**
+
 - What's the difference between sentiment and emotion?
 - Why average predictions across chunks?
 - How would you handle non-English text?

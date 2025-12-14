@@ -1,12 +1,13 @@
 # Concepts Glossary: Quick Reference Guide
 
-**Your Complete Technical Dictionary for Portfolio Presentations**
+## Your Complete Technical Dictionary for Portfolio Presentations
 
 ---
 
 ## Core AI/ML Concepts
 
 ### Artificial Intelligence (AI)
+
 **Definition:** Computer systems that can perform tasks typically requiring human intelligence.
 
 **In Your Project:** The overall category of technology you're using (LLMs, embeddings, clustering).
@@ -16,9 +17,11 @@
 ---
 
 ### Natural Language Processing (NLP)
+
 **Definition:** AI field focused on understanding and generating human language.
 
-**In Your Project:** 
+**In Your Project:**
+
 - Q&A system understands questions
 - Sentiment analysis interprets emotions
 - Topic analysis extracts themes
@@ -28,9 +31,11 @@
 ---
 
 ### Machine Learning (ML)
+
 **Definition:** AI systems that learn patterns from data without explicit programming.
 
 **In Your Project:**
+
 - FinBERT learned sentiment patterns from financial news
 - RoBERTa learned emotion patterns from social media
 - MPNet learned semantic similarity from text pairs
@@ -41,6 +46,7 @@
 ---
 
 ### Deep Learning
+
 **Definition:** ML using neural networks with multiple layers.
 
 **In Your Project:** All transformer models (BERT, RoBERTa, MPNet, Gemini) are deep learning models.
@@ -50,9 +56,11 @@
 ---
 
 ### Transformer
+
 **Definition:** Neural network architecture using self-attention mechanisms, foundation of modern NLP.
 
-**In Your Project:** 
+**In Your Project:**
+
 - MPNet (embeddings)
 - FinBERT (sentiment)
 - RoBERTa (emotions)
@@ -65,11 +73,13 @@
 ## RAG (Retrieval-Augmented Generation)
 
 ### RAG
+
 **Definition:** AI pattern that retrieves relevant documents before generating answers.
 
 **Why Important:** Grounds LLM responses in your data, reducing hallucinations.
 
 **Your Implementation:**
+
 1. User asks question
 2. Search vector database for relevant speeches
 3. LLM generates answer from retrieved context
@@ -79,12 +89,14 @@
 ---
 
 ### Embeddings / Vector Embeddings
+
 **Definition:** Dense numerical representations of text that capture semantic meaning.
 
 **Technical:** 768-dimensional float arrays for your MPNet model.
 
 **Example:**
-```
+
+```text
 "economy" → [0.042, -0.13, 0.28, ..., 0.15]  (768 numbers)
 "jobs"    → [0.038, -0.11, 0.31, ..., 0.18]  (similar values = similar meaning)
 ```
@@ -94,6 +106,7 @@
 ---
 
 ### Vector Database
+
 **Definition:** Database optimized for storing and searching high-dimensional vectors.
 
 **Your Implementation:** ChromaDB with HNSW indexing.
@@ -105,10 +118,12 @@
 ---
 
 ### Semantic Search
+
 **Definition:** Search based on meaning rather than exact keyword matches.
 
 **Example:**
-```
+
+```text
 Query: "job creation"
 Matches: "employment growth", "hiring increases", "new positions"
 ```
@@ -118,6 +133,7 @@ Matches: "employment growth", "hiring increases", "new positions"
 ---
 
 ### BM25 (Best Matching 25)
+
 **Definition:** Probabilistic keyword-based search algorithm.
 
 **In Your Project:** Combined with semantic search in 70/30 weighted hybrid.
@@ -129,15 +145,18 @@ Matches: "employment growth", "hiring increases", "new positions"
 ---
 
 ### Cosine Similarity
+
 **Definition:** Metric measuring similarity between vectors (0 = unrelated, 1 = identical).
 
-**Formula:** 
+**Formula:**
+
 $$\text{similarity} = \frac{\vec{A} \cdot \vec{B}}{||\vec{A}|| \cdot ||\vec{B}||}$$
 
 **In Your Project:** ChromaDB uses cosine similarity to rank search results.
 
 **Example:**
-```
+
+```text
 query_embedding · document_embedding = 0.85 → Very relevant
 query_embedding · document_embedding = 0.32 → Less relevant
 ```
@@ -145,6 +164,7 @@ query_embedding · document_embedding = 0.32 → Less relevant
 ---
 
 ### HNSW (Hierarchical Navigable Small World)
+
 **Definition:** Graph-based algorithm for approximate nearest neighbor search.
 
 **Why Important:** Makes vector search fast even with thousands of documents.
@@ -156,9 +176,11 @@ query_embedding · document_embedding = 0.32 → Less relevant
 ---
 
 ### Chunking
+
 **Definition:** Breaking long documents into smaller segments.
 
-**Your Implementation:** 
+**Your Implementation:**
+
 - RAG: Split speeches into paragraphs for granular retrieval
 - Sentiment: 510 tokens per chunk for model limits
 
@@ -167,9 +189,11 @@ query_embedding · document_embedding = 0.32 → Less relevant
 ---
 
 ### Context Window
+
 **Definition:** Maximum text length a model can process at once.
 
 **Examples:**
+
 - FinBERT: 512 tokens
 - RoBERTa: 512 tokens
 - Gemini 1.5 Flash: 1 million tokens
@@ -180,13 +204,15 @@ query_embedding · document_embedding = 0.32 → Less relevant
 
 ## Sentiment Analysis
 
-### Sentiment Analysis
+### Sentiment Analysis Overview
+
 **Definition:** Determining emotional tone (positive/negative/neutral) of text.
 
 **Your Approach:** Multi-model ensemble (FinBERT + RoBERTa + Gemini).
 
 **Output Example:**
-```
+
+```text
 Sentiment: Positive (85%)
 Emotions: Joy (60%), Surprise (25%)
 Interpretation: "Optimistic tone celebrating economic success"
@@ -195,6 +221,7 @@ Interpretation: "Optimistic tone celebrating economic success"
 ---
 
 ### FinBERT
+
 **Full Name:** Financial BERT
 
 **Definition:** BERT model fine-tuned on financial news for sentiment analysis.
@@ -202,6 +229,7 @@ Interpretation: "Optimistic tone celebrating economic success"
 **Your Use Case:** Analyzes political/economic language effectively.
 
 **Technical:**
+
 - 110 million parameters
 - Fine-tuned on 10,000+ financial texts
 - 3 classes: positive, negative, neutral
@@ -211,6 +239,7 @@ Interpretation: "Optimistic tone celebrating economic success"
 ---
 
 ### RoBERTa
+
 **Full Name:** Robustly Optimized BERT Pretraining Approach
 
 **Definition:** Improved BERT variant with better training methodology.
@@ -218,11 +247,13 @@ Interpretation: "Optimistic tone celebrating economic success"
 **Your Model:** `SamLowe/roberta-base-go_emotions` (emotion classification)
 
 **Technical:**
+
 - 82 million parameters
 - Distilled from larger model
 - 7 emotion classes
 
 **Emotions Detected:**
+
 1. Joy
 2. Anger
 3. Sadness
@@ -234,9 +265,11 @@ Interpretation: "Optimistic tone celebrating economic success"
 ---
 
 ### Multi-Model Ensemble
+
 **Definition:** Combining predictions from multiple models for better results.
 
 **Your Implementation:**
+
 1. FinBERT → Overall sentiment
 2. RoBERTa → Specific emotions
 3. Gemini → Human-readable interpretation
@@ -250,12 +283,14 @@ Interpretation: "Optimistic tone celebrating economic success"
 ## Topic Analysis
 
 ### Topic Modeling / Topic Analysis
+
 **Definition:** Automatically discovering themes in text collections.
 
 **Your Approach:** Semantic clustering with KMeans + LLM labeling.
 
 **Output Example:**
-```
+
+```text
 Topic 1: "Economic Policy" (120 mentions)
   Keywords: economy, jobs, market, growth
   Snippet: "The economy is booming..."
@@ -268,6 +303,7 @@ Topic 2: "Border Security" (85 mentions)
 ---
 
 ### Clustering
+
 **Definition:** Grouping similar items together without predefined labels.
 
 **In Your Project:** Group semantically similar keywords into topic clusters.
@@ -277,9 +313,11 @@ Topic 2: "Border Security" (85 mentions)
 ---
 
 ### KMeans
+
 **Definition:** Clustering algorithm that partitions data into K clusters by minimizing distance to cluster centers.
 
 **How It Works:**
+
 1. Initialize K random cluster centers
 2. Assign each point to nearest center
 3. Update centers to mean of assigned points
@@ -292,6 +330,7 @@ Topic 2: "Border Security" (85 mentions)
 ---
 
 ### Unsupervised Learning
+
 **Definition:** ML learning patterns without labeled training data.
 
 **In Your Project:** KMeans finds topics without being told what topics exist.
@@ -301,11 +340,13 @@ Topic 2: "Border Security" (85 mentions)
 ---
 
 ### MPNet (Multi-Perspective Network)
+
 **Model:** `sentence-transformers/all-mpnet-base-v2`
 
 **Definition:** State-of-the-art sentence embedding model.
 
 **Technical:**
+
 - 768-dimensional embeddings
 - Trained on 1+ billion sentence pairs
 - Best general-purpose embedding model (as of 2024)
@@ -317,10 +358,12 @@ Topic 2: "Border Security" (85 mentions)
 ---
 
 ### Semantic Similarity
+
 **Definition:** How close two pieces of text are in meaning (not just words).
 
 **Example:**
-```
+
+```text
 High Similarity:
 - "job creation" ≈ "employment growth"
 - "border security" ≈ "immigration control"
@@ -336,14 +379,17 @@ Low Similarity:
 ## Large Language Models (LLMs)
 
 ### LLM (Large Language Model)
+
 **Definition:** Neural network trained on massive text datasets to understand and generate human language.
 
 **Examples:**
+
 - Gemini (Google)
 - GPT-4 (OpenAI)
 - Claude (Anthropic)
 
 **Your Usage:**
+
 1. Generate answers in Q&A
 2. Interpret sentiment results
 3. Label topic clusters
@@ -352,13 +398,16 @@ Low Similarity:
 ---
 
 ### Gemini
+
 **Definition:** Google's multimodal LLM family.
 
 **Your Models:**
+
 - **gemini-1.5-flash**: Fast, cheap (development)
 - **gemini-1.5-pro**: More capable (production)
 
 **Technical:**
+
 - 1 million token context window
 - Multimodal (text, images, video)
 - Fast inference
@@ -368,15 +417,18 @@ Low Similarity:
 ---
 
 ### Prompt Engineering
+
 **Definition:** Crafting inputs to LLMs to get desired outputs.
 
 **Your Techniques:**
+
 1. **Clear instructions** ("Answer using ONLY the context")
 2. **Role assignment** ("You are a helpful AI assistant")
 3. **Few-shot examples** (show examples of desired output)
 4. **Output constraints** ("2-3 sentences")
 
 **Example:**
+
 ```python
 prompt = f"""You are a topic labeling expert.
 
@@ -392,9 +444,11 @@ Label:"""
 ---
 
 ### Temperature
+
 **Definition:** LLM parameter controlling randomness (0 = deterministic, 1 = creative).
 
 **Your Usage:**
+
 - **0.2-0.3**: Topic labels, factual answers (want consistency)
 - **0.5**: Q&A answers (balanced)
 - **0.7**: Sentiment interpretations (want nuance)
@@ -404,12 +458,14 @@ Label:"""
 ---
 
 ### Tokens
+
 **Definition:** Pieces of text (words, subwords, or characters) that LLMs process.
 
 **Rough Estimate:** 1 token ≈ 0.75 words (English)
 
 **Example:**
-```
+
+```text
 "Hello world" = 2 tokens
 "Economy" = 2 tokens ("Econ" + "omy")
 "AI" = 1 token
@@ -420,18 +476,21 @@ Label:"""
 ---
 
 ### Hallucination
+
 **Definition:** When LLM generates plausible-sounding but factually incorrect information.
 
 **Your Solution:** RAG grounds answers in actual speech text, reducing hallucinations.
 
 **Example Without RAG:**
-```
+
+```text
 Q: "What did Trump say about Mars colonization?"
 A: "He proposed a $100B Mars program" ← Hallucination (not in speeches)
 ```
 
 **Example With RAG:**
-```
+
+```text
 Q: "What did Trump say about Mars colonization?"
 A: "I don't have information about Mars in these speeches" ← Grounded
 ```
@@ -441,11 +500,13 @@ A: "I don't have information about Mars in these speeches" ← Grounded
 ## Software Engineering
 
 ### API (Application Programming Interface)
+
 **Definition:** Interface for programs to communicate.
 
 **Your Implementation:** FastAPI REST API
 
 **Endpoints:**
+
 - `POST /qa/ask` - Ask questions
 - `POST /sentiment/analyze` - Analyze sentiment
 - `POST /topics/analyze` - Extract topics
@@ -453,10 +514,12 @@ A: "I don't have information about Mars in these speeches" ← Grounded
 ---
 
 ### REST (Representational State Transfer)
+
 **Definition:** Architectural style for web APIs using HTTP methods.
 
 **Your API:**
-```
+
+```text
 POST /qa/ask
 Request: {"question": "What about jobs?", "top_k": 5}
 Response: {
@@ -469,14 +532,17 @@ Response: {
 ---
 
 ### Async / Asynchronous
+
 **Definition:** Non-blocking execution allowing multiple operations concurrently.
 
 **Your Usage:**
+
 - FastAPI async endpoints
 - Parallel LLM calls
 - Concurrent search operations
 
 **Code Example:**
+
 ```python
 # Sequential (slow)
 result1 = llm.generate(prompt1)  # Wait 2s
@@ -494,9 +560,11 @@ results = await asyncio.gather(
 ---
 
 ### Dependency Injection
+
 **Definition:** Design pattern where objects receive dependencies rather than creating them.
 
 **Example:**
+
 ```python
 # Bad: Creates own dependencies
 class RAGService:
@@ -514,6 +582,7 @@ class RAGService:
 ---
 
 ### Strategy Pattern
+
 **Definition:** Design pattern allowing algorithms to be selected at runtime.
 
 **Your Implementation:** Pluggable LLM providers
@@ -538,9 +607,11 @@ llm_service = LLMService(provider=provider)
 ---
 
 ### Factory Pattern
+
 **Definition:** Design pattern for creating objects without specifying exact class.
 
 **Your Implementation:**
+
 ```python
 provider = LLMFactory.create_provider(
     provider_name="gemini",  # Or "openai", "claude"
@@ -553,6 +624,7 @@ provider = LLMFactory.create_provider(
 ---
 
 ### Repository Pattern
+
 **Definition:** Abstraction layer for data access.
 
 **Your Implementation:** `DocumentRepository` abstracts ChromaDB access.
@@ -562,11 +634,13 @@ provider = LLMFactory.create_provider(
 ---
 
 ### Docker
+
 **Definition:** Platform for packaging applications in containers.
 
 **Your Project:** `docker-compose.yml` for consistent deployment.
 
 **Benefits:**
+
 - Same environment everywhere
 - Easy dependency management
 - Isolated from host system
@@ -574,6 +648,7 @@ provider = LLMFactory.create_provider(
 ---
 
 ### CI/CD (Continuous Integration/Continuous Deployment)
+
 **Definition:** Automated testing and deployment pipeline.
 
 **Best Practice:** Run tests on every commit, auto-deploy on merge to main.
@@ -583,9 +658,11 @@ provider = LLMFactory.create_provider(
 ## Performance & Optimization
 
 ### Latency
+
 **Definition:** Time between request and response.
 
 **Your System:**
+
 - Q&A: 2-4 seconds
 - Sentiment: 3-5 seconds
 - Topics: 3-5 seconds
@@ -595,9 +672,11 @@ provider = LLMFactory.create_provider(
 ---
 
 ### Caching
+
 **Definition:** Storing results to avoid recomputation.
 
 **Your Opportunities:**
+
 ```python
 @lru_cache(maxsize=128)
 def embed_text(text: str):
@@ -609,9 +688,11 @@ def embed_text(text: str):
 ---
 
 ### Lazy Loading
+
 **Definition:** Loading resources only when needed.
 
 **Your Implementation:**
+
 ```python
 @property
 def finbert(self):
@@ -625,9 +706,11 @@ def finbert(self):
 ---
 
 ### Batch Processing
+
 **Definition:** Processing multiple items together for efficiency.
 
 **Example:**
+
 ```python
 # Slow
 embeddings = [model.encode(text) for text in texts]
@@ -643,9 +726,11 @@ embeddings = model.encode(texts)  # Batch encode
 ## Data & Metrics
 
 ### Precision
+
 **Definition:** Of retrieved documents, what fraction is relevant?
 
-**Formula:** 
+**Formula:**
+
 $$\text{Precision} = \frac{\text{Relevant Retrieved}}{\text{Total Retrieved}}$$
 
 **Example:** Retrieved 10 docs, 7 relevant → Precision = 70%
@@ -653,6 +738,7 @@ $$\text{Precision} = \frac{\text{Relevant Retrieved}}{\text{Total Retrieved}}$$
 ---
 
 ### Recall
+
 **Definition:** Of all relevant documents, what fraction was retrieved?
 
 **Formula:**
@@ -663,6 +749,7 @@ $$\text{Recall} = \frac{\text{Relevant Retrieved}}{\text{Total Relevant}}$$
 ---
 
 ### F1 Score
+
 **Definition:** Harmonic mean of precision and recall.
 
 **Formula:**
@@ -673,9 +760,11 @@ $$F1 = 2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \t
 ---
 
 ### Confidence Score
+
 **Definition:** How certain the system is about its answer.
 
 **Your Calculation:** Weighted average of 4 factors
+
 1. Similarity score (40%)
 2. Keyword overlap (25%)
 3. Answer completeness (15%)
@@ -688,9 +777,11 @@ $$F1 = 2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \t
 ## Testing
 
 ### Unit Test
+
 **Definition:** Test individual components in isolation.
 
 **Example:**
+
 ```python
 def test_confidence_calculation():
     calc = ConfidenceCalculator()
@@ -701,9 +792,11 @@ def test_confidence_calculation():
 ---
 
 ### Integration Test
+
 **Definition:** Test multiple components working together.
 
 **Example:**
+
 ```python
 def test_rag_pipeline():
     result = rag_service.answer_question("What about jobs?")
@@ -714,9 +807,11 @@ def test_rag_pipeline():
 ---
 
 ### Mock
+
 **Definition:** Fake object used in testing to isolate components.
 
 **Example:**
+
 ```python
 mock_llm = Mock()
 mock_llm.generate.return_value = "Test answer"
@@ -750,15 +845,19 @@ service = RAGService(llm_service=mock_llm)
 ## Interview Cheat Sheet
 
 ### "Explain your tech stack in 30 seconds"
+
 > "I built an NLP system using FastAPI for the backend, ChromaDB for vector storage, and transformer models like MPNet for embeddings and FinBERT for sentiment analysis. The system uses RAG to answer questions about political speeches, with Gemini LLM generating coherent responses from retrieved context. I implemented hybrid search combining semantic and keyword approaches, and use multi-model ensembles for robust sentiment analysis."
 
 ### "What's the most complex part?"
+
 > "The RAG pipeline was most complex—balancing semantic vs keyword search weights, calculating confidence scores from multiple factors, and engineering prompts to prevent LLM hallucinations while generating helpful answers."
 
 ### "How do you ensure quality?"
+
 > "Multi-layered approach: hybrid search for better retrieval, confidence scoring to flag uncertain answers, multi-model ensemble for sentiment, and RAG to ground LLM responses in actual data. Plus comprehensive testing with unit and integration tests."
 
 ### "What would you improve?"
+
 > "I'd add: (1) caching for common queries, (2) A/B testing for search weight tuning, (3) user feedback loop to improve retrieval, (4) fine-tuned embeddings on political text, (5) streaming responses for better UX."
 
 ---

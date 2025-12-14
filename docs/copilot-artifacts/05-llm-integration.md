@@ -1,6 +1,6 @@
 # LLM Integration Deep Dive: Pluggable Provider Architecture
 
-**Understanding How Large Language Models Power Your AI Features**
+## Understanding How Large Language Models Power Your AI Features
 
 ---
 
@@ -12,20 +12,23 @@
 An LLM is a neural network trained on massive text datasets to understand and generate human-like text.
 
 **What They Do:**
+
 - **Understand** natural language (questions, statements, context)
 - **Generate** coherent text responses
 - **Reason** about complex topics
 - **Interpret** data and provide insights
 
 **Your LLMs:**
+
 - **Gemini 1.5 Flash/Pro** (Google)
 - **GPT-4/GPT-3.5** (OpenAI) - optional
 - **Claude 3** (Anthropic) - optional
 
 ### Why Your Project Uses LLMs
 
-**1. Q&A System (RAG)**
-```
+#### 1. Q&A System (RAG)
+
+```text
 User: "What did Trump say about jobs in Michigan?"
 
 Without LLM: Return raw document chunks
@@ -38,8 +41,9 @@ With LLM: Generate coherent answer from context
 
 **Problem LLMs Solve:** Transform retrieval results into natural answers
 
-**2. Sentiment Analysis**
-```
+#### 2. Sentiment Analysis
+
+```text
 Raw Output:
 - FinBERT: {"positive": 0.85, "negative": 0.10, "neutral": 0.05}
 - RoBERTa: {"joy": 0.60, "surprise": 0.25, "neutral": 0.15}
@@ -55,8 +59,9 @@ With LLM: Generate interpretation
 
 **Problem LLMs Solve:** Make technical outputs human-readable
 
-**3. Topic Analysis**
-```
+#### 3. Topic Analysis
+
+```text
 Cluster: ["economy", "jobs", "market", "growth", "prosperity"]
 
 Without LLM: Use most frequent word as label
@@ -75,6 +80,7 @@ With LLM: Generate meaningful label
 ### The Problem: Vendor Lock-In
 
 **Naive Approach (Hardcoded):**
+
 ```python
 import google.generativeai as genai
 
@@ -90,6 +96,7 @@ def answer_question(question, context):
 ```
 
 **Problems:**
+
 1. Can't swap providers without rewriting code
 2. Hard to test (always hits real Gemini API)
 3. No flexibility for different use cases
@@ -97,7 +104,8 @@ def answer_question(question, context):
 
 ### Your Solution: Strategy Pattern
 
-**Step 1: Define Interface**
+#### Step 1: Define Interface
+
 ```python
 # src/services/llm/base.py
 from abc import ABC, abstractmethod
@@ -127,14 +135,16 @@ class LLMProvider(ABC):
 ```
 
 **Benefits:**
+
 - All providers must implement same interface
 - Business logic doesn't care which provider
 - Easy to swap providers
 - Easy to mock for testing
 
-**Step 2: Implement Concrete Providers**
+#### Step 2: Implement Concrete Providers
 
 **Gemini:**
+
 ```python
 # src/services/llm/gemini_provider.py
 import google.generativeai as genai
@@ -168,6 +178,7 @@ class GeminiProvider(LLMProvider):
 ```
 
 **OpenAI:**
+
 ```python
 # src/services/llm/openai_provider.py
 from openai import AsyncOpenAI
@@ -199,6 +210,7 @@ class OpenAIProvider(LLMProvider):
 ```
 
 **Claude:**
+
 ```python
 # src/services/llm/claude_provider.py
 import anthropic
@@ -229,7 +241,8 @@ class ClaudeProvider(LLMProvider):
         return self.model
 ```
 
-**Step 3: Factory Pattern**
+#### Step 3: Factory Pattern
+
 ```python
 # src/services/llm/factory.py
 from typing import Dict, Type
@@ -284,7 +297,8 @@ class LLMFactory:
         cls._providers[name] = provider_class
 ```
 
-**Step 4: LLM Service (High-Level API)**
+#### Step 4: LLM Service (High-Level API)
+
 ```python
 # src/services/llm_service.py
 from .llm.base import LLMProvider
@@ -425,6 +439,7 @@ LABEL:"""
 ### Environment Variables
 
 **.env File:**
+
 ```bash
 # Choose provider: gemini, openai, or claude
 LLM_PROVIDER=gemini
@@ -442,6 +457,7 @@ LLM_TEMPERATURE=0.7
 ### Configuration Files
 
 **Development:**
+
 ```yaml
 # configs/development.yaml
 llm:
@@ -453,6 +469,7 @@ llm:
 ```
 
 **Production:**
+
 ```yaml
 # configs/production.yaml
 llm:
@@ -533,11 +550,13 @@ def initialize_llm_service() -> LLMService:
 ### 1. Clear Instructions
 
 **Bad:**
+
 ```python
 prompt = f"Question: {question}\nContext: {context}"
 ```
 
 **Good:**
+
 ```python
 prompt = f"""You are a helpful AI assistant. Answer the question using ONLY 
 the provided context. Be factual and concise.
@@ -556,6 +575,7 @@ ANSWER:"""
 ### 2. Few-Shot Examples
 
 **Example:**
+
 ```python
 prompt = f"""Generate a topic label for the following keywords.
 
@@ -576,6 +596,7 @@ Label:"""
 ### 3. Temperature Tuning
 
 **Factual Tasks (Low Temperature):**
+
 ```python
 # Q&A answers - want factual accuracy
 answer = await llm.generate(prompt, temperature=0.3)
@@ -585,12 +606,14 @@ label = await llm.generate(prompt, temperature=0.2)
 ```
 
 **Creative Tasks (High Temperature):**
+
 ```python
 # Sentiment interpretation - want nuance
 interpretation = await llm.generate(prompt, temperature=0.7)
 ```
 
 **Temperature Guide:**
+
 - **0.0-0.3**: Deterministic, factual (Q&A, labels)
 - **0.4-0.7**: Balanced (interpretations, summaries)
 - **0.8-1.0**: Creative (brainstorming, variations)
@@ -598,6 +621,7 @@ interpretation = await llm.generate(prompt, temperature=0.7)
 ### 4. Output Constraints
 
 **Specify Length:**
+
 ```python
 prompt = f"""Generate a 2-3 sentence interpretation.
 ...
@@ -608,6 +632,7 @@ await llm.generate(prompt, max_tokens=150)
 ```
 
 **Specify Format:**
+
 ```python
 prompt = f"""Generate a label in title case (2-4 words).
 Examples: "Economic Policy", "Border Security"
@@ -659,7 +684,8 @@ async def generate_with_timeout(
 
 ### Fallback Strategies
 
-**Strategy 1: Fallback Provider**
+#### Strategy 1: Fallback Provider
+
 ```python
 class LLMService:
     def __init__(
@@ -683,7 +709,8 @@ class LLMService:
             raise
 ```
 
-**Strategy 2: Cached Fallback**
+#### Strategy 2: Cached Fallback
+
 ```python
 async def generate(self, prompt: str, **kwargs) -> str:
     # Try cache first
@@ -702,7 +729,8 @@ async def generate(self, prompt: str, **kwargs) -> str:
         return self._get_fallback_response()
 ```
 
-**Strategy 3: Degraded Mode**
+#### Strategy 3: Degraded Mode
+
 ```python
 async def answer_question(self, question: str, context: str) -> str:
     try:
@@ -813,6 +841,7 @@ class UsageTracker:
 ### Cost Optimization Strategies
 
 **1. Cache Responses:**
+
 ```python
 @lru_cache(maxsize=1000)
 def generate_cached(prompt: str) -> str:
@@ -820,6 +849,7 @@ def generate_cached(prompt: str) -> str:
 ```
 
 **2. Use Cheaper Models for Simple Tasks:**
+
 ```python
 # Topic labels - use Flash
 label = await flash_llm.generate(label_prompt)
@@ -829,6 +859,7 @@ analysis = await pro_llm.generate(analysis_prompt)
 ```
 
 **3. Batch Requests:**
+
 ```python
 # Instead of
 labels = [await llm.generate(p) for p in prompts]
@@ -974,6 +1005,7 @@ Synthesized answer:"""
 ### Streaming Responses
 
 **For Real-Time UX:**
+
 ```python
 class StreamingLLMService:
     async def generate_stream(
@@ -998,6 +1030,7 @@ async def ask_streaming(request: QuestionRequest):
 ### Fine-Tuning Integration
 
 **Custom Model Support:**
+
 ```python
 class FineTunedGeminiProvider(GeminiProvider):
     def __init__(self, api_key: str, tuned_model_name: str):
@@ -1015,15 +1048,18 @@ class FineTunedGeminiProvider(GeminiProvider):
 ## Next Steps
 
 **Continue Learning:**
+
 - **`06-concepts-glossary.md`** — Quick reference for all technical terms
 
 **Practice Explaining:**
+
 - Why use pluggable providers instead of hardcoding Gemini?
 - What's the difference between temperature 0.3 and 0.7?
 - How does prompt engineering affect output quality?
 - What's your strategy for handling LLM failures?
 
 **Interview Questions:**
+
 - Explain the strategy pattern for LLM providers
 - How do you manage API costs?
 - What happens if Gemini API goes down?
