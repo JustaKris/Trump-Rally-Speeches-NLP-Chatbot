@@ -10,9 +10,9 @@ on:
   #   paths:
   #     - "mkdocs.yml"
   #     - "docs/**/*"
-  #     - "!docs/copilot_artifacts/**"
+  #     - "!docs/copilot-artifacts/**"
   #     - "pyproject.toml"
-  #     - ".github/workflows/docs.yml"
+  #     - ".github/workflows/deploy-docs.yml"
   workflow_dispatch:
 
 # Allow only one concurrent deployment
