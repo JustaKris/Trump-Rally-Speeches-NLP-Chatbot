@@ -74,10 +74,10 @@ nav:
   
   - Reference:
       - Architecture: reference/architecture.md
-      - RAG Features: reference/rag-features.md
       - Configuration: reference/configuration.md
-      - AI Topic Analysis: reference/topic-extraction.md
-      - Entity Analytics: reference/entity-analytics.md
+      - Q&A System: reference/qa-system.md
+      - Sentiment Analysis: reference/sentiment-analysis.md
+      - Topic Analysis: reference/topic-analysis.md
   
   - Changelog: CHANGELOG.md
 

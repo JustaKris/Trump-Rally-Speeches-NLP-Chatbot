@@ -1,6 +1,19 @@
-# AI-Powered Topic Analysis API Reference
+# Topic Analysis System
 
-This document provides complete API reference for the AI-powered topic analysis endpoint, including request/response formats, examples, and configuration options.
+This document provides complete reference for the AI-powered topic analysis system, which extracts and organizes key themes from text using semantic clustering and large language models.
+
+**What It Does:**
+- Extracts meaningful topics from text using AI embeddings
+- Groups related keywords into semantic clusters (e.g., "economy", "jobs" → "Economic Policy")
+- Provides contextual text snippets showing keywords in actual use
+- Generates AI-powered summaries of main themes
+- Filters out noise (common verbs, weak clusters)
+
+**Perfect For:**
+- Political speech thematic analysis
+- Document summarization
+- Content classification
+- Research on discourse patterns
 
 ## Overview
 
@@ -327,4 +340,4 @@ The embedding model and LLM service are initialized once at startup and reused a
 
 - [Architecture Documentation](../reference/architecture.md) - System architecture overview
 - [API Reference](https://trump-speeches-nlp-chatbot.azurewebsites.net/docs#/nlp/analyze_topics_enhanced_analyze_topics_enhanced_post)
-- [RAG Features](rag-features.md) — Learn about the RAG system that also uses embeddings
+- [Q&A System](qa-system.md) — RAG-based question answering with entity analytics

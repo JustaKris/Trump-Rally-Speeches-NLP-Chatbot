@@ -173,7 +173,7 @@ Ensure you're in the project root directory and have run `uv sync`.
 - Try the interactive web interface at <http://localhost:8000>
 - Explore API documentation at <http://localhost:8000/docs>
 - Read the [FAQ](../faq.md) for common questions
-- Check out [RAG Features](../reference/rag-features.md) for implementation details
+- Check out [RAG Features](../reference/qa-system.md) for implementation details
 - Follow the [Deployment Guide](deployment.md) to deploy to production
 - Read about RAG improvements in `docs/RAG_IMPROVEMENTS.md`
 - Deploy to production with `docs/DEPLOYMENT.md`

@@ -1,8 +1,21 @@
-# RAG System Features
+# Q&A System (RAG)
 
 ## Overview
 
-This project implements a production-grade Retrieval-Augmented Generation (RAG) system for question-answering over a corpus of 35 political speeches (300,000+ words).
+This project implements a production-grade Retrieval-Augmented Generation (RAG) system for intelligent question-answering over a corpus of 35 political speeches (300,000+ words). The system combines semantic search, keyword matching, and large language models to provide accurate, well-sourced answers to natural language questions.
+
+**What It Does:**
+- Answers natural language questions about political speech content
+- Retrieves relevant context from a 35-speech corpus
+- Generates AI-powered answers with source citations
+- Provides confidence scoring and explainability
+- Extracts and analyzes entities mentioned in queries
+
+**Perfect For:**
+- Political speech research
+- Policy position analysis
+- Comparative speech analysis
+- Entity-specific question answering
 
 **Architectural Highlights:**
 - **Modular Design:** Separated concerns with dedicated components for search, confidence, entities, and document loading
@@ -10,7 +23,9 @@ This project implements a production-grade Retrieval-Augmented Generation (RAG) 
 - **Type-Safe:** Pydantic models for all RAG data structures
 - **Maintainable:** Clear separation of concerns, easy to extend and debug
 
-## Modular Architecture
+---
+
+## System Architecture
 
 ### Core Components
 
@@ -100,16 +115,39 @@ Sophisticated confidence assessment handled by `ConfidenceCalculator` component.
 }
 ```
 
-### 3. Entity Analytics
+### 3. Entity Analytics & Confidence Explainability
 
-Automatic entity detection with comprehensive statistics handled by `EntityAnalyzer` component.
+The `EntityAnalyzer` component and confidence system provide transparency into how the system works.
+
+#### Confidence Explanation
+
+Every answer includes a human-readable explanation of *why* it has a certain confidence level:
+
+**Example:**
+> "Overall confidence is MEDIUM (score: 0.59) based on weak semantic match (similarity: 0.22), very consistent results (consistency: 1.00), 5 supporting context chunks, 'Biden' mentioned in all retrieved chunks."
+
+**What It Explains:**
+- Retrieval quality (semantic similarity)
+- Result consistency (variance in scores)
+- Coverage (number of supporting chunks)
+- Entity coverage (for entity queries)
+
+#### Entity Detection & Statistics
+
+Automatic entity detection with comprehensive analytics:
 
 **Features:**
-- **Mention counts** across entire corpus
-- **Speech coverage** — which documents mention the entity  
-- **Corpus percentage** — percentage of documents containing entity
-- **Sentiment analysis** — average sentiment toward entity (optional)
-- **Co-occurrence analysis** — most common associated terms (filtered for stopwords)
+- **Mention counts** — How many times entity appears across entire corpus
+- **Speech coverage** — Which specific speeches mention the entity
+- **Corpus percentage** — Percentage of documents containing entity
+- **Sentiment analysis** — Average sentiment toward entity using FinBERT
+  - Analyzes up to 50 chunks containing the entity
+  - Converts scores to -1 (negative) to +1 (positive)
+  - Classifies as Positive, Neutral, or Negative
+- **Co-occurrence analysis** — Most common terms appearing near entity
+  - Extracts words from contexts containing entity
+  - Filters stopwords
+  - Returns top 5 associated terms
 
 **Example output:**
 ```json
@@ -121,15 +159,21 @@ Automatic entity detection with comprehensive statistics handled by `EntityAnaly
       "corpus_percentage": 25.03,
       "speeches": ["OhioSep21_2020.txt", "BemidjiSep18_2020.txt", ...],
       "sentiment": {
-        "average_score": -0.15,
-        "classification": "Neutral",
+        "average_score": -0.61,
+        "classification": "Negative",
         "sample_size": 50
       },
-      "associations": ["people", "our", "right", "about", "say"]
+      "associations": ["socialism", "weakness", "failure", "china", "corrupt"]
     }
   }
 }
 ```
+
+**Use Cases:**
+- **Research:** "How often is Biden mentioned in these speeches?"
+- **Sentiment tracking:** "What's the average sentiment about Biden?"
+- **Context discovery:** "What topics are associated with healthcare?"
+- **Coverage analysis:** "Which speeches mention climate change?"
 
 ### 4. Hybrid Search
 
