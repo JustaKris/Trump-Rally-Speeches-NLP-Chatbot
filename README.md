@@ -47,6 +47,7 @@ The API is deployed on Azure and ready to explore:
 Built a modular question-answering system over 35 political speeches (300,000+ words) with these components:
 
 **Core Services:**
+
 - **`services/rag_service.py`** — Orchestrates RAG pipeline, manages ChromaDB, coordinates components
 - **`services/llm/`** — Pluggable LLM abstraction layer supporting multiple providers (Gemini, OpenAI, Anthropic)
   - **`base.py`** — Abstract LLMProvider interface
@@ -56,6 +57,7 @@ Built a modular question-answering system over 35 political speeches (300,000+ w
   - **`anthropic.py`** — Anthropic Claude models (optional dependency)
 
 **Modular RAG Components** (`services/rag/`):
+
 - **`search_engine.py`** — Hybrid search combining semantic (MPNet 768d), BM25 keyword, and cross-encoder reranking
 - **`confidence.py`** — Multi-factor confidence scoring (retrieval quality, consistency, coverage, entity mentions)
 - **`entity_analyzer.py`** — Entity extraction with sentiment analysis, speech coverage, and co-occurrence analytics
@@ -63,6 +65,7 @@ Built a modular question-answering system over 35 political speeches (300,000+ w
 - **`models.py`** — Pydantic data models for type-safe RAG operations
 
 **RAG API Endpoints:**
+
 - `POST /rag/ask` — Ask natural language questions with AI-generated answers
 - `POST /rag/search` — Semantic search over indexed documents
 - `GET /rag/stats` — Vector database statistics and health check
@@ -71,17 +74,20 @@ Built a modular question-answering system over 35 political speeches (300,000+ w
 ### 📝 Traditional NLP Endpoints
 
 **API Layer** (`api/`):
+
 - **`routes_chatbot.py`** — RAG question-answering endpoints
 - **`routes_nlp.py`** — Traditional NLP analysis endpoints
 - **`routes_health.py`** — Health checks and system status
 - **`dependencies.py`** — Dependency injection for services
 
 **Core Services:**
+
 - **`services/nlp_service.py`** — Word frequency, n-gram analysis
 - **`services/sentiment_service.py`** — Enhanced AI-powered sentiment analysis with emotion detection and contextual interpretation
 - **`services/topic_service.py`** — AI-powered topic extraction with semantic clustering and LLM-generated summaries
 
 **Additional Endpoints:**
+
 - `POST /analyze/sentiment` — Multi-model sentiment analysis (FinBERT + RoBERTa emotions + Gemini interpretation)
 - `POST /analyze/words` — Word frequency
 - `POST /analyze/topics` — AI-powered topic extraction with semantic clustering and contextual analysis
@@ -227,6 +233,7 @@ It retrieves relevant chunks via hybrid search, analyzes entities and sentiment,
    **Option A: Google Gemini (Default)**
 
    Create a `.env` file in the project root:
+
    ```bash
    # LLM Provider Configuration
    LLM_PROVIDER=gemini
@@ -246,6 +253,7 @@ It retrieves relevant chunks via hybrid search, analyzes entities and sentiment,
    ```
 
    Update `.env`:
+
    ```bash
    LLM_PROVIDER=openai
    LLM_API_KEY=sk-your_openai_api_key_here
@@ -262,6 +270,7 @@ It retrieves relevant chunks via hybrid search, analyzes entities and sentiment,
    ```
 
    Update `.env`:
+
    ```bash
    LLM_PROVIDER=anthropic
    LLM_API_KEY=sk-ant-your_anthropic_api_key_here
@@ -271,6 +280,7 @@ It retrieves relevant chunks via hybrid search, analyzes entities and sentiment,
    ```
 
    **Install All Providers:**
+
    ```powershell
    uv sync --group llm-all
    ```
@@ -291,6 +301,7 @@ It retrieves relevant chunks via hybrid search, analyzes entities and sentiment,
 **Web Interface:** Navigate to the RAG tab and ask a question
 
 **API Example:**
+
 ```powershell
 curl -X POST http://localhost:8000/rag/ask `
   -H "Content-Type: application/json" `
@@ -298,6 +309,7 @@ curl -X POST http://localhost:8000/rag/ask `
 ```
 
 **Python Example:**
+
 ```python
 import requests
 
@@ -347,6 +359,7 @@ uv run mkdocs serve
 Then open <http://localhost:8001> to browse the documentation with search and navigation.
 
 **Build static site:**
+
 ```powershell
 uv run mkdocs build
 ```
@@ -408,20 +421,20 @@ uv run ruff format src/ && uv run ruff check src/ && uv run pytest
 ### CI/CD Pipeline
 
 The project uses modular GitHub Actions workflows for continuous integration:
+
 - ✅ **Automated testing** on Python 3.11, 3.12 ([`python-tests.yml`](.github/workflows/python-tests.yml))
 - ✅ **Code quality** — Ruff linting and formatting ([`python-lint.yml`](.github/workflows/python-lint.yml))
 - ✅ **Type checking** — Mypy static analysis ([`python-typecheck.yml`](.github/workflows/python-typecheck.yml))
 - ✅ **Security scanning** — Bandit and pip-audit ([`security-audit.yml`](.github/workflows/security-audit.yml))
-- ✅ **Documentation** — Auto-deploy to GitHub Pages ([`docs.yml`](.github/workflows/docs.yml))
+- ✅ **Documentation** — Auto-deploy to GitHub Pages ([`deploy-docs.yml`](.github/workflows/deploy-docs.yml))
 - ✅ **Docker builds** — Automated image builds ([`build-push-docker.yml`](.github/workflows/build-push-docker.yml))
 
 For detailed testing documentation, see [`docs/howto/testing.md`](docs/howto/testing.md).
 
-## 📦 Dependencies
-
 ## 📦 Core Dependencies
 
 **RAG & LLM:**
+
 - `chromadb` — Vector database for embeddings
 - `google-generativeai` — Gemini LLM integration (default provider)
 - `openai` — OpenAI GPT models (optional: `uv sync --group llm-openai`)
@@ -431,11 +444,13 @@ For detailed testing documentation, see [`docs/howto/testing.md`](docs/howto/tes
 - `langchain` — Text splitting utilities
 
 **NLP & ML:**
+
 - `transformers` + `torch` — FinBERT sentiment analysis, RoBERTa emotion detection
 - `nltk` — Text preprocessing
 - `scikit-learn` — DBSCAN clustering, cosine similarity
 
 **API & Infrastructure:**
+
 - `fastapi` — REST API framework
 - `uvicorn` — ASGI server
 - `pydantic` — Data validation
@@ -444,11 +459,16 @@ See `pyproject.toml` for complete dependency list.
 
 ## 💡 Project Structure
 
-```
+```text
 Trump-Rally-Speeches-NLP-Chatbot/
 │
 ├── src/                          # Production API code
-│   ├── api.py                   # FastAPI with RAG & NLP endpoints
+│   ├── main.py                  # Application entry point
+│   ├── api/                     # API routes and dependencies
+│   │   ├── routes_chatbot.py    #    RAG endpoints
+│   │   ├── routes_nlp.py        #    NLP analysis endpoints
+│   │   ├── routes_health.py     #    Health checks
+│   │   └── dependencies.py      #    Dependency injection
 │   ├── services/
 │   │   ├── rag_service.py       # ⭐ RAG orchestration
 │   │   ├── llm/                 # ⭐ Pluggable LLM providers
@@ -461,32 +481,64 @@ Trump-Rally-Speeches-NLP-Chatbot/
 │   │   │   ├── search_engine.py #    Hybrid search
 │   │   │   ├── confidence.py    #    Confidence scoring
 │   │   │   ├── entity_analyzer.py #  Entity extraction
-│   │   │   └── document_loader.py #  Document chunking
+│   │   │   ├── document_loader.py #  Document chunking
+│   │   │   └── models.py        #    Pydantic data models
 │   │   ├── sentiment_service.py # Multi-model sentiment
-│   │   └── topic_service.py     # Semantic topic extraction
-│   ├── models.py                # FinBERT sentiment analysis
-│   ├── preprocessing.py         # Text preprocessing
-│   └── utils.py                 # Data loading utilities
+│   │   ├── topic_service.py     # Semantic topic extraction
+│   │   └── nlp_service.py       # Word frequency, n-grams
+│   ├── config/
+│   │   └── settings.py          # Pydantic settings
+│   ├── core/
+│   │   ├── preprocessing.py     # Text preprocessing
+│   │   └── logging_config.py    # Structured logging
+│   ├── models/                  # ML models
+│   │   └── sentiment.py         # FinBERT wrapper
+│   └── utils/
+│       └── data_loader.py       # Data loading utilities
 │
 ├── data/
 │   ├── Donald Trump Rally Speeches/  # 35 speech transcripts
 │   └── chromadb/                     # Vector database persistence
 │
-├── static/
-│   └── index.html               # Web interface
+├── src/
+│   └── static/
+│       └── index.html           # Web interface
 │
 ├── notebooks/                   # Exploratory analysis
-├── tests/                       # pytest test suite
+│   ├── 1. Word Frequency & Topics Analysis.ipynb
+│   └── 2. Sentiment Analysis.ipynb
+├── tests/                       # pytest test suite (65%+ coverage)
+│   ├── conftest.py             # Test fixtures
+│   ├── test_rag_integration.py # RAG system tests
+│   ├── test_search_engine.py   # Hybrid search tests
+│   ├── test_confidence.py      # Confidence scoring tests
+│   └── ...                     # Additional test modules
 ├── docs/                        # Documentation (MkDocs site)
 │   ├── index.md                # Docs homepage
 │   ├── guides/                 # Getting started guides
 │   ├── howto/                  # Task-oriented guides
-│   └── reference/              # Technical reference
+│   ├── reference/              # Technical reference
+│   ├── development/            # Development guides
+│   └── copilot-artifacts/      # Deep-dive educational docs
+├── .github/
+│   └── workflows/              # CI/CD pipelines
+│       ├── python-tests.yml    # Automated testing
+│       ├── python-lint.yml     # Code quality checks
+│       ├── security-audit.yml  # Security scanning
+│       └── deploy-docs.yml     # Documentation deployment
+├── configs/                     # Environment configurations
+│   ├── development.yaml
+│   ├── staging.yaml
+│   └── production.yaml
+├── Dockerfile                   # Multi-stage Docker build
+├── docker-compose.yml           # Container orchestration
 ├── mkdocs.yml                   # Documentation site config
-└── pyproject.toml               # Dependencies
+├── pyproject.toml               # Dependencies & project metadata
+├── .env.example                 # Environment variables template
+└── LICENSE                      # MIT License
 ```
 
-## � Documentation
+## 📚 Documentation
 
 **📘 [Full Documentation Site](https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/)** — Complete guides, tutorials, and API reference
 
@@ -504,24 +556,33 @@ Then open <http://localhost:8001> in your browser.
 
 For more information on working with the documentation, see the [Documentation Guide](https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/howto/documentation/).
 
-## �📄 License & Attribution
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+Copyright © 2025 Kristiyan Bonev and contributors
+
+### Attribution
 
 This repository is for educational and portfolio purposes. The speech transcripts are publicly available data used for demonstrative NLP analysis.
 
-**Technologies Used:**
+**Key Technologies:**
 
-- [Hugging Face Transformers](https://huggingface.co/docs/transformers/)
-- [FinBERT](https://huggingface.co/ProsusAI/finbert) for sentiment analysis
-- [Plotly](https://plotly.com/python/) for interactive visualizations
-- [uv](https://docs.astral.sh/uv/) for dependency management
+- [Hugging Face Transformers](https://huggingface.co/docs/transformers/) — BERT-based models
+- [FinBERT](https://huggingface.co/ProsusAI/finbert) — Sentiment analysis
+- [sentence-transformers](https://www.sbert.net/) — MPNet embeddings
+- [ChromaDB](https://www.trychroma.com/) — Vector database
+- [FastAPI](https://fastapi.tiangolo.com/) — Modern web framework
+- [uv](https://docs.astral.sh/uv/) — Python package manager
 
 ---
 
 ## Get in Touch
 
-**Kristiyan Bonev**
+### Kristiyan Bonev
 
 - GitHub: [@JustaKris](https://github.com/JustaKris)
-- Email: k.s.bonev@gmail.com
+- LinkedIn: [Kristiyan Bonev](https://www.linkedin.com/in/kristiyan-bonev-profile/)
+- Email: <k.s.bonev@gmail.com>
 
 Built this from scratch to explore modern NLP techniques and production ML deployment. Dive into the code, try the API, or reach out if you want to chat about RAG systems, LLM integration, or anything else!
