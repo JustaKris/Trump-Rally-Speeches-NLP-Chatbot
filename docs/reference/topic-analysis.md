@@ -3,6 +3,7 @@
 This document provides complete reference for the AI-powered topic analysis system, which extracts and organizes key themes from text using semantic clustering and large language models.
 
 **What It Does:**
+
 - Extracts meaningful topics from text using AI embeddings
 - Groups related keywords into semantic clusters (e.g., "economy", "jobs" → "Economic Policy")
 - Provides contextual text snippets showing keywords in actual use
@@ -10,6 +11,7 @@ This document provides complete reference for the AI-powered topic analysis syst
 - Filters out noise (common verbs, weak clusters)
 
 **Perfect For:**
+
 - Political speech thematic analysis
 - Document summarization
 - Content classification
@@ -25,7 +27,7 @@ The topic analysis system goes beyond simple word frequency by:
 4. **AI Summaries** — Provides interpretive analysis of main themes
 5. **Smart Filtering** — Excludes common verbs and weak clusters
 
-**Note:** Uses the configured LLM provider (Gemini, OpenAI, or Claude) for label generation and summaries.
+**Note:** Uses the configured LLM provider (Gemini by default, with OpenAI and Claude support via optional dependencies) for label generation and summaries. Configure via `LLM_PROVIDER` environment variable.
 
 ## Basic vs Enhanced Topic Extraction
 
@@ -67,6 +69,58 @@ Returns semantically clustered topics with context:
   }
 }
 ```
+
+## Installation & Setup
+
+### Prerequisites
+
+**Python Version:** 3.11 or 3.12 (as specified in `pyproject.toml`)
+
+**Package Manager:** This project uses [uv](https://github.com/astral-sh/uv) for dependency management.
+
+### Quick Start
+
+```bash
+# Install uv (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Clone and setup
+git clone https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot.git
+cd Trump-Rally-Speeches-NLP-Chatbot
+
+# Install dependencies (creates .venv automatically)
+uv sync
+
+# Configure environment
+cp .env.example .env
+# Edit .env: Set LLM_API_KEY and LLM_PROVIDER
+
+# Run the server
+uv run uvicorn src.main:app --reload
+```
+
+API available at `http://localhost:8000`.
+
+### Dependencies
+
+Core topic analysis dependencies (automatically installed with `uv sync`):
+
+- `sentence-transformers>=3.3.0` — Embeddings with MPNet model
+- `scikit-learn>=1.7.2` — KMeans clustering
+- `numpy>=1.26.0,<2.0.0` — NumPy arrays (compatible with PyTorch 2.6)
+- `google-generativeai>=0.8.0` — Gemini LLM (default)
+
+**Optional LLM Providers:**
+
+```bash
+# Install OpenAI support
+uv sync --group llm-openai
+
+# Install Claude support
+uv sync --group llm-anthropic
+```
+
+Set `LLM_PROVIDER=openai` or `LLM_PROVIDER=anthropic` in `.env` after installing.
 
 ## API Usage
 
@@ -140,10 +194,12 @@ async function analyzeTopics(text) {
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `text` | string | required | Text to analyze |
-| `top_n` | integer | 10 | Number of topic clusters to return |
-| `num_clusters` | integer | auto | Number of clusters (3-6 auto-determined) |
-| `snippets_per_topic` | integer | 3 | Number of example snippets per cluster |
+| `text` | string | required | Text to analyze (in request body) |
+| `top_n` | integer | 10 | Number of topic clusters to return (query param) |
+| `num_clusters` | integer | auto | Number of clusters 3-6, auto-determined (query param) |
+| `snippets_per_topic` | integer | 3 | Number of example snippets per cluster (query param) |
+
+**Note:** `text` is passed in the JSON body, while `top_n`, `num_clusters`, and `snippets_per_topic` are query parameters.
 
 ### Parameter Examples
 
@@ -251,12 +307,26 @@ print(f"Main topics: {[c['label'] for c in topics['clustered_topics'][:3]]}")
 
 ### Clustering Algorithm
 
-The system uses **KMeans clustering** on **MPNet embeddings** (768-dimensional vectors):
+The system uses **KMeans clustering** on **MPNet embeddings** (768-dimensional semantic vectors):
 
-1. Extract top keywords using TF-IDF style scoring
-2. Generate embeddings for each keyword using `all-mpnet-base-v2`
-3. Cluster embeddings into 3-6 groups (auto-determined based on keyword count)
-4. Sort clusters by total mentions (most important first)
+1. **Keyword Extraction** — Extract top keywords using frequency analysis with TF-IDF-style scoring
+2. **Embedding Generation** — Generate 768-dimensional embeddings for each keyword using `all-mpnet-base-v2` from sentence-transformers
+3. **Semantic Clustering** — Cluster embeddings into 3-6 groups using KMeans (number auto-determined based on keyword count)
+4. **Ranking** — Sort clusters by total mentions to prioritize most important topics first
+
+**Auto-Cluster Determination:**
+
+- < 10 keywords: 3 clusters
+- 10-20 keywords: 4 clusters  
+- 20-30 keywords: 5 clusters
+- 30+ keywords: 6 clusters
+
+**Why KMeans?**
+
+- Fast and deterministic
+- Works well with fixed cluster counts
+- Produces balanced clusters
+- Efficient with high-dimensional embeddings
 
 ### Label Generation
 
@@ -291,18 +361,143 @@ The summary is generated by providing Gemini with:
 
 ### Response Time
 
-- **Without LLM:** ~1-2 seconds for typical documents
-- **With LLM:** ~3-5 seconds (includes label + summary generation)
+- **Without LLM:** ~1-2 seconds for typical documents (500-2000 words)
+- **With LLM:** ~3-5 seconds (includes label generation + summary)
+
+**Breakdown:**
+
+- Keyword extraction: ~100-200ms
+- Embedding generation: ~200-500ms (depends on keyword count)
+- KMeans clustering: ~50-100ms
+- Snippet extraction: ~200-400ms
+- LLM calls (labels + summary): ~2-3 seconds total
+
+**First Request:** May take 30-60 seconds for one-time model download (~500 MB for sentence-transformers).
 
 ### Optimal Text Length
 
 - **Minimum:** 100+ words for meaningful clustering
-- **Optimal:** 500-2000 words
-- **Maximum:** No hard limit, but longer texts increase processing time
+- **Optimal:** 500-2000 words (typical political speech length)
+- **Maximum:** No hard limit, but performance degrades linearly with length
+  - 5000+ words: Consider text chunking or summarization first
+  - Very long texts may produce too many clusters
+
+### Memory Usage
+
+- **sentence-transformers model:** ~500 MB (loaded once, cached)
+- **LLM service:** Minimal (API-based, no local loading)
+- **Runtime:** ~50-100 MB per request (temporary embeddings)
+- **Recommendation:** Minimum 1.5 GB free RAM
 
 ### Caching
 
-The embedding model and LLM service are initialized once at startup and reused across requests for optimal performance.
+- Embedding model loads once at startup and persists
+- LLM service initializes lazily on first use
+- Keyword embeddings generated per request (not cached)
+- **Optimization opportunity:** Cache embeddings for repeated analysis
+
+## Configuration Best Practices
+
+**Production Settings:**
+
+```yaml
+# configs/production.yaml
+topic:
+  max_keywords: 30
+  min_cluster_size: 3
+  topic_relevance_threshold: 0.3
+  excluded_verbs: ["said", "going", "know", ...]  # Extensive list
+```
+
+**Development Settings:**
+
+```yaml
+# configs/development.yaml  
+topic:
+  max_keywords: 20  # Faster processing
+  min_cluster_size: 2
+  topic_relevance_threshold: 0.2  # More permissive
+```
+
+**Environment Variable Overrides:**
+
+```bash
+# .env
+ENVIRONMENT=production  # Load production.yaml
+LLM_API_KEY=your-key-here
+LLM_PROVIDER=gemini
+```
+
+**Loading Order (Precedence):**
+
+1. Environment variables (highest priority)
+2. `.env` file
+3. `configs/{ENVIRONMENT}.yaml`
+4. Code defaults (lowest priority)
+
+## Development Workflow
+
+### Running Tests
+
+```bash
+# Run topic analysis tests
+uv run pytest tests/test_topic_service.py -v
+
+# Run with coverage
+uv run pytest tests/test_topic_service.py --cov=src.services.topic_service
+
+# Test topic extraction specifically
+uv run pytest tests/test_topic_service.py::test_extract_topics_enhanced -v
+```
+
+### Code Quality
+
+```bash
+# Lint and format
+uv run ruff check src/services/topic_service.py
+uv run ruff format src/services/topic_service.py
+
+# Type checking
+uv run mypy src/services/topic_service.py
+```
+
+### Local Testing
+
+```bash
+# Start server with hot reload
+uv run uvicorn src.main:app --reload --log-level debug
+
+# Test endpoint
+curl -X POST "http://localhost:8000/analyze/topics?top_n=5" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Your long text for topic analysis..."}'
+```
+
+### Debugging Tips
+
+**Enable verbose logging:**
+
+```python
+# In configs/development.yaml
+logging:
+  level: DEBUG
+  format: pretty  # Colored console output
+```
+
+**Inspect cluster assignments:**
+
+```python
+from src.services.topic_service import TopicExtractionService
+
+service = TopicExtractionService()
+result = service.extract_topics_enhanced(text, top_n=5)
+
+# Examine cluster details
+for cluster in result['clustered_topics']:
+    print(f"{cluster['label']}: {cluster['total_mentions']} mentions")
+    print(f"Keywords: {[kw['word'] for kw in cluster['keywords']]}")
+    print(f"Avg relevance: {cluster['avg_relevance']:.3f}\n")
+```
 
 ## Troubleshooting
 
@@ -322,22 +517,48 @@ The embedding model and LLM service are initialized once at startup and reused a
 
 **Solutions:**
 
-- Ensure `GEMINI_API_KEY` is configured in `.env`
+- Ensure `LLM_API_KEY` is configured in `.env` (see `.env.example` for template)
+- Set `LLM_PROVIDER` to your chosen provider (gemini/openai/anthropic)
 - Check API logs for LLM errors
 - Verify Gemini API quota/limits
+- System still provides clustered topics even without LLM summary
 
-### Service Unavailable
+### Service Unavailable (503)
 
-**Problem:** 503 error with "Topic service not initialized"
+**Problem:** 503 error with "Topic extraction not available. Service not initialized."
 
 **Solutions:**
 
-- Ensure application started successfully
-- Check startup logs for topic service initialization errors
-- Verify all dependencies are installed (`scikit-learn`, `sentence-transformers`)
+- **Verify startup logs:** Check for topic service initialization errors
+
+  ```bash
+  uv run uvicorn src.main:app --log-level debug
+  # Look for "TopicExtractionService initialized" message
+  ```
+  
+- **Check dependencies:** Ensure scikit-learn and sentence-transformers installed
+
+  ```bash
+  uv sync  # Reinstall all dependencies
+  uv pip list | grep -E "scikit-learn|sentence-transformers"
+  ```
+
+- **Verify model download:** First request downloads ~500 MB model from HuggingFace
+  - Check `~/.cache/huggingface/` for cached models
+  - May take 1-2 minutes on first request
+- **Memory check:** Ensure at least 1.5 GB free RAM
+- **Restart service:** Clear any stuck initialization states
+
+  ```bash
+  # Kill process and restart
+  uv run uvicorn src.main:app --reload
+  ```
 
 ## See Also
 
-- [Architecture Documentation](../reference/architecture.md) - System architecture overview
-- [API Reference](https://trump-speeches-nlp-chatbot.azurewebsites.net/docs#/nlp/analyze_topics_enhanced_analyze_topics_enhanced_post)
 - [Q&A System](qa-system.md) — RAG-based question answering with entity analytics
+- [Sentiment Analysis](sentiment-analysis.md) — Multi-model emotion and sentiment detection
+- [Architecture Documentation](architecture.md) - System architecture overview
+- [API Reference](https://trump-speeches-nlp-chatbot.azurewebsites.net/docs#/nlp/analyze_topics_enhanced_analyze_topics_enhanced_post) - Interactive API playground
+- [Development Guide](../development/testing.md) - Testing practices
+- [GitHub Repository](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot) - Source code and pyproject.toml

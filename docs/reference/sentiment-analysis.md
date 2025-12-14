@@ -5,12 +5,14 @@
 The sentiment analysis system provides AI-powered emotional and sentimental analysis of text using a multi-model ensemble approach. It combines specialized transformer models with optional LLM interpretation to deliver comprehensive insights into the emotional tone and sentiment of text.
 
 **What It Does:**
+
 - Classifies overall sentiment (positive/negative/neutral)
 - Detects specific emotions (anger, joy, fear, sadness, surprise, disgust, neutral)
 - Provides AI-generated contextual interpretation explaining *why* the text has that emotional tone
 - Handles long texts through smart chunking
 
 **Perfect For:**
+
 - Political speech analysis
 - Customer feedback analysis  
 - Social media sentiment tracking
@@ -24,7 +26,7 @@ The sentiment analysis system provides AI-powered emotional and sentimental anal
 
 The system uses **three specialized AI models** working together:
 
-```
+```text
 ┌─────────────────┐
 │   Input Text    │
 └────────┬────────┘
@@ -55,12 +57,14 @@ The system uses **three specialized AI models** working together:
 **Output:** Probabilities for positive, negative, neutral
 
 **Why FinBERT?**
+
 - Trained on financial news and reports
 - Excellent for political/economic discourse
 - Better than generic sentiment models for formal speech
 - Produces reliable confidence scores
 
 **How It Works:**
+
 1. Tokenizes input text
 2. Chunks long texts into 510-token segments
 3. Analyzes each chunk independently
@@ -68,6 +72,7 @@ The system uses **three specialized AI models** working together:
 5. Returns probability distribution
 
 **Example Output:**
+
 ```python
 {
     "positive": 0.15,
@@ -85,6 +90,7 @@ The system uses **three specialized AI models** working together:
 **Output:** Probabilities for 7 emotions
 
 **Emotions Detected:**
+
 - 😠 Anger
 - 😊 Joy  
 - 😨 Fear
@@ -94,12 +100,14 @@ The system uses **three specialized AI models** working together:
 - 😐 Neutral
 
 **Why RoBERTa?**
+
 - State-of-the-art emotion detection
 - Trained on 58k emotion-labeled texts
 - Distilled for faster inference
 - Provides nuanced emotional profile beyond simple positive/negative
 
 **Example Output:**
+
 ```python
 {
     "anger": 0.62,
@@ -116,10 +124,11 @@ The system uses **three specialized AI models** working together:
 
 **Purpose:** Human-readable explanation of sentiment
 
-**Model:** Google Gemini 2.5 Flash  
+**Model:** Google Gemini 2.0 Flash (configurable via `LLM_MODEL_NAME`)  
 **Output:** 2-3 sentence interpretation
 
 **What It Explains:**
+
 - **WHY** the text received its sentiment score
 - **WHY** certain emotions dominate
 - **WHAT** the speaker expresses emotion about
@@ -143,6 +152,7 @@ POST /analyze/sentiment
 ### Request
 
 **Body (JSON):**
+
 ```json
 {
   "text": "Your text to analyze here..."
@@ -158,6 +168,7 @@ POST /analyze/sentiment
 ### Response
 
 **Success (200):**
+
 ```json
 {
   "sentiment": "negative",
@@ -252,24 +263,28 @@ async function analyzeSentiment(text) {
 ### Sentiment Classification
 
 **Positive (0.7+):**
+
 - Optimistic language
 - Achievement and success framing
 - Praise and celebration
 - Examples: economic wins, policy victories
 
 **Negative (0.7+):**
+
 - Critical language
 - Problems and failures
 - Opposition and conflict
 - Examples: attacks on opponents, crisis framing
 
 **Neutral (0.5+):**
+
 - Factual statements
 - Balanced perspectives
 - Mixed emotions
 - Examples: policy explanations, data presentation
 
 **Mixed (No clear dominant):**
+
 - Complex emotional landscape
 - Multiple competing sentiments
 - Nuanced arguments
@@ -281,7 +296,9 @@ async function analyzeSentiment(text) {
 The highest-scoring emotion reveals the dominant emotional tone.
 
 **Secondary Emotions:**
+
 Look at the top 2-3 emotions for emotional complexity. For example:
+
 - High anger + moderate fear = threat/danger framing
 - High joy + moderate surprise = unexpected positive outcome
 - Balanced emotions = complex or neutral tone
@@ -294,6 +311,7 @@ The LLM-generated interpretation connects the **what** (numbers) to the **why** 
 > "The text conveys positive sentiment about economic achievements, with joy emerging from pride in policy success. However, underlying anger surfaces when discussing immigration, creating emotional complexity."
 
 **What to Look For:**
+
 - Explains *why* sentiment is classified as positive/negative/neutral
 - Identifies *what* triggers dominant emotions
 - Connects emotional tone to text content
@@ -325,6 +343,7 @@ def analyze_long_text(text):
 ```
 
 **Benefits:**
+
 - Handles texts of any length
 - Maintains context within each chunk
 - Stable predictions through averaging
@@ -332,27 +351,37 @@ def analyze_long_text(text):
 
 ### Model Initialization
 
-**Lazy Loading:** Models load on first request, not at startup
+**Lazy Loading:** Models download and load on first request, not at startup. This reduces startup time and memory usage when features aren't needed.
 
-**Caching:** Models stay in memory for subsequent requests
+**Caching:** Once loaded, models stay in memory for subsequent requests, providing fast response times.
 
-**Memory Usage:**
+**First-Time Model Download:**
+
+- Downloads models from HuggingFace Hub (~1.5 GB total)
+- Caches to `~/.cache/huggingface/` for reuse
+- Only happens once per environment
+
+**Memory Usage (After Loading):**
+
 - FinBERT: ~440 MB
 - RoBERTa-Emotion: ~330 MB
 - **Total:** ~770 MB (loaded once, reused)
+- **Recommendation:** Minimum 2 GB free RAM
 
 ### LLM Integration
 
 **Prompt Engineering:**
 
 The system sends Gemini a structured prompt with:
+
 1. Text excerpt (first 600 chars)
 2. Sentiment scores from FinBERT
 3. Emotion scores from RoBERTa
 4. Task instructions
 
 **Example Prompt:**
-```
+
+```text
 You are analyzing the emotional and sentimental tone of a text excerpt...
 
 TEXT ANALYZED:
@@ -376,6 +405,7 @@ Write a 2-3 sentence interpretation that:
 ```
 
 **Safety Handling:**
+
 - Checks for blocked responses
 - Validates response completeness
 - Logs finish reasons and safety ratings
@@ -388,15 +418,18 @@ Write a 2-3 sentence interpretation that:
 ### Latency
 
 **First Request:** ~30-60 seconds
+
 - One-time model downloads (~1.5 GB)
 - Model initialization
 
 **Subsequent Requests:**
+
 - **Short text (<512 tokens):** ~500-1000ms
 - **Medium text (1-3 chunks):** ~1-2 seconds
 - **Long text (5+ chunks):** ~3-5 seconds
 
 **Breakdown:**
+
 - FinBERT: ~200-500ms per chunk
 - RoBERTa: ~200-400ms
 - Gemini LLM: ~1-2 seconds
@@ -410,27 +443,71 @@ Write a 2-3 sentence interpretation that:
 
 ### Optimization Opportunities
 
-1. **GPU acceleration:** Deploy on GPU for 5-10x speedup
-2. **Batch processing:** Process multiple texts together
-3. **Async LLM:** Don't block on Gemini response
-4. **Caching:** Cache results for identical inputs
+1. **GPU acceleration:** This project uses PyTorch CPU-only builds for portability. For GPU acceleration:
+
+   ```bash
+   # Install PyTorch GPU dependencies (not in default dependencies)
+   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+   ```
+
+   Expected speedup: 5-10x on compatible GPUs
+
+2. **Batch processing:** Process multiple texts together (currently processes one at a time)
+3. **Async LLM:** LLM interpretation doesn't block model inference but adds 1-2s latency
+4. **Caching:** Cache results for identical inputs (not currently implemented)
 
 ---
+
+## Installation & Setup
+
+### Prerequisites
+
+**Python Version:** 3.11 or 3.12 (as specified in `pyproject.toml`)
+
+**Package Manager:** This project uses [uv](https://github.com/astral-sh/uv) for fast, reliable dependency management.
+
+### Quick Start
+
+```bash
+# Install uv (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Clone the repository
+git clone https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot.git
+cd Trump-Rally-Speeches-NLP-Chatbot
+
+# Create virtual environment and install dependencies
+uv sync
+
+# Copy environment template and configure
+cp .env.example .env
+# Edit .env and add your LLM_API_KEY
+
+# Run the API server
+uv run uvicorn src.main:app --reload
+```
+
+The API will be available at `http://localhost:8000`.
 
 ## Configuration
 
 ### Environment Variables
 
 ```bash
-# LLM Configuration (optional but recommended)
-GEMINI_API_KEY=your_api_key_here
-LLM_PROVIDER=gemini
-LLM_MODEL_NAME=gemini-2.0-flash-exp
+# LLM Configuration (required for contextual interpretation)
+LLM_API_KEY=your_api_key_here
+LLM_PROVIDER=gemini  # Options: gemini, openai, anthropic
+LLM_MODEL_NAME=gemini-2.0-flash-exp  # Or gemini-2.5-flash
 
 # Alternative: Use OpenAI
-# LLM_PROVIDER=openai
 # LLM_API_KEY=sk-your_openai_key
+# LLM_PROVIDER=openai
 # LLM_MODEL_NAME=gpt-4o-mini
+
+# Alternative: Use Claude
+# LLM_API_KEY=sk-ant-your_key
+# LLM_PROVIDER=anthropic
+# LLM_MODEL_NAME=claude-3-5-sonnet-20241022
 ```
 
 ### Custom Models
@@ -446,6 +523,29 @@ analyzer = EnhancedSentimentAnalyzer(
     llm_service=my_llm_service
 )
 ```
+
+### LLM Provider Options
+
+**Default:** Gemini (included in base dependencies)
+
+**Optional Providers:** Install via dependency groups:
+
+```bash
+# OpenAI GPT support
+uv sync --group llm-openai
+# Set in .env: LLM_PROVIDER=openai, LLM_MODEL_NAME=gpt-4o-mini
+
+# Anthropic Claude support  
+uv sync --group llm-anthropic
+# Set in .env: LLM_PROVIDER=anthropic, LLM_MODEL_NAME=claude-3-5-sonnet-20241022
+```
+
+**Benefits of Optional Dependencies:**
+
+- Smaller install size (only install what you need)
+- Faster dependency resolution
+- Reduced security surface area
+- Follows modern Python best practices (PEP 735)
 
 ---
 
@@ -523,11 +623,50 @@ def analyze_sentiment_by_topic(text):
 
 ---
 
+## Development Workflow
+
+### Running Tests
+
+```bash
+# Run sentiment analysis tests
+uv run pytest tests/test_confidence.py -v
+
+# Run with coverage
+uv run pytest tests/test_confidence.py --cov=src.services.sentiment_service
+
+# Run all NLP tests
+uv run pytest tests/test_*.py -k sentiment
+```
+
+### Code Quality
+
+```bash
+# Lint and format code
+uv run ruff check src/services/sentiment_service.py
+uv run ruff format src/services/sentiment_service.py
+
+# Type checking
+uv run mypy src/services/sentiment_service.py
+```
+
+### Local Development
+
+```bash
+# Run with hot reload
+uv run uvicorn src.main:app --reload --log-level debug
+
+# Test endpoint manually
+curl -X POST http://localhost:8000/analyze/sentiment \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Test sentiment analysis"}'
+```
+
 ## Troubleshooting
 
 ### Service Unavailable (503)
 
 **Error:**
+
 ```json
 {
   "detail": "Sentiment models not loaded. Please try again later."
@@ -535,41 +674,74 @@ def analyze_sentiment_by_topic(text):
 ```
 
 **Causes:**
-- Models still downloading (first request)
+
+- Models still downloading (first request, ~1.5 GB total)
 - Model initialization failed
-- Out of memory
+- Out of memory (need ~2 GB free)
+- Dependency issues
 
 **Solutions:**
-1. Wait 30-60 seconds for models to download
-2. Check logs for initialization errors
-3. Ensure sufficient memory (~2 GB free)
-4. Restart application
+
+1. **Wait for model download:** Check logs for download progress
+
+   ```bash
+   # View logs in development
+   uv run uvicorn src.main:app --log-level debug
+   ```
+
+2. **Check available memory:** Models require ~770 MB + overhead
+
+   ```bash
+   # Linux/Mac
+   free -h
+   # Windows (PowerShell)
+   Get-CimInstance Win32_OperatingSystem | Select FreePhysicalMemory
+   ```
+
+3. **Verify dependencies:** Ensure all required packages installed
+
+   ```bash
+   uv sync  # Reinstall dependencies
+   ```
+
+4. **Check initialization logs:** Look for errors in startup logs
+5. **Restart application:** Clear any stuck states
+
+   ```bash
+   # Kill existing process and restart
+   uv run uvicorn src.main:app --reload
+   ```
 
 ### Empty or Missing Contextual Interpretation
 
 **Symptom:** `contextual_sentiment` is generic or missing
 
 **Causes:**
+
 - Gemini API key not configured
 - LLM response blocked by safety filters
 - Rate limiting
 
 **Solutions:**
-1. Set `GEMINI_API_KEY` in `.env`
-2. Check logs for LLM errors
-3. Verify API quota/limits
-4. System still works with fallback interpretation
+
+1. Set `LLM_API_KEY` in `.env` (see `.env.example` for template)
+2. Verify `LLM_PROVIDER` is correctly set (gemini/openai/anthropic)
+3. Check logs for LLM errors
+4. Verify API quota/limits
+5. System still works with fallback interpretation
 
 ### Unexpected Neutral Sentiment
 
 **Symptom:** Everything classified as neutral
 
 **Causes:**
+
 - Text is genuinely balanced
 - Complex/nuanced emotional tone
 - FinBERT uncertain
 
 **Analysis:**
+
 - Check `scores` for probability distribution
 - If all scores are ~0.33, truly neutral/mixed
 - Check `contextual_sentiment` for LLM interpretation
@@ -580,6 +752,7 @@ def analyze_sentiment_by_topic(text):
 **Symptom:** Requests taking >10 seconds
 
 **Solutions:**
+
 1. Check `num_chunks` in response (more chunks = slower)
 2. Consider shorter input texts
 3. Deploy on GPU for faster inference
@@ -608,6 +781,7 @@ def analyze_sentiment_by_topic(text):
 ```
 
 **Causes:**
+
 - Model inference error
 - Out of memory
 - Unexpected input format
@@ -650,3 +824,5 @@ def analyze_sentiment_by_topic(text):
 - [Topic Analysis](topic-analysis.md) - AI-powered topic extraction
 - [Architecture](architecture.md) - System architecture overview
 - [API Documentation](https://trump-speeches-nlp-chatbot.azurewebsites.net/docs) - Interactive API docs
+- [Development Guide](../development/testing.md) - Testing and development practices
+- [GitHub Repository](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot) - Source code and pyproject.toml
