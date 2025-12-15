@@ -128,6 +128,7 @@ class TopicExtractionService:
             "clustered_topics": final_clusters,
             "snippets": final_snippets,
             "summary": summary,
+            "llm_powered": summary is not None,
             "metadata": {
                 "total_keywords": len(keywords_data),
                 "num_clusters": len(final_clusters),

@@ -56,6 +56,7 @@ async def analyze_sentiment(
             emotions=result["emotions"],
             contextual_sentiment=result["contextual_sentiment"],
             num_chunks=result["num_chunks"],
+            llm_powered=result["llm_powered"],
         )
     except Exception as e:
         logger.error(f"Sentiment analysis error: {e}")

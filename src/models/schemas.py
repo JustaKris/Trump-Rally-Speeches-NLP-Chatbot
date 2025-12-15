@@ -74,6 +74,7 @@ class SentimentResponse(BaseModel):
         ..., description="AI-generated contextual interpretation of emotional tone"
     )
     num_chunks: int = Field(..., description="Number of text chunks analyzed")
+    llm_powered: bool = Field(..., description="Whether LLM was used for contextual interpretation")
 
 
 class TopicResponse(BaseModel):
@@ -93,6 +94,7 @@ class EnhancedTopicResponse(BaseModel):
     )
     summary: Optional[str] = Field(None, description="AI-generated interpretation of main themes")
     metadata: Dict[str, Any] = Field(..., description="Analysis metadata")
+    llm_powered: bool = Field(..., description="Whether LLM was used for summary generation")
 
 
 class StatsResponse(BaseModel):
@@ -119,6 +121,7 @@ class RAGAnswerResponse(BaseModel):
     entity_statistics: Optional[Dict[str, Any]] = Field(
         None, description="Enhanced statistics about entities: mentions, sentiment, associations"
     )
+    llm_powered: bool = Field(..., description="Whether LLM was used to generate the answer")
 
 
 class RAGStatsResponse(BaseModel):

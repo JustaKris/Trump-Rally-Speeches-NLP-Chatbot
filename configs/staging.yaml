@@ -41,10 +41,13 @@ rag:
 # ML model configuration
 # ---------------------------------------------------------------------------
 models:
+  # Sentiment Analysis
   sentiment_model_name: "ProsusAI/finbert"
+  emotion_model_name: "j-hartmann/emotion-english-distilroberta-base"
+
+  # Embeddings & Re-ranking
   embedding_model_name: "all-mpnet-base-v2"
   reranker_model_name: "cross-encoder/ms-marco-MiniLM-L-6-v2"
-  emotion_model_name: "j-hartmann/emotion-english-distilroberta-base"
 
 # ---------------------------------------------------------------------------
 # Data paths
@@ -57,10 +60,11 @@ paths:
 # LLM configuration (non-sensitive defaults)
 # ---------------------------------------------------------------------------
 llm:
-  provider: "gemini"
-  enabled: true
-  model_name: "gemini-2.5-flash"
-  temperature: 0.3
-  max_output_tokens: 1024
+  provider: "gemini"             # gemini | openai | anthropic | none
+  enabled: true                   # Set false to disable all LLM usage
+  model_name: "gemini-2.5-flash" # Staging model (can be different from prod)
+  temperature: 0.3                # 0.0 = deterministic, 1.0 = creative
+  max_output_tokens: 1024         # Max tokens per response
 
-  # NOTE: LLM_API_KEY should be set via environment variables or .env file
+  # NOTE: The LLM API key is NOT set here on purpose.
+  #       Configure it via `.env` or real env using the LLM_API_KEY variable.

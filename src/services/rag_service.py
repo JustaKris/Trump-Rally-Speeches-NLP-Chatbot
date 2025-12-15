@@ -314,6 +314,7 @@ class RAGService:
             "confidence_factors": confidence_factors_dict,
             "sources": sorted({c.source for c in context_chunks}),  # Deduplicate and sort
             "entities": entities,
+            "llm_powered": self.llm is not None,
         }
 
         if entity_stats:

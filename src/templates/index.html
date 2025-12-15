@@ -675,18 +675,49 @@
         }
         
         function displaySentimentResults(data) {
-            // Display AI interpretation prominently
+            // Display AI interpretation prominently (or warning if no LLM)
             const aiInterpretation = document.getElementById('aiInterpretation');
-            aiInterpretation.innerHTML = `
-                <div style="margin-bottom: 15px;">
-                    <span style="display: inline-block; padding: 8px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
-                        ${data.sentiment.toUpperCase()} (${(data.confidence * 100).toFixed(0)}%)
-                    </span>
-                </div>
-                <p style="margin: 0; font-size: 17px; line-height: 1.8;">
-                    ${data.contextual_sentiment}
-                </p>
-            `;
+            
+            if (!data.llm_powered) {
+                // Show warning when LLM is not available
+                aiInterpretation.innerHTML = `
+                    <div style="padding: 20px; background: linear-gradient(135deg, #4a3a1f 0%, #3a2f1a 100%); border-left: 5px solid #ffc107; border-radius: 8px; margin-bottom: 15px;">
+                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 12px;">
+                            <span style="font-size: 36px;">⚠️</span>
+                            <div>
+                                <div style="font-weight: 700; font-size: 16px; color: #ffc107; text-transform: uppercase; letter-spacing: 0.5px;">LLM Not Available</div>
+                                <div style="font-size: 14px; color: #ddd; margin-top: 4px;">Using fallback interpretation based on model scores</div>
+                            </div>
+                        </div>
+                        <div style="padding: 12px; background: rgba(0,0,0,0.2); border-radius: 6px; font-size: 14px; line-height: 1.6; color: #e0e0e0;">
+                            💡 <strong>To enable AI-powered contextual analysis:</strong> Set the <code style="background: #2a2a3a; padding: 2px 6px; border-radius: 3px; color: #667eea;">LLM_API_KEY</code> environment variable with your Gemini API key.
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <span style="display: inline-block; padding: 8px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+                            ${data.sentiment.toUpperCase()} (${(data.confidence * 100).toFixed(0)}%)
+                        </span>
+                    </div>
+                    <p style="margin: 0; font-size: 17px; line-height: 1.8; color: #ccc;">
+                        ${data.contextual_sentiment}
+                    </p>
+                `;
+            } else {
+                // Normal display with LLM interpretation
+                aiInterpretation.innerHTML = `
+                    <div style="margin-bottom: 15px;">
+                        <span style="display: inline-block; padding: 8px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+                            ${data.sentiment.toUpperCase()} (${(data.confidence * 100).toFixed(0)}%)
+                        </span>
+                        <span style="display: inline-block; margin-left: 10px; padding: 6px 14px; background: #28a745; color: white; border-radius: 15px; font-size: 11px; font-weight: 600;">
+                            ✨ AI-Powered
+                        </span>
+                    </div>
+                    <p style="margin: 0; font-size: 17px; line-height: 1.8;">
+                        ${data.contextual_sentiment}
+                    </p>
+                `;
+            }
             
             // Display compact sentiment scores
             const scores = document.getElementById('sentimentScores');
@@ -786,11 +817,37 @@
         }
         
         function displayTopicResults(data) {
-            // Display AI summary if available
+            // Display AI summary if available, otherwise show warning
             const summaryCard = document.getElementById('topicSummaryCard');
             const summaryDiv = document.getElementById('topicSummary');
-            if (data.summary) {
-                summaryDiv.innerHTML = `<p style="margin: 0;">${escapeHtml(data.summary)}</p>`;
+            
+            if (!data.llm_powered) {
+                // Show warning when LLM is not available
+                summaryDiv.innerHTML = `
+                    <div style="padding: 20px; background: linear-gradient(135deg, #4a3a1f 0%, #3a2f1a 100%); border-left: 5px solid #ffc107; border-radius: 8px;">
+                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 12px;">
+                            <span style="font-size: 36px;">⚠️</span>
+                            <div>
+                                <div style="font-weight: 700; font-size: 16px; color: #ffc107; text-transform: uppercase; letter-spacing: 0.5px;">AI Summary Not Available</div>
+                                <div style="font-size: 14px; color: #ddd; margin-top: 4px;">LLM service is not configured</div>
+                            </div>
+                        </div>
+                        <div style="padding: 12px; background: rgba(0,0,0,0.2); border-radius: 6px; font-size: 14px; line-height: 1.6; color: #e0e0e0;">
+                            💡 <strong>To enable AI-powered topic summaries:</strong> Set the <code style="background: #2a2a3a; padding: 2px 6px; border-radius: 3px; color: #667eea;">LLM_API_KEY</code> environment variable with your Gemini API key. Topic clustering and keywords are still shown below.
+                        </div>
+                    </div>
+                `;
+                summaryCard.style.display = 'block';
+            } else if (data.summary) {
+                // Normal display with AI summary
+                summaryDiv.innerHTML = `
+                    <div style="margin-bottom: 12px;">
+                        <span style="display: inline-block; padding: 6px 14px; background: #28a745; color: white; border-radius: 15px; font-size: 11px; font-weight: 600;">
+                            ✨ AI-Powered Analysis
+                        </span>
+                    </div>
+                    <p style="margin: 0;">${escapeHtml(data.summary)}</p>
+                `;
                 summaryCard.style.display = 'block';
             } else {
                 summaryCard.style.display = 'none';
@@ -945,9 +1002,36 @@
         }
         
         function displayRAGResults(data) {
-            // Display answer
+            // Display answer (or warning if not LLM-powered)
             const answerEl = document.getElementById('ragAnswer');
-            answerEl.textContent = data.answer;
+            
+            if (!data.llm_powered) {
+                // Show only warning when LLM is not available (no answer shown here)
+                answerEl.innerHTML = `
+                    <div style="padding: 20px; background: linear-gradient(135deg, #4a3a1f 0%, #3a2f1a 100%); border-left: 5px solid #ffc107; border-radius: 8px;">
+                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 12px;">
+                            <span style="font-size: 36px;">⚠️</span>
+                            <div>
+                                <div style="font-weight: 700; font-size: 16px; color: #ffc107; text-transform: uppercase; letter-spacing: 0.5px;">AI Answer Generation Not Available</div>
+                                <div style="font-size: 14px; color: #ddd; margin-top: 4px;">Showing retrieved context chunks below instead</div>
+                            </div>
+                        </div>
+                        <div style="padding: 12px; background: rgba(0,0,0,0.2); border-radius: 6px; font-size: 14px; line-height: 1.6; color: #e0e0e0;">
+                            💡 <strong>To enable AI-powered answers:</strong> Set the <code style="background: #2a2a3a; padding: 2px 6px; border-radius: 3px; color: #667eea;">LLM_API_KEY</code> environment variable with your Gemini API key. The system has found relevant context below that you can read directly.
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Normal AI-generated answer
+                answerEl.innerHTML = `
+                    <div style="margin-bottom: 12px;">
+                        <span style="display: inline-block; padding: 6px 14px; background: #28a745; color: white; border-radius: 15px; font-size: 11px; font-weight: 600;">
+                            ✨ AI-Generated Answer
+                        </span>
+                    </div>
+                    <div style="line-height: 1.8; color: #e0e0e0;">${data.answer}</div>
+                `;
+            }
             
             // Display confidence with enhanced styling
             const confidenceColors = {
@@ -961,9 +1045,10 @@
                 low: '❌'
             };
             const confidenceEl = document.getElementById('ragConfidence');
+            const confidenceLabel = data.llm_powered ? 'Answer Confidence' : 'Retrieval Quality';
             confidenceEl.innerHTML = `
                 <span style="color: ${confidenceColors[data.confidence]}; font-weight: bold; font-size: 16px;">
-                    ${confidenceIcons[data.confidence]} Confidence: ${data.confidence.toUpperCase()} (${(data.confidence_score * 100).toFixed(1)}%)
+                    ${confidenceIcons[data.confidence]} ${confidenceLabel}: ${data.confidence.toUpperCase()} (${(data.confidence_score * 100).toFixed(1)}%)
                 </span>
             `;
             

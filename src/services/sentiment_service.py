@@ -292,6 +292,9 @@ Your interpretation (2-3 sentences):"""
             emotions,
         )
 
+        # Check if LLM was actually used for contextual interpretation
+        llm_was_used = self.llm_service is not None
+
         return {
             "sentiment": sentiment_result["dominant"],
             "confidence": sentiment_result[sentiment_result["dominant"]],
@@ -303,6 +306,7 @@ Your interpretation (2-3 sentences):"""
             "emotions": emotions,
             "contextual_sentiment": contextual_sentiment,
             "num_chunks": sentiment_result["num_chunks"],
+            "llm_powered": llm_was_used,
         }
 
 

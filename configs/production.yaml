@@ -25,7 +25,7 @@ api:
   port: 8000
   reload: false                   # Disable reload in production
   cors_origins:                   # Frontend origins allowed in prod
-    - "https://your-domain.com"  # Replace with your actual domains
+    - "https://trump-speeches-nlp-chatbot.azurewebsites.net/"  # Replace with your actual domains
 
 # ---------------------------------------------------------------------------
 # RAG (Retrieval-Augmented Generation) configuration
@@ -45,10 +45,13 @@ rag:
 # ML model configuration
 # ---------------------------------------------------------------------------
 models:
+  # Sentiment Analysis
   sentiment_model_name: "ProsusAI/finbert"
+  emotion_model_name: "j-hartmann/emotion-english-distilroberta-base"
+
+  # Embeddings & Re-ranking
   embedding_model_name: "all-mpnet-base-v2"
   reranker_model_name: "cross-encoder/ms-marco-MiniLM-L-6-v2"
-  emotion_model_name: "j-hartmann/emotion-english-distilroberta-base"
 
 # ---------------------------------------------------------------------------
 # Data paths
@@ -62,11 +65,11 @@ paths:
 # ---------------------------------------------------------------------------
 llm:
   provider: "gemini"             # gemini | openai | anthropic | none
-  enabled: true
-  model_name: "gemini-2.5-flash" # Override via env if needed
-  temperature: 0.3
-  max_output_tokens: 1024
+  enabled: true                   # Set false to disable all LLM usage
+  model_name: "gemini-2.5-flash" # Production model
+  temperature: 0.3                # 0.0 = deterministic, 1.0 = creative
+  max_output_tokens: 1024         # Max tokens per response
 
-  # NOTE: The API key is supplied via environment variables / secrets
-  # manager, not in this file. Use LLM_API_KEY in your deployment config.
+  # NOTE: The LLM API key is NOT set here on purpose.
+  #       Configure it via Azure App Service Application Settings using the LLM_API_KEY variable.
 
