@@ -88,6 +88,14 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 # --- Copy app code ---
 COPY src/ ./src/
 COPY data/ ./data/
+COPY configs/ ./configs/
+COPY scripts/ ./scripts/
+
+# --- Pre-download all HuggingFace models based on configuration ---
+# This reads configs/production.yaml and downloads all specified models
+# Models are cached in the image for offline use (no runtime downloads)
+ENV ENVIRONMENT=production
+RUN python scripts/download_models.py
 
 # --- Non-root user ---
 RUN useradd -m -u 1000 appuser && chown -R appuser /app
