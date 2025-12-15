@@ -66,7 +66,7 @@ paths:
 llm:
   provider: "gemini"             # gemini | openai | anthropic | none
   enabled: true                   # Set false to disable all LLM usage
-  model_name: "gemini-2.5-flash" # Production model
+  model_name: "gemini-2.5-flash-light" # Production model
   temperature: 0.3                # 0.0 = deterministic, 1.0 = creative
   max_output_tokens: 1024         # Max tokens per response
 
