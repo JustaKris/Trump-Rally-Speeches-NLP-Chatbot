@@ -203,13 +203,18 @@ Write a 2-3 sentence interpretation that:
 
 Focus on WHAT the speaker expresses emotion about, not just labeling emotions. Be specific and insightful. Keep it concise (2-3 sentences maximum).
 
-Example style: "The text expresses strong positive sentiment about economic achievements, with joy emerging from pride in policy success. However, underlying anger surfaces when discussing immigration, creating emotional complexity that explains the mixed sentiment profile."
+Example style: "The text expresses strong positive sentiment about economic achievements", with joy emerging from pride in policy success. However, underlying anger surfaces when discussing "immigration", creating emotional complexity that explains the mixed sentiment profile.
 
 Your interpretation (2-3 sentences):"""
 
             # Generate using LLM provider interface with high token limit to prevent mid-sentence cutoff
-            # Using 2000 tokens to ensure complete responses (finish_reason=2 means MAX_TOKENS hit)
-            response = self.llm_service.generate_content(prompt, max_tokens=2000)
+            # Token limit configured in settings to ensure complete responses
+            from ..config.settings import get_settings
+
+            settings = get_settings()
+            response = self.llm_service.generate_content(
+                prompt, max_tokens=settings.sentiment_interpretation_max_tokens
+            )
 
             # Check if response is valid (not blocked by safety filters)
             if not response or not hasattr(response, "text") or not response.text:

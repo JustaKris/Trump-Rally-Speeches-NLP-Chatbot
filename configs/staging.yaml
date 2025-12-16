@@ -68,3 +68,9 @@ llm:
 
   # NOTE: The LLM API key is NOT set here on purpose.
   #       Configure it via `.env` or real env using the LLM_API_KEY variable.
+
+# ---------------------------------------------------------------------------
+# AI-generated content settings
+# ---------------------------------------------------------------------------
+sentiment_interpretation_max_tokens: 2000  # High limit prevents mid-sentence cutoff
+topic_summary_max_tokens: 2000             # High limit prevents mid-sentence cutoff

@@ -150,10 +150,16 @@ class Settings(BaseSettings):
         description="LLM temperature for sentiment interpretation (0.0-1.0)",
     )
     sentiment_interpretation_max_tokens: int = Field(
-        default=200,
+        default=2000,
         ge=50,
-        le=500,
-        description="Max tokens for sentiment interpretation",
+        le=4096,
+        description="Max tokens for sentiment interpretation (2000 prevents mid-sentence cutoff)",
+    )
+    topic_summary_max_tokens: int = Field(
+        default=2000,
+        ge=50,
+        le=4096,
+        description="Max tokens for topic summary generation (2000 prevents mid-sentence cutoff)",
     )
     topic_relevance_threshold: float = Field(
         default=0.5,

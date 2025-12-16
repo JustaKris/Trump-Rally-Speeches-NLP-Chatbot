@@ -471,7 +471,10 @@ Summary:"""
 
         try:
             logger.debug("Generating topic summary with LLM")
-            response = self.llm_service.generate_content(prompt)
+            # Use configured token limit to prevent mid-sentence cutoff
+            response = self.llm_service.generate_content(
+                prompt, max_tokens=self.settings.topic_summary_max_tokens
+            )
             # Check if response is valid (not blocked by safety filters)
             if not response or not hasattr(response, "text") or not response.text:
                 logger.debug("LLM response blocked or empty for topic summary")
