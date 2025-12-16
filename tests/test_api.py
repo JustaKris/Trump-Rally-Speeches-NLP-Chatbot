@@ -25,7 +25,11 @@ class TestHealthEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert "status" in data
-        assert data["status"] == "healthy"
+        # Status can be "healthy" or "degraded" depending on RAG service initialization
+        assert data["status"] in ["healthy", "degraded"]
+        assert "version" in data
+        assert "environment" in data
+        assert "services" in data
 
 
 class TestSentimentEndpoint:
