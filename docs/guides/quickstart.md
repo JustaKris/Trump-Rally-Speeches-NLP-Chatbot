@@ -65,18 +65,33 @@ Get the Trump Speeches NLP Chatbot API running locally in minutes.
 
 ## Running with Docker
 
+Docker containers include all ML models pre-downloaded (~2GB) for fast, consistent startup.
+
 ### Build and Run
 
 ```powershell
+# Build image with models baked in (one-time, ~5-10 min)
 docker build -t trump-speeches-nlp-chatbot .
+
+# Run container (starts instantly - models already cached in image)
 docker run --rm -it -p 8000:8000 --env-file .env --name nlp-chatbot trump-speeches-nlp-chatbot
 ```
 
-### Using Docker Compose
+**Note**: The build downloads ~2GB of ML models and includes them in the image. This makes the image larger (~4-5GB) but ensures instant container startup with no runtime downloads.
+
+### Using Docker Compose (Recommended)
+
+Docker Compose adds a persistent volume for model caching across rebuilds:
 
 ```powershell
+# Start with volume-based caching
 docker-compose up
+
+# First run downloads models (~3-4 min)
+# Subsequent runs are instant even after rebuilds
 ```
+
+The `huggingface-cache` volume persists models between image updates, so you only download once.
 
 ## Testing the RAG System
 

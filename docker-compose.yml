@@ -11,9 +11,13 @@ services:
     environment:
       - PORT=8000
       - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
     volumes:
       # Mount data directory for development (optional)
       - ./data:/app/data:ro
+      # Persist HuggingFace model cache for faster restarts
+      - huggingface-cache:/home/appuser/.cache/huggingface
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -33,10 +37,18 @@ services:
     environment:
       - PORT=8000
       - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
     volumes:
       - ./src:/app/src
       - ./data:/app/data:ro
+      - huggingface-cache:/home/appuser/.cache/huggingface
     command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
     restart: unless-stopped
     profiles:
       - dev
+
+# Named volumes for persistent storage
+volumes:
+  huggingface-cache:
+    name: trump-speeches-huggingface-cache

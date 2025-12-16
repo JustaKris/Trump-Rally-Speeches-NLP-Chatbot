@@ -91,15 +91,16 @@ COPY data/ ./data/
 COPY configs/ ./configs/
 COPY scripts/ ./scripts/
 
-# --- Pre-download all HuggingFace models based on configuration ---
-# This reads configs/production.yaml and downloads all specified models
-# Models are cached in the image for offline use (no runtime downloads)
-ENV ENVIRONMENT=production
-RUN python scripts/download_models.py
-
 # --- Non-root user ---
 RUN useradd -m -u 1000 appuser && chown -R appuser /app
 USER appuser
+
+# --- Pre-download all HuggingFace models based on configuration ---
+# This reads configs/production.yaml and downloads all specified models
+# Models are cached in the image for offline use (no runtime downloads)
+# IMPORTANT: Run as appuser so cache is in /home/appuser/.cache/huggingface
+ENV ENVIRONMENT=production
+RUN python scripts/download_models.py
 
 # --- Minimal NLTK data ---
 RUN python -m nltk.downloader punkt stopwords punkt_tab

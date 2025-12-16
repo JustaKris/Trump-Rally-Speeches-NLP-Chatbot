@@ -9,16 +9,16 @@ on:
     # Build on main and common integration branches so we can emit a "dev" tag
     # for non-default branches (metadata-action will enable the dev tag when
     # the branch is not the repository default).
-    branches: [main, develop, feature/*]
-    paths-ignore:
-      - '.github/workflows/ci.yml'
-      - '.github/workflows/deploy-docs.yml'
-      - '.github/workflows/deploy-render.yml'
-      - '.github/workflows/deploy-azure.yml'
-      - '.github/workflows/security.yml'
-      - 'docs/**'
-      - '*.md'
-      - 'notebooks/**'
+    # branches: [main, develop, feature/*]
+    # paths-ignore:
+    #   - '.github/workflows/ci.yml'
+    #   - '.github/workflows/deploy-docs.yml'
+    #   - '.github/workflows/deploy-render.yml'
+    #   - '.github/workflows/deploy-azure.yml'
+    #   - '.github/workflows/security.yml'
+    #   - 'docs/**'
+    #   - '*.md'
+    #   - 'notebooks/**'
   workflow_dispatch:
 
 jobs:
