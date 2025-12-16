@@ -62,6 +62,7 @@ nav:
       - Deployment: guides/deployment.md
       - Documentation: guides/documentation.md
       - CI/CD Local Testing: guides/ci-local-testing.md
+      - Troubleshooting Azure: guides/troubleshooting_Azure.md
   
   - Development:
       - Testing: development/testing.md

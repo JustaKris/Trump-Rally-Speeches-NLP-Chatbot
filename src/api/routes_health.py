@@ -59,17 +59,17 @@ async def health_check(
     Returns system status and service availability.
     """
     status_code = "healthy" if rag_service is not None else "degraded"
-    
+
     services = {
         "sentiment_analyzer": sentiment_analyzer is not None,
         "rag_service": rag_service is not None,
         "llm_configured": settings.is_llm_configured(),
     }
-    
+
     # Add RAG details if available
     if rag_service:
         services["rag_chunks"] = rag_service.collection.count()
-    
+
     return {
         "status": status_code,
         "version": settings.app_version,
@@ -110,9 +110,9 @@ async def diagnostics(
 
     Shows paths, API key status, model availability, etc.
     """
-    from pathlib import Path
     import os
-    
+    from pathlib import Path
+
     diagnostics_info = {
         "environment": {
             "name": settings.environment,
@@ -127,7 +127,9 @@ async def diagnostics(
             "chromadb_exists": Path(settings.rag.chromadb_persist_directory).exists(),
             "speeches_dir": settings.paths.speeches_directory,
             "speeches_exists": Path(settings.paths.speeches_directory).exists(),
-            "speeches_count": len(list(Path(settings.paths.speeches_directory).glob("*.txt"))) if Path(settings.paths.speeches_directory).exists() else 0,
+            "speeches_count": len(list(Path(settings.paths.speeches_directory).glob("*.txt")))
+            if Path(settings.paths.speeches_directory).exists()
+            else 0,
         },
         "services": {
             "sentiment_analyzer_loaded": sentiment_analyzer is not None,
@@ -140,7 +142,7 @@ async def diagnostics(
             "LLM_PROVIDER": os.getenv("LLM_PROVIDER", "not set"),
         },
     }
-    
+
     # Add RAG-specific diagnostics if loaded
     if rag_service:
         diagnostics_info["rag"] = {
@@ -149,5 +151,5 @@ async def diagnostics(
             "hybrid_search": settings.rag.use_hybrid_search,
             "reranking": settings.rag.use_reranking,
         }
-    
+
     return diagnostics_info

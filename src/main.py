@@ -144,7 +144,9 @@ async def lifespan(app: FastAPI):
         logger.error("=" * 70)
         logger.error("RAG endpoints will return 503. Check:")
         logger.error("  1. LLM_API_KEY is set and valid")
-        logger.error("  2. Data directories exist: ./data/chromadb, ./data/Donald Trump Rally Speeches")
+        logger.error(
+            "  2. Data directories exist: ./data/chromadb, ./data/Donald Trump Rally Speeches"
+        )
         logger.error("  3. Models can be downloaded (network access)")
         logger.error("  4. /diagnostics endpoint for detailed info")
         logger.error("=" * 70)
