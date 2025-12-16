@@ -5,7 +5,7 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  push:
+  # push:
     # Build on main and common integration branches so we can emit a "dev" tag
     # for non-default branches (metadata-action will enable the dev tag when
     # the branch is not the repository default).
