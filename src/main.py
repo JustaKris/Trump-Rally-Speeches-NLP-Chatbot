@@ -135,7 +135,19 @@ async def lifespan(app: FastAPI):
             logger.error(f"✗ Failed to initialize topic service: {e}")
 
     except Exception as e:
-        logger.error(f"✗ Failed to initialize RAG service: {e}", exc_info=True)
+        logger.error("=" * 70)
+        logger.error("✗ CRITICAL: RAG service initialization failed!")
+        logger.error(f"Error type: {type(e).__name__}")
+        logger.error(f"Error message: {str(e)}")
+        logger.error("=" * 70)
+        logger.exception("Full traceback:")
+        logger.error("=" * 70)
+        logger.error("RAG endpoints will return 503. Check:")
+        logger.error("  1. LLM_API_KEY is set and valid")
+        logger.error("  2. Data directories exist: ./data/chromadb, ./data/Donald Trump Rally Speeches")
+        logger.error("  3. Models can be downloaded (network access)")
+        logger.error("  4. /diagnostics endpoint for detailed info")
+        logger.error("=" * 70)
         # Continue without RAG - endpoints will return errors
 
     logger.info("=" * 70)

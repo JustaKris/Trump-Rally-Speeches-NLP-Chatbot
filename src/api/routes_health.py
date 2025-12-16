@@ -58,15 +58,23 @@ async def health_check(
 
     Returns system status and service availability.
     """
+    status_code = "healthy" if rag_service is not None else "degraded"
+    
+    services = {
+        "sentiment_analyzer": sentiment_analyzer is not None,
+        "rag_service": rag_service is not None,
+        "llm_configured": settings.is_llm_configured(),
+    }
+    
+    # Add RAG details if available
+    if rag_service:
+        services["rag_chunks"] = rag_service.collection.count()
+    
     return {
-        "status": "healthy",
+        "status": status_code,
         "version": settings.app_version,
         "environment": settings.environment,
-        "services": {
-            "sentiment_analyzer": sentiment_analyzer is not None,
-            "rag_service": rag_service is not None,
-            "llm_configured": settings.is_llm_configured(),
-        },
+        "services": services,
     }
 
 
@@ -80,13 +88,66 @@ async def get_config(settings=Depends(get_settings_dep)):
         "app_name": settings.app_name,
         "app_version": settings.app_version,
         "environment": settings.environment,
-        "llm_provider": settings.llm_provider,
+        "llm_provider": settings.llm.provider,
         "llm_model": settings.get_llm_model_name() if settings.is_llm_configured() else None,
-        "sentiment_model": settings.sentiment_model_name,
-        "embedding_model": settings.embedding_model_name,
+        "sentiment_model": settings.models.sentiment_model_name,
+        "embedding_model": settings.models.embedding_model_name,
         "features": {
             "llm_enabled": settings.llm.enabled and settings.is_llm_configured(),
-            "hybrid_search": settings.use_hybrid_search,
-            "reranking": settings.use_reranking,
+            "hybrid_search": settings.rag.use_hybrid_search,
+            "reranking": settings.rag.use_reranking,
         },
     }
+
+
+@router.get("/diagnostics")
+async def diagnostics(
+    settings=Depends(get_settings_dep),
+    sentiment_analyzer: Optional[EnhancedSentimentAnalyzer] = Depends(get_sentiment_analyzer_dep),
+    rag_service: Optional[RAGService] = Depends(get_rag_service),
+):
+    """Detailed diagnostics for troubleshooting production issues.
+
+    Shows paths, API key status, model availability, etc.
+    """
+    from pathlib import Path
+    import os
+    
+    diagnostics_info = {
+        "environment": {
+            "name": settings.environment,
+            "log_level": settings.log_level,
+        },
+        "api_keys": {
+            "llm_api_key_set": settings.llm.api_key is not None,
+            "llm_api_key_length": len(settings.llm.api_key) if settings.llm.api_key else 0,
+        },
+        "paths": {
+            "chromadb_dir": settings.rag.chromadb_persist_directory,
+            "chromadb_exists": Path(settings.rag.chromadb_persist_directory).exists(),
+            "speeches_dir": settings.paths.speeches_directory,
+            "speeches_exists": Path(settings.paths.speeches_directory).exists(),
+            "speeches_count": len(list(Path(settings.paths.speeches_directory).glob("*.txt"))) if Path(settings.paths.speeches_directory).exists() else 0,
+        },
+        "services": {
+            "sentiment_analyzer_loaded": sentiment_analyzer is not None,
+            "rag_service_loaded": rag_service is not None,
+            "llm_configured": settings.is_llm_configured(),
+        },
+        "environment_variables": {
+            "ENVIRONMENT": os.getenv("ENVIRONMENT", "not set"),
+            "LLM_API_KEY": "***set***" if os.getenv("LLM_API_KEY") else "not set",
+            "LLM_PROVIDER": os.getenv("LLM_PROVIDER", "not set"),
+        },
+    }
+    
+    # Add RAG-specific diagnostics if loaded
+    if rag_service:
+        diagnostics_info["rag"] = {
+            "chunk_count": rag_service.collection.count(),
+            "collection_name": settings.rag.chromadb_collection_name,
+            "hybrid_search": settings.rag.use_hybrid_search,
+            "reranking": settings.rag.use_reranking,
+        }
+    
+    return diagnostics_info
