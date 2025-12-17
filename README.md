@@ -38,7 +38,15 @@ The API is deployed on Azure and ready to explore:
 - **[API Docs (ReDoc)](https://trump-speeches-nlp-chatbot.azurewebsites.net/redoc)** — Clean, readable documentation
 - **[Full Documentation](https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/)** — Complete guides, architecture diagrams, and API reference
 
-> **Note:** Azure free tier apps cold-start after inactivity. First request may take 1-2 minutes to wake the service.
+> **⚠️ Important - Cold Start Notice:**
+>
+> The app runs on **Azure Free Tier** hosting. Due to the large ML models (~2GB) and containerized deployment:
+>
+> - **Initial load (cold start):** 1-5 minutes when idle. You may need to refresh the page several times.
+> - **AI-generated responses:** 30 seconds to 2 minutes for complex queries (LLM processing + embeddings).
+> - **Subsequent requests:** Fast once warmed up (~2-5 seconds).
+>
+> **Recommended workflow:** Open the link, refresh every 30 seconds for a few minutes until the page loads successfully. Once loaded, the app is responsive.
 
 ## How It Works
 
@@ -292,7 +300,8 @@ It retrieves relevant chunks via hybrid search, analyzes entities and sentiment,
    ```
 
 4. **Access the application**
-   - **Web Interface:** <https://trump-speeches-nlp-chatbot.azurewebsites.net>
+   - **Local:** <http://localhost:8000> (instant, recommended for testing)
+   - **Azure (deployed):** <https://trump-speeches-nlp-chatbot.azurewebsites.net> *(Cold start: 1-5min, refresh periodically)*
    - **API Docs:** <https://trump-speeches-nlp-chatbot.azurewebsites.net/docs>
    - **ReDoc:** <https://trump-speeches-nlp-chatbot.azurewebsites.net/redoc>
 

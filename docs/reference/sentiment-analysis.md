@@ -823,6 +823,6 @@ curl -X POST http://localhost:8000/analyze/sentiment \
 - [Q&A System](qa-system.md) - RAG-based question answering
 - [Topic Analysis](topic-analysis.md) - AI-powered topic extraction
 - [Architecture](architecture.md) - System architecture overview
-- [API Documentation](https://trump-speeches-nlp-chatbot.azurewebsites.net/docs) - Interactive API docs
+- [API Documentation](https://trump-speeches-nlp-chatbot.azurewebsites.net/docs) - Interactive API docs *(Azure Free Tier: allow 1-5min cold start)*
 - [Development Guide](../development/testing.md) - Testing and development practices
 - [GitHub Repository](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot) - Source code and pyproject.toml

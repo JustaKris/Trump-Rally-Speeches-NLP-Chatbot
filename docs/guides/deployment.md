@@ -525,6 +525,22 @@ Manually trigger the workflow:
 
 Your API will be available at: `https://trump-speeches-nlp-chatbot.azurewebsites.net`
 
+> **⚠️ Performance Expectations for Free Tier:**
+>
+> This deployment uses **Azure Free Tier** (F1) hosting. Due to the ML-heavy nature of the app:
+>
+> - **Container size:** ~4-5GB (includes FinBERT, RoBERTa, MPNet models)
+> - **Cold start time:** 1-5 minutes after inactivity (Azure stops free apps when idle)
+> - **First access:** Refresh the page every 30 seconds for a few minutes
+> - **AI response times:** 30 seconds to 2 minutes for RAG/sentiment analysis
+> - **Warmed up performance:** 2-5 seconds once active
+>
+> **For production deployments**, consider:
+>
+> - **Basic (B1) tier or higher** for always-on instances (no cold starts)
+> - **Premium tiers** for auto-scaling under load
+> - **Application Insights** for detailed performance monitoring
+
 ### Monitoring and Logs
 
 ```powershell

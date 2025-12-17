@@ -559,6 +559,6 @@ for cluster in result['clustered_topics']:
 - [Q&A System](qa-system.md) — RAG-based question answering with entity analytics
 - [Sentiment Analysis](sentiment-analysis.md) — Multi-model emotion and sentiment detection
 - [Architecture Documentation](architecture.md) - System architecture overview
-- [API Reference](https://trump-speeches-nlp-chatbot.azurewebsites.net/docs#/nlp/analyze_topics_enhanced_analyze_topics_enhanced_post) - Interactive API playground
+- [API Reference](https://trump-speeches-nlp-chatbot.azurewebsites.net/docs#/nlp/analyze_topics_enhanced_analyze_topics_enhanced_post) - Interactive API playground *(Azure Free Tier: allow 1-5min cold start)*
 - [Development Guide](../development/testing.md) - Testing practices
 - [GitHub Repository](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot) - Source code and pyproject.toml

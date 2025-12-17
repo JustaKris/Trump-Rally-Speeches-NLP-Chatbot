@@ -495,4 +495,4 @@ If you replace with your own dataset, ensure you have rights to use that data.
 - 📧 **Email:** <k.s.bonev@gmail.com>
 - 🐙 **GitHub Issues:** [Open an issue](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot/issues)
 - 📚 **Documentation:** [Full technical docs](https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/)
-- 🔗 **Live Demo:** [Try the API](https://trump-speeches-nlp-chatbot.azurewebsites.net)
+- 🔗 **Live Demo:** [Try the API](https://trump-speeches-nlp-chatbot.azurewebsites.net) *(Note: Azure Free Tier - allow 1-5min for cold start, refresh periodically)*

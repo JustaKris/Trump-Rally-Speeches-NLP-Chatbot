@@ -76,12 +76,20 @@ In-depth technical documentation:
 ## Quick Links
 
 - **[GitHub Repository](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot)** — Source code, issues, and contributions
-- **[Live API (Azure)](https://trump-speeches-nlp-chatbot.azurewebsites.net)** — Interactive web app (may take 1-2 min to cold start)
+- **[Live API (Azure)](https://trump-speeches-nlp-chatbot.azurewebsites.net)** — Interactive web app
 - **[API Docs (Swagger)](https://trump-speeches-nlp-chatbot.azurewebsites.net/docs)** — Interactive API documentation
 - **[API Docs (ReDoc)](https://trump-speeches-nlp-chatbot.azurewebsites.net/redoc)** — Alternative API documentation
 - **[Documentation Site](https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/)** — This documentation
 
-> **Note:** The Azure Web App uses free tier hosting. If idle, the first request may take 1-2 minutes to wake the service (cold start). Subsequent requests are fast.
+> **⚠️ Azure Free Tier Hosting - Performance Notice:**
+>
+> The deployed app uses **Azure Free Tier** with large ML models (~2GB). Expect:
+>
+> - **Cold start:** 1-5 minutes after inactivity. Refresh the page every 30 seconds until it loads.
+> - **AI responses:** 30s-2min for complex questions (LLM + embeddings processing).
+> - **Warmed up:** Fast responses (2-5s) once the app is active.
+>
+> **Tip:** Be patient on first access. Once loaded, performance is good!
 
 ## Core Features
 

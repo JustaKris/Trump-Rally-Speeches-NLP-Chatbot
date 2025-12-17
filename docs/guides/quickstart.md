@@ -59,9 +59,25 @@ Get the Trump Speeches NLP Chatbot API running locally in minutes.
    ```
 
 4. **Access the Application**
+
+   **Local Development (Recommended for Testing):**
    - Web UI: <http://localhost:8000>
    - API Docs: <http://localhost:8000/docs>
    - Health Check: <http://localhost:8000/health>
+
+   **Azure Deployment (Live Demo):**
+   - Web UI: <https://trump-speeches-nlp-chatbot.azurewebsites.net>
+   - API Docs: <https://trump-speeches-nlp-chatbot.azurewebsites.net/docs>
+
+   > **⚠️ Azure Cold Start Warning:**
+   >
+   > The Azure deployment uses **Free Tier hosting** with ~2GB of ML models. Expect:
+   > - **Cold start:** 1-5 minutes after inactivity
+   > - **Loading strategy:** Refresh the page every 30 seconds until successful
+   > - **AI responses:** 30s-2min for complex queries
+   > - **Warmed up:** Fast (2-5s) once active
+   >
+   > For instant responses during development, use local setup above!
 
 ## Running with Docker
 

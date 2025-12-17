@@ -554,7 +554,7 @@ for i, result in enumerate(results, 1):
 - [Topic Analysis](topic-analysis.md) — AI-powered topic extraction with semantic clustering
 - [Architecture](architecture.md) — System architecture overview
 - [Configuration](configuration.md) — Complete configuration reference
-- [API Documentation](https://trump-speeches-nlp-chatbot.azurewebsites.net/docs) — Interactive API docs
+- [API Documentation](https://trump-speeches-nlp-chatbot.azurewebsites.net/docs) — Interactive API docs *(Azure Free Tier: allow 1-5min cold start)*
 - [Quickstart Guide](../guides/quickstart.md) — Local setup instructions
 - [Deployment Guide](../guides/deployment.md) — Production deployment
 - [Testing Guide](../development/testing.md) — Testing practices
