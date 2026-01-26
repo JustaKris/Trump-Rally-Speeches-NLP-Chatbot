@@ -279,7 +279,7 @@ def extract_metadata(filename: str) -> dict:
 ## 🚀 Performance & Scalability (Big Hitters)
 
 | Improvement | Impact | Effort | Notes |
-|------------|--------|--------|-------|
+| ------------ | -------- | -------- | ------- |
 | **Model Quantization** | 4x memory reduction | Medium | INT8/ONNX for FinBERT/RoBERTa |
 | **GPU Acceleration** | 5-10x faster inference | Medium | CUDA support, Docker GPU |
 | **Response Caching** | Reduced LLM costs | Medium | Redis for common queries |
@@ -290,7 +290,7 @@ def extract_metadata(filename: str) -> dict:
 ## 🧠 Advanced NLP (Big Hitters)
 
 | Improvement | Impact | Effort | Notes |
-|------------|--------|--------|-------|
+| ------------ | -------- | -------- | ------- |
 | **Enhanced NER** | Better entity extraction | Medium | spaCy or HuggingFace NER |
 | **Topic Modeling** | Auto-discover themes | Medium | BERTopic over speeches |
 
@@ -299,7 +299,7 @@ def extract_metadata(filename: str) -> dict:
 ## 🛡️ Production Readiness (Big Hitters)
 
 | Improvement | Impact | Effort | Notes |
-|------------|--------|--------|-------|
+| ------------ | -------- | -------- | ------- |
 | **API Auth + Rate Limiting** | Security | Medium | API keys, per-IP limits |
 | **Observability** | Debugging | Medium | Prometheus + Grafana |
 | **CI/CD Pipeline** | Automation | Medium | GitHub Actions |
@@ -309,7 +309,7 @@ def extract_metadata(filename: str) -> dict:
 ## 🔬 Research & Experimentation
 
 | Improvement | Impact | Effort | Notes |
-|------------|--------|--------|-------|
+| ------------ | -------- | -------- | ------- |
 | **Alternative Embeddings** | Retrieval quality | Medium | Test OpenAI vs MPNet |
 | **Fine-tuned Embeddings** | Domain accuracy | Large | Political speech domain |
 | **Prompt Engineering** | Answer quality | Small | Few-shot, chain-of-thought |
