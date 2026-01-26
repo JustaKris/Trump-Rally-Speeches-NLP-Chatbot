@@ -1086,7 +1086,7 @@ uv run uvicorn src.api:app --reload
 ### Core Technologies
 
 | Layer | Technology | Purpose |
-|-------|-----------|---------|
+| ------- | ----------- | --------- |
 | **API Framework** | FastAPI 0.116+ | High-performance async API |
 | **Web Server** | Uvicorn | ASGI server |
 | **LLM Integration** | Gemini/OpenAI/Claude | Pluggable LLM providers |
@@ -1102,7 +1102,7 @@ uv run uvicorn src.api:app --reload
 ### Supporting Technologies
 
 | Category | Technology | Version |
-|----------|-----------|---------|
+| ---------- | ----------- | --------- |
 | **Dependency Mgmt** | uv | 0.9+ |
 | **Containerization** | Docker | Latest |
 | **CI/CD** | GitHub Actions | - |
@@ -1120,7 +1120,7 @@ uv run uvicorn src.api:app --reload
 ### Model Details
 
 | Model | Task | Source | Size |
-|-------|------|--------|------|
+| ------- | ------ | -------- | -------- |
 | **Gemini 2.5 Flash** | Answer Generation, Topic Summaries, Sentiment Interpretation | Google AI | API-based |
 | **GPT-4o/GPT-4o-mini** | Answer Generation (Optional) | OpenAI | API-based |
 | **Claude 3.5 Sonnet** | Answer Generation (Optional) | Anthropic | API-based |
@@ -1228,7 +1228,7 @@ flowchart TB
 ### Resource Usage
 
 | Component | RAM | CPU | Storage |
-|-----------|-----|-----|---------|
+| --------- | --- | --- | ------- |
 | FastAPI | ~100MB | Low | - |
 | FinBERT | ~1GB | Medium | 440MB |
 | RoBERTa-Emotion | ~800MB | Medium | 330MB |
