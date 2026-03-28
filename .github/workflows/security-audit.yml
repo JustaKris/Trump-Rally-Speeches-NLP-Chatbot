@@ -43,21 +43,17 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
 
-      - name: Install dependencies
-        run: |
-          echo "Installing dependencies with uv..."
-          uv sync --group dev
-
       - name: Run bandit security scan
         run: |
           echo "Running bandit security scan (code vulnerabilities)..."
-          uv run bandit -r src/ scripts/ -c pyproject.toml -f json -o bandit-report.json || true
-          uv run bandit -r src/ scripts/ -c pyproject.toml
+          uvx bandit -r src/ scripts/ -c pyproject.toml -f json -o bandit-report.json || true
+          uvx bandit -r src/ scripts/ -c pyproject.toml
 
       - name: Check for known vulnerabilities
         run: |
           echo "Checking for known vulnerabilities with pip-audit..."
-          uv run pip-audit --desc --skip-editable || true
+          uv export --frozen --no-hashes --no-dev --no-emit-project > /tmp/requirements.txt
+          uvx pip-audit -r /tmp/requirements.txt --desc || true
 
       - name: Upload security reports
         uses: actions/upload-artifact@v4

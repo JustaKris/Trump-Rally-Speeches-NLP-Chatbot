@@ -27,9 +27,6 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
       - name: Login to Azure
         uses: azure/login@v3
         with:

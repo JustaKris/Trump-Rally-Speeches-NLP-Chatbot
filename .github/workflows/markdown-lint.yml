@@ -21,26 +21,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
       - name: Install uv
         uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
-
-      - name: Install dependencies
-        run: |
-          echo "Installing dependencies with uv..."
-          uv sync --group dev
 
       - name: Run markdown linting
         run: |
           echo "Running markdown linting on documentation..."
-          uv run pymarkdown --config pyproject.toml scan docs/ README.md
+          uvx pymarkdownlnt --config pyproject.toml scan docs/ README.md
 
       - name: Summary
         if: success()
