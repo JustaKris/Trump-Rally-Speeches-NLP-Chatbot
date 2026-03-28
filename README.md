@@ -344,7 +344,7 @@ print(response.json()["answer"])
 2. **Run the container**
 
    ```powershell
-   docker run -d -p 8000:8000 trump-speeches-nlp-chatbot
+   docker run -it --rm -p 8000:8000 trump-speeches-nlp-chatbot
    ```
 
 3. **Or use Docker Compose**
