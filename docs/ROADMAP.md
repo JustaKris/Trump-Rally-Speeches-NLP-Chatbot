@@ -86,13 +86,13 @@ HyDE bridges the gap between short queries and long documents by generating a hy
 def hyde_search(question: str, llm, embedding_model, collection) -> List[Chunk]:
     # Step 1: Generate hypothetical answer
     hypothetical = llm.generate(f"Write a paragraph answering: {question}")
-    
+
     # Step 2: Embed the hypothetical document
     hyde_embedding = embedding_model.encode(hypothetical)
-    
+
     # Step 3: Search with hypothetical embedding
     results = collection.query(query_embeddings=[hyde_embedding], n_results=5)
-    
+
     return results
 ```
 
@@ -125,13 +125,13 @@ SIMILARITY_THRESHOLD = 0.35  # Tuned based on evaluation
 
 def search(self, query: str, top_k: int = 5) -> List[SearchResult]:
     results = self._hybrid_search(query, top_k * 2)  # Get more candidates
-    
+
     # Filter by threshold
     filtered = [r for r in results if r.similarity >= SIMILARITY_THRESHOLD]
-    
+
     if not filtered:
         return []  # Return empty - triggers "no relevant info" response
-    
+
     return filtered[:top_k]
 ```
 
@@ -162,7 +162,7 @@ Production RAG systems need:
 ```python
 # 1. Strengthen the system prompt
 GROUNDED_PROMPT = """Answer ONLY based on the provided context.
-If the answer is not in the context, respond: 
+If the answer is not in the context, respond:
 "The available documents don't contain information about this topic."
 
 NEVER use your general knowledge to answer.

@@ -25,7 +25,7 @@ Markdown linting is **intentionally separated** from Python code linting for sev
 ### Alternatives Considered
 
 | Tool | Pros | Cons | Verdict |
-|------|------|------|---------|
+| ------ | ------ | ------ | --------- |
 | **pymarkdownlnt** | Pure Python, fast, configurable | Younger project | ✅ **Best for Python projects** |
 | markdownlint-cli | Popular, mature, extensive rules | Requires Node.js | ❌ External dependency |
 | mdl (Ruby) | Well-established | Requires Ruby | ❌ External dependency |
@@ -47,7 +47,7 @@ extensions.tables.enabled = true  # Enable tables
 ### Key Rules
 
 | Rule | Description | Status | Reason |
-|------|-------------|--------|--------|
+| ------ | ------------- | -------- | -------- |
 | MD013 | Line length | ❌ Disabled | Tables, code blocks, long URLs |
 | MD033 | Inline HTML | ❌ Disabled | Badges, centered images, styling |
 | MD036 | Emphasis as heading | ❌ Disabled | Common in step lists, examples |
