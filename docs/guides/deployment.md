@@ -682,7 +682,7 @@ All workflows are located in `.github/workflows/`:
 ### Workflow Triggers
 
 | Workflow | Automatic Trigger | Manual Trigger | When to Use |
-|----------|------------------|----------------|-------------|
+| ---------- | ------------------ | ---------------- | ------------- |
 | **CI** | Push/PR to main, develop, feature/* | ✅ Yes | Testing code changes |
 | **Security** | Push/PR + Weekly (Mon 9AM) | ✅ Yes | Regular security audits |
 | **Deploy Render** | Push to main | ✅ Yes | Deploy to Render |
@@ -728,7 +728,7 @@ All workflows are located in `.github/workflows/`:
 ### Required Variables
 
 | Variable | Description |
-|----------|-------------|
+| ---------- | ------------- |
 | `GEMINI_API_KEY` | Google Gemini API key (required) |
 | `PORT` | Port to run the application - Default: 8000 |
 | `PYTHONUNBUFFERED` | Disable Python output buffering - Default: 1 |
@@ -736,7 +736,7 @@ All workflows are located in `.github/workflows/`:
 ### LLM Provider Configuration
 
 | Variable | Description |
-|----------|-------------|
+| ---------- | ------------- |
 | `LLM_PROVIDER` | LLM provider (gemini/openai/anthropic) - Default: gemini |
 | `LLM_API_KEY` | API key for the selected provider (defaults to GEMINI_API_KEY) |
 | `LLM_MODEL_NAME` | Model name for the LLM - Default: gemini-2.0-flash-exp |
@@ -746,7 +746,7 @@ All workflows are located in `.github/workflows/`:
 ### Optional Variables
 
 | Variable | Description | Default |
-|----------|-------------|-------------|
+| ---------- | ------------- | ------------- |
 | `ENVIRONMENT` | Environment (production/staging/development) | development |
 | `LOG_LEVEL` | Logging level (INFO/DEBUG/WARNING/ERROR) | INFO |
 | `PYTHON_VERSION` | Python version (for Render) | `3.12.0` |
@@ -755,7 +755,7 @@ All workflows are located in `.github/workflows/`:
 ### RAG-Specific Configuration
 
 | Variable | Description |
-|----------|-------------|
+| ---------- | ------------- |
 | `CHROMADB_PERSIST_DIR` | Directory for ChromaDB persistence - Default: ./data/chromadb |
 | `RAG_COLLECTION_NAME` | Name of the vector collection - Default: speeches |
 | `RAG_CHUNK_SIZE` | Text chunk size for embeddings - Default: 2048 |
@@ -943,7 +943,7 @@ az webapp restart --resource-group trump-nlp-rg --name trump-speeches-nlp
 ## Cost Comparison
 
 | Platform | Free Tier | Paid Tier | Best For |
-|----------|-----------|-----------|----------|
+| ---------- | ----------- | ----------- | ---------- |
 | **Render** | ✅ Yes (with limitations) | $7/month starter | Quick demos, portfolio |
 | **Azure** | ✅ Yes (F1: 60 min/day) | $13/month (B1) | Enterprise, Azure ecosystem |
 | **Railway** | ✅ $5 free credit | Pay-as-you-go | Simple projects |

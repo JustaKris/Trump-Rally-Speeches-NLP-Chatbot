@@ -187,7 +187,7 @@ First run downloads ~2GB of models (FinBERT, RoBERTa, MPNet embeddings). Subsequ
 
 ### Switching LLM Providers
 
-See the [FAQ](../faq.md#how-do-i-switch-from-gemini-to-openai) for instructions on using OpenAI or Anthropic instead of Gemini.
+See the [FAQ](../reference/faq.md#how-do-i-switch-from-gemini-to-openai) for instructions on using OpenAI or Anthropic instead of Gemini.
 
 ### Port Already in Use
 
@@ -203,7 +203,7 @@ Ensure you're in the project root directory and have run `uv sync`.
 
 - Try the interactive web interface at <http://localhost:8000>
 - Explore API documentation at <http://localhost:8000/docs>
-- Read the [FAQ](../faq.md) for common questions
+- Read the [FAQ](../reference/faq.md) for common questions
 - Check out [RAG Features](../reference/qa-system.md) for implementation details
 - Follow the [Deployment Guide](deployment.md) to deploy to production
 - Read about RAG improvements in `docs/RAG_IMPROVEMENTS.md`

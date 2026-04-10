@@ -230,7 +230,7 @@ The application itself runs HTTP on port 8000. For HTTPS:
 - **Self-hosted:** Use Nginx reverse proxy with Let's Encrypt
 - **Docker:** Add Nginx container with SSL certificates
 
-See the [deployment guide](guides/deployment.md) for reverse proxy configuration.
+See the [deployment guide](../guides/deployment.md) for reverse proxy configuration.
 
 ---
 
@@ -360,7 +360,7 @@ The system will:
 ### Which ML models are used?
 
 | Model | Purpose | Size | Source |
-|-------|---------|------|--------|
+| ------- | --------- | ------ | -------- |
 | **FinBERT** | Sentiment classification | ~440MB | ProsusAI/finbert |
 | **RoBERTa-Emotion** | Emotion detection | ~330MB | j-hartmann/emotion-english-distilroberta-base |
 | **all-mpnet-base-v2** | Embeddings, clustering | ~420MB | sentence-transformers |
@@ -461,12 +461,12 @@ Email: <k.s.bonev@gmail.com> (do not open public issues for security vulnerabili
 
 **Recommended learning path:**
 
-1. **Start with basics** - Review [quickstart.md](guides/quickstart.md) and run locally
-2. **Explore architecture** - Read [architecture.md](reference/architecture.md) with diagrams
+1. **Start with basics** - Review [quickstart.md](../guides/quickstart.md) and run locally
+2. **Explore architecture** - Read [architecture.md](architecture.md) with diagrams
 3. **Study components** - Review modular RAG components in `src/services/rag/`
 4. **Run tests** - See how components are tested in isolation
 5. **Try modifications** - Swap datasets, change parameters, add features
-6. **Deploy** - Follow [deployment.md](guides/deployment.md) to deploy your own instance
+6. **Deploy** - Follow [deployment.md](../guides/deployment.md) to deploy your own instance
 
 ---
 

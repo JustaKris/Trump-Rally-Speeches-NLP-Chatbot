@@ -14,4 +14,4 @@ __author__ = "JustaKris"
 # Use: from src.main import app
 
 
-__all__ = []
+__all__: list[str] = []

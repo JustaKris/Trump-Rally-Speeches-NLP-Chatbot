@@ -32,9 +32,15 @@ cp .env.example .env
 uv run uvicorn src.main:app --reload
 ```
 
-→ **[Full Quickstart Guide](guides/quickstart.md)**
+→ **[Full Quickstart Guide](guides/quickstart.md)** | **[Developer Guide](dev-guide.md)** (daily reference)
 
 ## Documentation Structure
+
+### 🔧 Developer Guide
+
+Your everyday cheat sheet — setup, run, test, Docker, deploy, all in one page:
+
+- **[Developer Guide](dev-guide.md)** — The one-pager you'll actually keep open
 
 ### Getting Started Guides
 
@@ -44,7 +50,7 @@ Quick setup and deployment:
 - **[Deployment Guide](guides/deployment.md)** — Production deployment to Render, Azure, or Docker
 - **[Documentation Guide](guides/documentation.md)** — Working with MkDocs and contributing to documentation
 - **[CI/CD Local Testing](guides/ci-local-testing.md)** — Running all CI checks locally before pushing
-- **[FAQ](faq.md)** — Frequently asked questions and troubleshooting
+- **[FAQ](reference/faq.md)** — Frequently asked questions and troubleshooting
 
 ### Development Resources
 
@@ -72,6 +78,7 @@ In-depth technical documentation:
 - **[Topic Analysis](reference/topic-analysis.md)** — AI-powered topic extraction with semantic clustering and contextual insights
 
 - **[Changelog](CHANGELOG.md)** — Version history and recent improvements
+- **[Roadmap](ROADMAP.md)** — Planned improvements and future direction
 
 ## Quick Links
 
