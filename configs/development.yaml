@@ -40,6 +40,12 @@ rag:
   chunk_size: 2048               # Characters per chunk
   chunk_overlap: 150             # Overlap between chunks
 
+  # Chunking strategy: "fixed" (character-based) or "semantic" (embedding-based)
+  chunking_strategy: "semantic"
+  semantic_min_chunk_size: 256          # Merge semantic groups smaller than this
+  # semantic_similarity_threshold: null # Absolute threshold (null = use percentile)
+  semantic_breakpoint_percentile: 90.0  # Percentile for topic-shift detection
+
   # Search behaviour
   default_top_k: 5               # Default number of chunks to retrieve
   use_reranking: true            # Cross-encoder re-ranking
@@ -72,7 +78,7 @@ llm:
   enabled: true                   # Set false to disable all LLM usage
   model_name: "gemini-2.5-flash"  # Default development model
   temperature: 0.3                # 0.0 = deterministic, 1.0 = creative
-  max_output_tokens: 1024         # Max tokens per response
+  max_output_tokens: 2048         # Max tokens per response (2048 prevents mid-word cutoff)
 
   # NOTE: The LLM API key is NOT set here on purpose.
   #       Configure it via `.env` or real env using the LLM_API_KEY variable.

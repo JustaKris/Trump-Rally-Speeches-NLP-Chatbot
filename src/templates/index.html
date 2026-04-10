@@ -1029,7 +1029,7 @@
                             ✨ AI-Generated Answer
                         </span>
                     </div>
-                    <div style="line-height: 1.8; color: #e0e0e0;">${data.answer}</div>
+                    <div style="line-height: 1.8; color: #e0e0e0;">${escapeHtml(data.answer)}</div>
                 `;
             }
             
@@ -1066,9 +1066,9 @@
             contextEl.innerHTML = data.context.map((ctx, i) => `
                 <div style="padding: 15px; background: linear-gradient(135deg, #1e1e2e 0%, #252535 100%); border-left: 4px solid #667eea; margin-bottom: 12px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
                     <div style="font-size: 0.85em; color: #aaa; margin-bottom: 8px;">
-                        <strong>📄 Source:</strong> ${ctx.source} <span style="background: #667eea; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.9em;">Chunk ${ctx.chunk_index + 1}</span>
+                        <strong>📄 Source:</strong> ${escapeHtml(ctx.source)} <span style="background: #667eea; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.9em;">Chunk ${ctx.chunk_index + 1}</span>
                     </div>
-                    <div style="line-height: 1.7; color: #e0e0e0;">${ctx.text}</div>
+                    <div style="line-height: 1.7; color: #e0e0e0;">${escapeHtml(ctx.text)}</div>
                     ${ctx.similarity_score ? `<div style="margin-top: 8px; font-size: 0.85em; color: #667eea;"><strong>Similarity:</strong> ${(ctx.similarity_score * 100).toFixed(1)}%</div>` : ''}
                 </div>
             `).join('');

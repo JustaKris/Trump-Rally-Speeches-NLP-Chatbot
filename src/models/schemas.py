@@ -131,6 +131,6 @@ class RAGStatsResponse(BaseModel):
     total_chunks: int
     unique_sources: int
     sources: List[str]
-    embedding_model: int
+    embedding_model: str
     chunk_size: int
     chunk_overlap: int

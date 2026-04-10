@@ -8,7 +8,7 @@ LLM providers for answer generation, and hybrid search for improved retrieval.
 
 import logging
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 import chromadb
 from chromadb.config import Settings as ChromaSettings
@@ -44,6 +44,10 @@ class RAGService:
         llm_service: Optional[LLMProvider] = None,
         use_reranking: bool = True,
         use_hybrid_search: bool = True,
+        chunking_strategy: Literal["fixed", "semantic"] = "semantic",
+        semantic_min_chunk_size: int = 256,
+        semantic_similarity_threshold: Optional[float] = None,
+        semantic_breakpoint_percentile: float = 90.0,
     ):
         """Initialize RAG service with modular components.
 
@@ -57,6 +61,10 @@ class RAGService:
             llm_service: Optional LLM service instance
             use_reranking: Use cross-encoder for re-ranking results
             use_hybrid_search: Combine semantic and keyword search
+            chunking_strategy: "fixed" or "semantic" chunking
+            semantic_min_chunk_size: Minimum chunk size for semantic chunking
+            semantic_similarity_threshold: Absolute similarity threshold (or None for percentile)
+            semantic_breakpoint_percentile: Percentile for breakpoint detection
         """
         self.collection_name = collection_name
         self.persist_directory = persist_directory
@@ -70,6 +78,7 @@ class RAGService:
 
         # Initialize embedding model
         logger.info(f"Loading embedding model: {embedding_model}")
+        self.embedding_model_name = embedding_model
         self.embedding_model = SentenceTransformer(embedding_model)
 
         # Set LLM service
@@ -96,7 +105,15 @@ class RAGService:
         )
 
         # Initialize modular components
-        self.document_loader = DocumentLoader(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+        self.document_loader = DocumentLoader(
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+            chunking_strategy=chunking_strategy,
+            embedding_model=self.embedding_model,
+            min_chunk_size=semantic_min_chunk_size,
+            similarity_threshold=semantic_similarity_threshold,
+            breakpoint_percentile=semantic_breakpoint_percentile,
+        )
 
         self.search_engine = SearchEngine(
             embedding_model=self.embedding_model,
@@ -432,7 +449,7 @@ class RAGService:
             "total_chunks": count,
             "unique_sources": unique_sources,
             "sources": sources,
-            "embedding_model": str(self.embedding_model),
+            "embedding_model": self.embedding_model_name,
             "chunk_size": self.chunk_size,
             "chunk_overlap": self.chunk_overlap,
         }

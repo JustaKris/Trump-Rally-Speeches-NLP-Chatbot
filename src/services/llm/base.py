@@ -25,7 +25,7 @@ class LLMProvider(ABC):
         api_key: str,
         model_name: str,
         temperature: float = 0.3,
-        max_output_tokens: int = 1024,
+        max_output_tokens: int = 2048,
     ):
         """Initialize the LLM provider.
 

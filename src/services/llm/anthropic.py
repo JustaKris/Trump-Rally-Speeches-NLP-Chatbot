@@ -24,7 +24,7 @@ class AnthropicLLM(LLMProvider):
         api_key: str,
         model_name: str = "claude-3-5-sonnet-20241022",
         temperature: float = 0.3,
-        max_output_tokens: int = 1024,
+        max_output_tokens: int = 2048,
     ):
         """Initialize Anthropic LLM service.
 

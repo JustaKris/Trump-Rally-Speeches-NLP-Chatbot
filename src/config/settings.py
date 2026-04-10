@@ -60,6 +60,10 @@ class RAGSettings(BaseSettings):
     default_top_k: int = Field(default=5, ge=1, le=20)
     use_reranking: bool = True
     use_hybrid_search: bool = True
+    chunking_strategy: Literal["fixed", "semantic"] = "semantic"
+    semantic_min_chunk_size: int = Field(default=256, ge=64, le=2048)
+    semantic_similarity_threshold: Optional[float] = Field(default=None, ge=0.0, le=1.0)
+    semantic_breakpoint_percentile: float = Field(default=90.0, ge=0.0, le=100.0)
 
 
 class ModelSettings(BaseSettings):
@@ -107,7 +111,7 @@ class LLMSettings(BaseSettings):
     api_key: Optional[str] = None
     model_name: str = "gemini-2.5-flash"
     temperature: float = Field(default=0.3, ge=0.0, le=1.0)
-    max_output_tokens: int = Field(default=1024, ge=1, le=8192)
+    max_output_tokens: int = Field(default=2048, ge=1, le=8192)
 
 
 class Settings(BaseSettings):
@@ -254,6 +258,7 @@ class Settings(BaseSettings):
         logger.info(f"Speeches Path: {self.paths.speeches_directory}")
         logger.info(f"Hybrid Search: {'Enabled' if self.rag.use_hybrid_search else 'Disabled'}")
         logger.info(f"Re-ranking: {'Enabled' if self.rag.use_reranking else 'Disabled'}")
+        logger.info(f"Chunking Strategy: {self.rag.chunking_strategy}")
 
 
 # ------------------------------------------------------------------

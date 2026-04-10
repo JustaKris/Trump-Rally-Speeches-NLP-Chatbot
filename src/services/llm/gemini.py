@@ -35,7 +35,7 @@ class GeminiLLM(LLMProvider):
         api_key: str,
         model_name: str = "gemini-2.5-flash",
         temperature: float = 0.3,
-        max_output_tokens: int = 1024,
+        max_output_tokens: int = 2048,
     ):
         """Initialize Gemini LLM service.
 

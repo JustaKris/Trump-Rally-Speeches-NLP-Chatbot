@@ -8,60 +8,9 @@ This document tracks planned enhancements, technical debt, and ideas for improvi
 
 ## 🎯 High Priority Improvements
 
-### 1. Semantic Chunking for RAG
+### ~~1. Semantic Chunking for RAG~~ ✅ Completed
 
-**Current State:**
-
-- Using `RecursiveCharacterTextSplitter` with fixed-size chunks (2048 characters, 150 overlap)
-- Splits text mechanically at character boundaries with fallback separators (`\n\n`, `\n`, `,` + ` `, etc.)
-- No awareness of semantic boundaries or topic shifts
-
-**Why This Matters:**
-Semantic chunking improves RAG retrieval accuracy by creating chunks that preserve complete ideas and context. Fixed-size chunking can:
-
-- Split sentences mid-thought, losing context
-- Combine unrelated topics in one chunk, reducing precision
-- Create chunks that don't align with how humans organize information
-- Miss natural semantic boundaries in speeches (topic transitions, applause breaks, etc.)
-
-**How Semantic Chunking Works:**
-
-1. **Sentence-Level Embeddings**: Generate embeddings for each sentence in the document
-2. **Similarity Analysis**: Calculate cosine similarity between consecutive sentences
-3. **Breakpoint Detection**: Identify where similarity drops significantly (topic shift)
-4. **Intelligent Grouping**: Group sentences into chunks at natural boundaries
-5. **Size Constraints**: Still respect min/max chunk sizes, but prioritize semantic coherence
-
-**Implementation Approach:**
-
-```python
-from langchain_experimental.text_splitter import SemanticChunker
-from langchain_community.embeddings import HuggingFaceEmbeddings
-
-# Use the same embedding model as RAG for consistency
-embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
-
-semantic_splitter = SemanticChunker(
-    embeddings=embeddings,
-    breakpoint_threshold_type="percentile",  # or "standard_deviation", "interquartile"
-    breakpoint_threshold_amount=95  # Top 5% similarity drops = breakpoints
-)
-```
-
-**Benefits:**
-
-- **Better Retrieval**: More relevant chunks matched to queries
-- **Improved Context**: Chunks contain complete thoughts/topics
-- **Higher Answer Quality**: LLM receives more coherent context
-- **Speech-Specific**: Respects natural flow of political rally speeches
-
-**Estimated Effort:** Medium (1-2 days)  
-**Files to Modify:** `src/services/rag/document_loader.py`, config files  
-**Testing Required:** Compare retrieval quality on sample queries before/after
-
-**References:**
-
-- [LangChain SemanticChunker](https://python.langchain.com/docs/modules/data_connection/document_transformers/semantic-chunker)
+> Implemented with custom sentence-level embedding similarity approach (no `langchain_experimental` dependency). See Completed section below for details. Files modified: `src/services/rag/document_loader.py`, `src/config/settings.py`, `src/services/rag_service.py`, `src/main.py`, all config YAMLs.
 
 ---
 
@@ -320,6 +269,7 @@ def extract_metadata(filename: str) -> dict:
 
 Already implemented:
 
+- ✅ **Semantic Chunking for RAG**: Custom implementation using NLTK sentence tokenization + embedding-based cosine similarity breakpoint detection. Configurable via `chunking_strategy` ("semantic" or "fixed"), `semantic_breakpoint_percentile`, `semantic_min_chunk_size`, and `semantic_similarity_threshold`. Falls back to `RecursiveCharacterTextSplitter` for oversized groups. Produces ~2354 semantically coherent chunks from 35 speeches (vs ~1082 with fixed chunking).
 - ✅ **Cross-Encoder Re-ranking**: Using `ms-marco-MiniLM-L-6-v2` for precision optimization
 - ✅ **Hybrid Search (ANN + BM25)**: ChromaDB HNSW + BM25Okapi with 70/30 weighting
 - ✅ **Basic Chunk Metadata**: source, chunk_index, total_chunks
@@ -341,7 +291,7 @@ Already implemented:
 4. **Measurable impact** (% improvement in accuracy, latency reduction, etc.)
 
 **Example:**
-> "I'm planning to implement semantic chunking because our current fixed-size approach sometimes splits sentences mid-thought, which reduces RAG retrieval accuracy. By using sentence embeddings to detect topic boundaries, we can create more coherent chunks. I'd use LangChain's SemanticChunker with our existing MPNet model, and A/B test retrieval quality on a sample of 100 questions. Expected improvement: 10-15% better answer relevance based on similar implementations I've researched."
+> "I implemented semantic chunking to replace fixed-size character splitting. The approach uses NLTK sentence tokenization, embeds each sentence with our existing MPNet model, computes cosine similarity between consecutive sentences, and detects topic boundaries via percentile-based breakpoints. This produced ~2354 semantically coherent chunks from 35 speeches (vs ~1082 fixed chunks), with each chunk preserving complete ideas. The implementation avoids the `langchain_experimental` dependency by using a custom algorithm with configurable threshold and fallback to `RecursiveCharacterTextSplitter` for oversized groups."
 
 ---
 

@@ -109,6 +109,10 @@ async def lifespan(app: FastAPI):
             llm_service=llm_service,
             use_reranking=settings.rag.use_reranking,
             use_hybrid_search=settings.rag.use_hybrid_search,
+            chunking_strategy=settings.rag.chunking_strategy,
+            semantic_min_chunk_size=settings.rag.semantic_min_chunk_size,
+            semantic_similarity_threshold=settings.rag.semantic_similarity_threshold,
+            semantic_breakpoint_percentile=settings.rag.semantic_breakpoint_percentile,
         )
 
         # Check if collection is empty and load documents if needed

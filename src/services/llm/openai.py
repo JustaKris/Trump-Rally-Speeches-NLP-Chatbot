@@ -25,7 +25,7 @@ class OpenAILLM(LLMProvider):
         api_key: str,
         model_name: str = "gpt-4o-mini",
         temperature: float = 0.3,
-        max_output_tokens: int = 1024,
+        max_output_tokens: int = 2048,
     ):
         """Initialize OpenAI LLM service.
 
