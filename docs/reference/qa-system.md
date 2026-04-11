@@ -94,9 +94,10 @@ Set `LLM_PROVIDER=openai` or `LLM_PROVIDER=anthropic` in `.env` after installing
 **Specialized Services** (`services/rag/`):
 
 - **`SearchEngine`** (`search_engine.py`) - Hybrid search with semantic, BM25, and cross-encoder reranking
+- **`RAGGuardrails`** (`guardrails.py`) - Three-layer pipeline protection: query validation, relevance filtering, grounding verification
 - **`ConfidenceCalculator`** (`confidence.py`) - Multi-factor confidence scoring
 - **`EntityAnalyzer`** (`entity_analyzer.py`) - Entity extraction, sentiment, co-occurrence analysis
-- **`DocumentLoader`** (`document_loader.py`) - Smart chunking with metadata tracking
+- **`DocumentLoader`** (`document_loader.py`) - Semantic chunking with embedding-based topic boundary detection
 
 **Supporting Services:**
 
@@ -266,15 +267,98 @@ Automatic entity detection with comprehensive analytics:
 - `hybrid` - Combined semantic + BM25 (default)
 - `reranking` - Adds cross-encoder pass
 
-### 5. Optimized Chunking
+### 5. Semantic Document Chunking
 
-`DocumentLoader` component handles smart document chunking:
+`DocumentLoader` component implements custom embedding-based semantic chunking — not LangChain's off-the-shelf splitter.
 
-- **2048 character chunks** (~512-768 tokens) for complete context
-- **150 character overlap** to preserve continuity across chunks
-- Smart splitting with LangChain's RecursiveCharacterTextSplitter
-- Maintains coherent context boundaries
-- **Metadata tracking:** source filename, chunk index, total chunks
+**How It Works:**
+
+1. **Sentence tokenisation** — NLTK splits document text into individual sentences
+2. **Embedding** — Each sentence is embedded with the same MPNet model used for search
+3. **Similarity scoring** — Cosine similarity is computed between consecutive sentence embeddings
+4. **Breakpoint detection** — Sentences where similarity drops below a percentile-based threshold (default: 90th percentile) mark topic boundaries
+5. **Group merging** — Sentences between breakpoints are merged into coherent chunks; groups smaller than `semantic_min_chunk_size` are folded into their neighbour
+6. **Overflow splitting** — Any group exceeding `chunk_size` falls back to `RecursiveCharacterTextSplitter` so no chunk is ever too large
+
+**Why It Matters:**
+
+Fixed-size chunking cuts mid-paragraph, mid-sentence, even mid-word. Semantic chunking produces chunks that represent complete ideas — each chunk covers a coherent topic segment. This directly improves retrieval quality because the embedding for a coherent chunk is more meaningful than one for an arbitrary text slice.
+
+**Results:** ~2,354 semantically coherent chunks from 35 speeches (vs ~1,082 with fixed 2048-char chunking).
+
+**Configuration:**
+
+```yaml
+rag:
+  chunking_strategy: "semantic"            # "semantic" or "fixed"
+  semantic_min_chunk_size: 256             # Merge groups smaller than this
+  semantic_breakpoint_percentile: 90.0     # Percentile for topic-shift detection
+  # semantic_similarity_threshold: null    # Override percentile with absolute threshold
+```
+
+### 6. Three-Layer RAG Guardrails
+
+The `RAGGuardrails` component prevents hallucination and ensures answer quality through a three-layer protection pipeline.
+
+**Layer 1 — Pre-Retrieval Query Validation:**
+
+Rejects queries before any search is performed:
+
+- Empty or whitespace-only queries
+- Queries shorter than 3 characters
+
+When triggered, returns a structured "no information" response immediately — no wasted compute on search/LLM.
+
+**Layer 2 — Post-Retrieval Relevance Filtering:**
+
+After search results are returned (and cross-encoder reranked), each result's relevance score is checked against a configurable threshold.
+
+The scoring pipeline:
+
+1. Cross-encoder (`ms-marco-MiniLM-L-6-v2`) produces raw logits for each query–document pair
+2. Logits are sigmoid-normalised to a 0–1 probability: `score = 1 / (1 + exp(-logit))`
+3. Results below the threshold are dropped
+
+The service fetches 2× the requested `top_k` candidates to provide filtering headroom. If all results fall below the threshold, the system returns "I don't have enough information" rather than passing irrelevant context to the LLM.
+
+!!! note "Threshold Calibration"
+    The default threshold (0.01) is calibrated for the `ms-marco-MiniLM-L-6-v2` cross-encoder on political speech transcripts. This model produces very negative logits (−3 to −7) for broad topical queries, making sigmoid values small. A threshold of 0.01 (logit ≈ −4.6) filters true noise while preserving the cross-encoder's relative ranking for legitimate queries. Tune via `similarity_threshold` in your config.
+
+**Layer 3 — Post-Generation Grounding Verification:**
+
+After the LLM generates an answer, a token-overlap heuristic checks whether the answer content is grounded in the retrieved context:
+
+1. Extract content words from the answer (stop-word filtered, ~70+ common English words removed)
+2. Extract content words from all retrieved context chunks
+3. Compute overlap ratio: `grounding_score = |answer_words ∩ context_words| / |answer_words|`
+4. If the score falls below `grounding_threshold` (default 0.3), append a caveat warning
+
+Refusal phrases ("I don't have enough information") always pass the grounding check.
+
+**Response Metadata:**
+
+Every response includes guardrails metadata:
+
+```json
+{
+  "guardrails": {
+    "enabled": true,
+    "triggered": false,
+    "relevance_filtered": 3,
+    "grounding_score": 0.72,
+    "grounding_passed": true
+  }
+}
+```
+
+**Configuration:**
+
+```yaml
+rag:
+  guardrails_enabled: true        # Enable/disable all guardrails
+  similarity_threshold: 0.01      # Min sigmoid-normalised relevance score
+  grounding_threshold: 0.3        # Min token-overlap for grounding check
+```
 
 ## API Usage
 

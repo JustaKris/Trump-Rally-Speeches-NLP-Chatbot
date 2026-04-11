@@ -113,6 +113,9 @@ async def lifespan(app: FastAPI):
             semantic_min_chunk_size=settings.rag.semantic_min_chunk_size,
             semantic_similarity_threshold=settings.rag.semantic_similarity_threshold,
             semantic_breakpoint_percentile=settings.rag.semantic_breakpoint_percentile,
+            guardrails_enabled=settings.rag.guardrails_enabled,
+            similarity_threshold=settings.rag.similarity_threshold,
+            grounding_threshold=settings.rag.grounding_threshold,
         )
 
         # Check if collection is empty and load documents if needed

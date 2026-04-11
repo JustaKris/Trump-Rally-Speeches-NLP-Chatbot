@@ -133,11 +133,13 @@ QUESTION: {question}
 
 INSTRUCTIONS:
 1. Provide a direct, concise answer (2-4 sentences maximum)
-2. Base your answer ONLY on the context provided above
-3. If the context doesn't contain the information, clearly state: "The available documents don't contain information about this topic"
+2. Base your answer ONLY on the context provided above — do NOT use your general knowledge
+3. If the context doesn't contain the information, respond EXACTLY with: "The available documents don't contain information about this topic."
 4. Cite sources naturally (e.g., "In the rally speech from [location/date]...")
 5. Don't repeat the same information multiple times
-6. Focus on answering the specific question asked"""
+6. Focus on answering the specific question asked
+7. NEVER fabricate or invent quotes — only use direct quotes that appear verbatim in the context
+8. If you are unsure whether something is in the context, err on the side of saying it isn't"""
 
         if entities:
             entity_instruction = f"""

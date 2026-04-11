@@ -45,6 +45,11 @@ rag:
   use_reranking: true
   use_hybrid_search: true
 
+  # RAG Guardrails
+  guardrails_enabled: true
+  similarity_threshold: 0.01
+  grounding_threshold: 0.3
+
 # ---------------------------------------------------------------------------
 # ML model configuration
 # ---------------------------------------------------------------------------

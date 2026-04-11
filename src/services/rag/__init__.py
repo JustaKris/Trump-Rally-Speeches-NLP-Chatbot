@@ -11,6 +11,7 @@ Provides specialized components for document retrieval and answer generation:
 from .confidence import ConfidenceCalculator
 from .document_loader import DocumentLoader
 from .entity_analyzer import EntityAnalyzer
+from .guardrails import RAGGuardrails
 from .models import (
     ConfidenceFactors,
     ConfidenceResult,
@@ -27,6 +28,7 @@ __all__ = [
     "SearchEngine",
     "EntityAnalyzer",
     "ConfidenceCalculator",
+    "RAGGuardrails",
     # Models
     "SearchResult",
     "ContextChunk",

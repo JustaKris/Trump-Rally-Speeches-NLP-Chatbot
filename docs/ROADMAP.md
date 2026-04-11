@@ -103,87 +103,15 @@ def hyde_search(question: str, llm, embedding_model, collection) -> List[Chunk]:
 
 ---
 
-### 4. Cosine Similarity Threshold Filtering
+### ~~4. Cosine Similarity Threshold Filtering~~ ✅ Completed
 
-**Current State:**
-
-- Returns top-k results regardless of actual relevance scores
-- Low-quality results can pollute the LLM context
-
-**Why This Matters:**
-If a query has no good matches, returning irrelevant chunks leads to:
-
-- Hallucinated answers based on unrelated content
-- Lower confidence that doesn't reflect actual uncertainty
-- Wasted LLM tokens on useless context
-
-**Implementation:**
-
-```python
-# In search_engine.py
-SIMILARITY_THRESHOLD = 0.35  # Tuned based on evaluation
-
-def search(self, query: str, top_k: int = 5) -> List[SearchResult]:
-    results = self._hybrid_search(query, top_k * 2)  # Get more candidates
-
-    # Filter by threshold
-    filtered = [r for r in results if r.similarity >= SIMILARITY_THRESHOLD]
-
-    if not filtered:
-        return []  # Return empty - triggers "no relevant info" response
-
-    return filtered[:top_k]
-```
-
-**Benefits:** Prevents hallucination from irrelevant context, cleaner failure mode
-
-**Effort:** Small (1-2 hours)  
-**Files:** `src/services/rag/search_engine.py`, config
+> Implemented as part of the three-layer RAG Guardrails system. See Completed section below for details. Files modified: `src/services/rag/models.py`, `src/services/rag/guardrails.py`, `src/services/rag_service.py`, `src/config/settings.py`, all config YAMLs.
 
 ---
 
-### 5. RAG Guardrails (Context Grounding + Safety)
+### ~~5. RAG Guardrails (Context Grounding + Safety)~~ ✅ Completed
 
-**Current State:**
-
-- LLM can potentially answer questions outside the provided context
-- No explicit check for dangerous/harmful query intents
-- Relies on LLM's own judgment for "I don't know" responses
-
-**Why This Matters:**
-Production RAG systems need:
-
-1. **Context grounding** — Only answer from retrieved documents, not general knowledge
-2. **Safety filtering** — Refuse dangerous requests (violence, illegal activities)
-3. **Scope enforcement** — Stay within the domain (Trump speeches, not general politics)
-
-**Implementation Approaches:**
-
-```python
-# 1. Strengthen the system prompt
-GROUNDED_PROMPT = """Answer ONLY based on the provided context.
-If the answer is not in the context, respond:
-"The available documents don't contain information about this topic."
-
-NEVER use your general knowledge to answer.
-NEVER make up quotes or statements not in the context."""
-
-# 2. Add pre-flight query safety check
-BLOCKED_INTENTS = ["how to make", "how to build weapon", "illegal"]
-
-def is_safe_query(query: str) -> bool:
-    query_lower = query.lower()
-    return not any(blocked in query_lower for blocked in BLOCKED_INTENTS)
-
-# 3. Post-generation verification
-def verify_grounded(answer: str, chunks: List[str]) -> bool:
-    """Check if answer content appears in the chunks."""
-    # Use embedding similarity or substring matching
-    ...
-```
-
-**Effort:** Medium (4-6 hours)  
-**Files:** `src/services/llm/base.py`, `src/services/rag_service.py`, new guardrails module
+> Implemented as a three-layer guardrails pipeline (pre-retrieval validation → post-retrieval relevance filtering → post-generation grounding verification). See Completed section below for details. Files modified: `src/services/rag/guardrails.py` (new), `src/services/rag_service.py`, `src/services/llm/base.py`, `src/models/schemas.py`, `src/config/settings.py`, all config YAMLs.
 
 ---
 
@@ -270,6 +198,7 @@ def extract_metadata(filename: str) -> dict:
 Already implemented:
 
 - ✅ **Semantic Chunking for RAG**: Custom implementation using NLTK sentence tokenization + embedding-based cosine similarity breakpoint detection. Configurable via `chunking_strategy` ("semantic" or "fixed"), `semantic_breakpoint_percentile`, `semantic_min_chunk_size`, and `semantic_similarity_threshold`. Falls back to `RecursiveCharacterTextSplitter` for oversized groups. Produces ~2354 semantically coherent chunks from 35 speeches (vs ~1082 with fixed chunking).
+- ✅ **Cosine Similarity Threshold Filtering + RAG Guardrails**: Three-layer guardrails pipeline integrated into the RAG service. **Layer 1 — Pre-retrieval validation:** rejects empty/too-short queries before any search. **Layer 2 — Post-retrieval relevance filtering:** sigmoid-normalized relevance scores (cross-encoder logits → 0-1 probability) with configurable threshold (default 0.4); fetches 2× candidates for filtering headroom, returns "no relevant info" if all results are below threshold. **Layer 3 — Post-generation grounding verification:** token-overlap heuristic between answer content words and retrieved context (stop-word filtered, configurable threshold 0.3); appends a caveat if grounding fails. Additionally strengthened the RAG prompt with explicit anti-hallucination instructions. Response schema extended with `guardrails` metadata (enabled, triggered, relevance_filtered, grounding_score, grounding_passed). Fully configurable per environment via `similarity_threshold`, `grounding_threshold`, `guardrails_enabled`. 32 dedicated tests.
 - ✅ **Cross-Encoder Re-ranking**: Using `ms-marco-MiniLM-L-6-v2` for precision optimization
 - ✅ **Hybrid Search (ANN + BM25)**: ChromaDB HNSW + BM25Okapi with 70/30 weighting
 - ✅ **Basic Chunk Metadata**: source, chunk_index, total_chunks

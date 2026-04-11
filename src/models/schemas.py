@@ -121,6 +121,10 @@ class RAGAnswerResponse(BaseModel):
     entity_statistics: Optional[Dict[str, Any]] = Field(
         None, description="Enhanced statistics about entities: mentions, sentiment, associations"
     )
+    guardrails: Optional[Dict[str, Any]] = Field(
+        None,
+        description="Guardrails metadata: relevance filtering, grounding score, triggered status",
+    )
     llm_powered: bool = Field(..., description="Whether LLM was used to generate the answer")
 
 

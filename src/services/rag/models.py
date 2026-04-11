@@ -4,6 +4,7 @@ Provides Pydantic models for type-safe data structures used internally
 in the RAG pipeline, separate from API request/response models.
 """
 
+import math
 from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
@@ -31,6 +32,19 @@ class SearchResult(BaseModel):
         if self.combined_score is not None:
             return self.combined_score
         return 1.0 - self.distance
+
+    @property
+    def relevance_score(self) -> float:
+        """Normalized relevance score (0-1), suitable for threshold comparison.
+
+        Applies sigmoid normalization to cross-encoder logits so all scoring
+        paths produce a comparable 0-1 value.
+        """
+        if self.rerank_score is not None:
+            return 1.0 / (1.0 + math.exp(-self.rerank_score))
+        if self.combined_score is not None:
+            return self.combined_score
+        return max(0.0, 1.0 - self.distance)
 
     @property
     def source_name(self) -> str:

@@ -64,6 +64,9 @@ class RAGSettings(BaseSettings):
     semantic_min_chunk_size: int = Field(default=256, ge=64, le=2048)
     semantic_similarity_threshold: Optional[float] = Field(default=None, ge=0.0, le=1.0)
     semantic_breakpoint_percentile: float = Field(default=90.0, ge=0.0, le=100.0)
+    similarity_threshold: float = Field(default=0.01, ge=0.0, le=1.0)
+    guardrails_enabled: bool = True
+    grounding_threshold: float = Field(default=0.3, ge=0.0, le=1.0)
 
 
 class ModelSettings(BaseSettings):
@@ -259,6 +262,10 @@ class Settings(BaseSettings):
         logger.info(f"Hybrid Search: {'Enabled' if self.rag.use_hybrid_search else 'Disabled'}")
         logger.info(f"Re-ranking: {'Enabled' if self.rag.use_reranking else 'Disabled'}")
         logger.info(f"Chunking Strategy: {self.rag.chunking_strategy}")
+        logger.info(f"RAG Guardrails: {'Enabled' if self.rag.guardrails_enabled else 'Disabled'}")
+        if self.rag.guardrails_enabled:
+            logger.info(f"Similarity Threshold: {self.rag.similarity_threshold}")
+            logger.info(f"Grounding Threshold: {self.rag.grounding_threshold}")
 
 
 # ------------------------------------------------------------------

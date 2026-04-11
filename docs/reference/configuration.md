@@ -258,6 +258,48 @@ USE_RERANKING="true"
 USE_HYBRID_SEARCH="true"
 ```
 
+#### Semantic Chunking
+
+Control how documents are split into chunks:
+
+```yaml
+rag:
+  chunking_strategy: "semantic"            # "semantic" or "fixed"
+  semantic_min_chunk_size: 256             # Merge groups smaller than this (bytes)
+  semantic_breakpoint_percentile: 90.0     # Percentile for topic-shift detection
+  # semantic_similarity_threshold: null    # Override percentile with an absolute threshold
+```
+
+When `chunking_strategy` is `"semantic"`, the `DocumentLoader` embeds each sentence, computes
+consecutive cosine similarities, and splits at topic boundaries. Groups smaller than
+`semantic_min_chunk_size` are merged with their neighbour; groups exceeding `chunk_size` fall
+back to `RecursiveCharacterTextSplitter`. Set `"fixed"` to use traditional character-based splitting.
+
+#### RAG Guardrails
+
+Three-layer quality gates that prevent hallucination and ensure answer grounding:
+
+```yaml
+rag:
+  guardrails_enabled: true       # Master switch for all guardrail layers
+  similarity_threshold: 0.01     # Min sigmoid-normalised relevance score (0-1)
+  grounding_threshold: 0.3       # Min token-overlap ratio for grounding check
+```
+
+| Setting | Default | Description |
+| --- | --- | --- |
+| `guardrails_enabled` | `true` | Enables pre-retrieval validation, post-retrieval relevance filtering, and post-generation grounding verification |
+| `similarity_threshold` | `0.01` | Minimum sigmoid-normalised cross-encoder score. Results below this are dropped before reaching the LLM. Calibrated for the `ms-marco-MiniLM-L-6-v2` model on speech transcripts |
+| `grounding_threshold` | `0.3` | Minimum token-overlap between the generated answer and the retrieved context. Answers below this get a caveat warning appended |
+
+Environment variable overrides:
+
+```env
+RAG_GUARDRAILS_ENABLED="true"
+RAG_SIMILARITY_THRESHOLD="0.01"
+RAG_GROUNDING_THRESHOLD="0.3"
+```
+
 ### Data Directories
 
 Configured under `paths` in YAML:

@@ -51,6 +51,13 @@ rag:
   use_reranking: true            # Cross-encoder re-ranking
   use_hybrid_search: true        # Semantic + BM25 hybrid search
 
+  # RAG Guardrails — relevance filtering + grounding verification
+  guardrails_enabled: true       # Enable pre/post-retrieval quality gates
+  similarity_threshold: 0.01     # Min sigmoid-normalised relevance score (0-1)
+                                 # Cross-encoder logits for topical queries often < -3,
+                                 # so sigmoid values are small. 0.01 ≈ logit > -4.6.
+  grounding_threshold: 0.3       # Min token-overlap for grounding check
+
 # ---------------------------------------------------------------------------
 # ML model configuration
 # ---------------------------------------------------------------------------

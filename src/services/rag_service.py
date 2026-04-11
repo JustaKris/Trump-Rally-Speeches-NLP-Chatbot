@@ -18,6 +18,7 @@ from ..services.llm.base import LLMProvider
 from .rag.confidence import ConfidenceCalculator
 from .rag.document_loader import DocumentLoader
 from .rag.entity_analyzer import EntityAnalyzer
+from .rag.guardrails import RAGGuardrails
 from .rag.search_engine import SearchEngine
 
 # Disable ChromaDB telemetry
@@ -48,6 +49,9 @@ class RAGService:
         semantic_min_chunk_size: int = 256,
         semantic_similarity_threshold: Optional[float] = None,
         semantic_breakpoint_percentile: float = 90.0,
+        guardrails_enabled: bool = True,
+        similarity_threshold: float = 0.01,
+        grounding_threshold: float = 0.3,
     ):
         """Initialize RAG service with modular components.
 
@@ -65,11 +69,15 @@ class RAGService:
             semantic_min_chunk_size: Minimum chunk size for semantic chunking
             semantic_similarity_threshold: Absolute similarity threshold (or None for percentile)
             semantic_breakpoint_percentile: Percentile for breakpoint detection
+            guardrails_enabled: Enable relevance filtering and grounding checks
+            similarity_threshold: Min normalised relevance score to keep a result (0-1)
+            grounding_threshold: Min token-overlap ratio for grounding verification (0-1)
         """
         self.collection_name = collection_name
         self.persist_directory = persist_directory
         self.use_reranking = use_reranking
         self.use_hybrid_search = use_hybrid_search
+        self.guardrails_enabled = guardrails_enabled
         # Store chunk parameters as properties for backward compatibility
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
@@ -129,6 +137,14 @@ class RAGService:
         )
 
         self.confidence_calculator = ConfidenceCalculator()
+
+        # Initialize guardrails (relevance filtering + grounding verification)
+        self.guardrails: Optional[RAGGuardrails] = None
+        if guardrails_enabled:
+            self.guardrails = RAGGuardrails(
+                similarity_threshold=similarity_threshold,
+                grounding_threshold=grounding_threshold,
+            )
 
         # Check if collection has existing data
         count = self.collection.count()
@@ -239,8 +255,37 @@ class RAGService:
             logger.error(f"Search error: {e}")
             return []
 
+    def _no_relevant_info_response(self, entities: List[str], reason: str) -> Dict[str, Any]:
+        """Standard response when no relevant information is found."""
+        return {
+            "answer": "I don't have enough information to answer that question.",
+            "context": [],
+            "confidence": "low",
+            "confidence_score": 0.0,
+            "confidence_explanation": reason,
+            "confidence_factors": {
+                "retrieval_score": 0.0,
+                "consistency": 0.0,
+                "chunk_coverage": 0.0,
+                "entity_coverage": 0.0,
+            },
+            "sources": [],
+            "entities": entities,
+            "llm_powered": self.llm is not None,
+            "guardrails": {"enabled": self.guardrails_enabled, "triggered": True, "reason": reason},
+        }
+
     def ask(self, question: str, top_k: int = 5) -> Dict[str, Any]:
         """Answer a question using RAG (retrieval + generation).
+
+        Pipeline:
+        1. (Guardrails) Validate the incoming query
+        2. Extract entities from the question
+        3. Search for relevant context (fetch extra candidates when filtering)
+        4. (Guardrails) Filter results below the relevance threshold
+        5. Generate an answer via LLM (or extraction fallback)
+        6. (Guardrails) Verify the answer is grounded in context
+        7. Calculate confidence and build response
 
         Args:
             question: Question to answer
@@ -251,29 +296,42 @@ class RAGService:
         """
         logger.info(f"Question: {question}")
 
+        # --- Layer 1: Pre-retrieval query validation ---
+        if self.guardrails:
+            is_valid, rejection_reason = self.guardrails.validate_query(question)
+            if not is_valid:
+                return self._no_relevant_info_response(
+                    entities=[], reason=rejection_reason or "Invalid query"
+                )
+
         # Extract entities from question
         entities = self.entity_analyzer.extract_entities(question)
         logger.debug(f"Extracted entities: {entities}")
 
-        # Search for relevant context
-        results = self.search_engine.search(question, top_k)
+        # Fetch extra candidates when guardrails will filter
+        fetch_k = top_k * 2 if self.guardrails else top_k
+        results = self.search_engine.search(question, fetch_k)
 
         if not results:
-            return {
-                "answer": "I don't have enough information to answer that question.",
-                "context": [],
-                "confidence": "low",
-                "confidence_score": 0.0,
-                "confidence_explanation": "No relevant documents found",
-                "confidence_factors": {
-                    "retrieval_score": 0.0,
-                    "consistency": 0.0,
-                    "chunk_coverage": 0.0,
-                    "entity_coverage": 0.0,
-                },
-                "sources": [],
-                "entities": entities,
-            }
+            return self._no_relevant_info_response(
+                entities=entities, reason="No relevant documents found"
+            )
+
+        # --- Layer 2: Post-retrieval relevance filtering ---
+        pre_filter_count = len(results)
+        if self.guardrails:
+            results = self.guardrails.filter_by_relevance(results)
+            if not results:
+                return self._no_relevant_info_response(
+                    entities=entities,
+                    reason=(
+                        f"None of the {pre_filter_count} retrieved chunks met the "
+                        f"relevance threshold — the documents may not cover this topic"
+                    ),
+                )
+
+        # Keep only top_k after filtering
+        results = results[:top_k]
 
         # Convert to ContextChunk objects for confidence calculation
         from .rag.models import ContextChunk
@@ -286,6 +344,19 @@ class RAGService:
         else:
             # Fallback: use the most relevant chunk
             answer = context_chunks[0].text
+
+        # --- Layer 3: Post-generation grounding verification ---
+        grounding_score: Optional[float] = None
+        grounding_passed: Optional[bool] = None
+        if self.guardrails and self.llm:
+            grounding_passed, grounding_score = self.guardrails.check_grounding(
+                answer, context_chunks
+            )
+            if not grounding_passed:
+                answer += (
+                    "\n\n⚠️ Note: This answer may contain information not directly "
+                    "found in the available speech transcripts."
+                )
 
         # Calculate confidence (note: ConfidenceCalculator doesn't use answer text)
         confidence_result = self.confidence_calculator.calculate(
@@ -321,6 +392,17 @@ class RAGService:
             "entity_coverage": confidence_result.factors.entity_coverage,
         }
 
+        # Build guardrails metadata
+        guardrails_meta = {
+            "enabled": self.guardrails_enabled,
+            "triggered": False,
+        }
+        if self.guardrails:
+            guardrails_meta["relevance_filtered"] = pre_filter_count - len(results)
+            if grounding_score is not None:
+                guardrails_meta["grounding_score"] = grounding_score
+                guardrails_meta["grounding_passed"] = grounding_passed
+
         # Build response
         response = {
             "answer": answer,
@@ -332,6 +414,7 @@ class RAGService:
             "sources": sorted({c.source for c in context_chunks}),  # Deduplicate and sort
             "entities": entities,
             "llm_powered": self.llm is not None,
+            "guardrails": guardrails_meta,
         }
 
         if entity_stats:

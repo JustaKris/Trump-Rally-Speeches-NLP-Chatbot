@@ -18,6 +18,7 @@ If you're evaluating this for an AI/ML Engineering or Senior Backend role, here'
 
 - **Custom Semantic Chunking** — Not off-the-shelf LangChain chunking. I built a custom sentence-level embedding similarity chunker using NLTK + cosine similarity with configurable percentile-based breakpoints and automatic size constraint enforcement with tail-merging. It produces meaningfully coherent chunks instead of arbitrarily sliced text. The kind of thing that actually matters for RAG quality.
 - **Production RAG Pipeline** — Not a LangChain tutorial copy-paste. Modular components (search, confidence scoring, entity analysis, document loading) each with their own responsibilities, tests, and clean interfaces. Hybrid search combining dense embeddings, BM25 keyword matching, and cross-encoder reranking.
+- **Three-Layer RAG Guardrails** — Pre-retrieval query validation → post-retrieval relevance filtering (sigmoid-normalized cross-encoder scores with configurable threshold) → post-generation grounding verification (token-overlap heuristic). The system refuses to hallucinate: if no retrieved chunks pass the relevance gate, it says "I don't know" instead of fabricating an answer. The kind of production safety net that separates a demo from something you'd actually trust.
 - **Multi-Provider LLM Abstraction** — Factory pattern with lazy imports, abstract base class, model-agnostic config. Swap between Gemini, OpenAI, and Anthropic by changing one env var. The kind of architecture that scales when requirements change.
 - **Ensemble Sentiment Analysis** — Three models working together: FinBERT for sentiment polarity, RoBERTa for emotion detection, and an LLM for contextual interpretation. Not just "positive/negative" — actual nuanced analysis with explanations.
 - **The Engineering, Not Just the ML** — Type hints everywhere, Pydantic validation, structured logging (JSON for prod, pretty for dev), CI/CD with GitHub Actions, Docker multi-stage builds, 65%+ test coverage. The boring stuff that separates a demo from something you'd actually deploy.
@@ -27,6 +28,7 @@ If you're evaluating this for an AI/ML Engineering or Senior Backend role, here'
 ### The AI Stack
 
 - **RAG Q&A System** — Natural language questions over 300,000+ words using ChromaDB vector storage, MPNet embeddings (768d), and hybrid search combining semantic similarity with BM25 keyword matching
+- **Three-Layer RAG Guardrails** — Pre-retrieval validation, post-retrieval cosine similarity threshold filtering (sigmoid-normalized relevance scores), and post-generation grounding verification to prevent hallucination and ensure answers are grounded in retrieved context
 - **Semantic Document Chunking** — Custom sentence-level embedding similarity chunker (not LangChain's) that produces coherent, meaningful chunks with configurable similarity thresholds and automatic tail-merging
 - **Multi-Provider LLM Integration** — Pluggable architecture supporting Gemini, OpenAI GPT, and Anthropic Claude with a unified interface and lazy-loaded dependencies
 - **Smart Confidence Scoring** — Multi-factor calculation weighing semantic similarity, answer consistency, context coverage, and entity presence
@@ -80,6 +82,7 @@ Built a modular question-answering system over 35 political speeches (300,000+ w
 **Modular RAG Components** (`services/rag/`):
 
 - **`search_engine.py`** — Hybrid search combining semantic (MPNet 768d), BM25 keyword, and cross-encoder reranking
+- **`guardrails.py`** — Three-layer RAG guardrails: query validation, relevance filtering, and grounding verification
 - **`confidence.py`** — Multi-factor confidence scoring (retrieval quality, consistency, coverage, entity mentions)
 - **`entity_analyzer.py`** — Entity extraction with sentiment analysis, speech coverage, and co-occurrence analytics
 - **`document_loader.py`** — Semantic chunking with sentence-level embedding similarity and configurable breakpoints

@@ -397,8 +397,8 @@ class TestRAGPipeline:
         persist_dir = tempfile.mkdtemp()
         service = None
         try:
-            # 1. Initialize service
-            service = RAGService(persist_directory=persist_dir)
+            # 1. Initialize service (guardrails off — synthetic docs get low cross-encoder scores)
+            service = RAGService(persist_directory=persist_dir, guardrails_enabled=False)
 
             # 2. Load documents
             docs_loaded = service.load_documents(data_dir=temp_data_dir)
