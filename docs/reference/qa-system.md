@@ -97,7 +97,7 @@ Set `LLM_PROVIDER=openai` or `LLM_PROVIDER=anthropic` in `.env` after installing
 - **`RAGGuardrails`** (`guardrails.py`) - Three-layer pipeline protection: query validation, relevance filtering, grounding verification
 - **`ConfidenceCalculator`** (`confidence.py`) - Multi-factor confidence scoring
 - **`EntityAnalyzer`** (`entity_analyzer.py`) - Entity extraction, sentiment, co-occurrence analysis
-- **`DocumentLoader`** (`document_loader.py`) - Semantic chunking with embedding-based topic boundary detection
+- **`DocumentLoader`** (`document_loader.py`) - Semantic chunking with embedding-based topic boundary detection; extracts structured metadata (location, date, year) from speech filenames
 
 **Supporting Services:**
 
@@ -358,6 +358,50 @@ rag:
   guardrails_enabled: true        # Enable/disable all guardrails
   similarity_threshold: 0.01      # Min sigmoid-normalised relevance score
   grounding_threshold: 0.3        # Min token-overlap for grounding check
+```
+
+### 7. Extended Chunk Metadata
+
+Each speech filename encodes the rally location and date. The `extract_speech_metadata()` function in `DocumentLoader` parses this automatically during document loading, enriching every chunk with structured metadata.
+
+**Filename Pattern:** `{Location}{MonthDay}_{Year}.txt`
+
+**Extracted Fields:**
+
+| Field | Type | Example |
+|-------|------|---------|
+| `location` | `str` | `"Battle Creek"` |
+| `year` | `int` | `2019` |
+| `month` | `int` | `12` |
+| `day` | `int` | `19` |
+| `date` | `str` | `"2019-12-19"` (ISO format) |
+
+**Edge Cases Handled:**
+
+- CamelCase multi-word locations: `BattleCreek` → `"Battle Creek"`, `LasVegas` → `"Las Vegas"`
+- Hyphenated locations: `Winston-Salem` → preserved as `"Winston-Salem"`
+- Filenames that don't match the pattern: metadata is omitted gracefully (no error)
+
+**How Metadata Flows Through the Pipeline:**
+
+1. **Document loading** — `extract_speech_metadata()` parses the filename; fields are merged into each chunk's metadata dict alongside `source`, `chunk_index`, `total_chunks`
+2. **Vector storage** — ChromaDB stores the enriched metadata; available for future metadata filtering
+3. **Search results** — `ContextChunk.from_search_result()` propagates `location`, `date`, `year` from search result metadata
+4. **LLM context** — Source labels in the prompt include location and date (e.g., `[Source 1: file.txt, Part 3, Battle Creek, 2019-12-19]`)
+5. **API response** — The `context` list in each response includes `location`, `date`, and `year` for every chunk
+
+**Example API response context entry:**
+
+```json
+{
+  "text": "The economy is doing tremendously well...",
+  "source": "BattleCreekDec19_2019.txt",
+  "chunk_index": 3,
+  "score": 0.82,
+  "location": "Battle Creek",
+  "date": "2019-12-19",
+  "year": 2019
+}
 ```
 
 ## API Usage

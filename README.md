@@ -85,7 +85,7 @@ Built a modular question-answering system over 35 political speeches (300,000+ w
 - **`guardrails.py`** — Three-layer RAG guardrails: query validation, relevance filtering, and grounding verification
 - **`confidence.py`** — Multi-factor confidence scoring (retrieval quality, consistency, coverage, entity mentions)
 - **`entity_analyzer.py`** — Entity extraction with sentiment analysis, speech coverage, and co-occurrence analytics
-- **`document_loader.py`** — Semantic chunking with sentence-level embedding similarity and configurable breakpoints
+- **`document_loader.py`** — Semantic chunking with sentence-level embedding similarity and configurable breakpoints; extracts structured location/date metadata from speech filenames for richer source attribution
 - **`models.py`** — Pydantic data models for type-safe RAG operations
 
 **RAG API Endpoints:**

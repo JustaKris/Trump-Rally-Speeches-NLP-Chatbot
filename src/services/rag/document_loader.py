@@ -9,8 +9,9 @@ Supports two chunking strategies:
 """
 
 import logging
+import re
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Literal, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Tuple
 
 import numpy as np
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -19,6 +20,67 @@ if TYPE_CHECKING:
     from sentence_transformers import SentenceTransformer
 
 logger = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# Filename metadata extraction
+# ---------------------------------------------------------------------------
+
+_MONTH_ABBR = "Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec"
+
+_FILENAME_RE = re.compile(rf"^(.+?)({_MONTH_ABBR})(\d{{1,2}})_(\d{{4}})\.txt$")
+
+_MONTH_TO_INT: Dict[str, int] = {
+    "Jan": 1,
+    "Feb": 2,
+    "Mar": 3,
+    "Apr": 4,
+    "May": 5,
+    "Jun": 6,
+    "Jul": 7,
+    "Aug": 8,
+    "Sep": 9,
+    "Oct": 10,
+    "Nov": 11,
+    "Dec": 12,
+}
+
+
+def extract_speech_metadata(filename: str) -> Dict[str, Any]:
+    """Extract structured metadata from a speech transcript filename.
+
+    Expected pattern: ``{Location}{MonthDay}_{Year}.txt``
+    Examples: ``BattleCreekDec19_2019.txt``, ``Winston-SalemSep8_2020.txt``
+
+    Args:
+        filename: Name of the text file (not the full path).
+
+    Returns:
+        Dict with ``location``, ``year``, ``month``, ``day``, and ``date``
+        (ISO-format string).  Returns an empty dict if the filename does not
+        match the expected pattern.
+    """
+    match = _FILENAME_RE.match(filename)
+    if not match:
+        return {}
+
+    raw_location, month_abbr, day_str, year_str = match.groups()
+
+    # Convert CamelCase to spaced words (e.g. "BattleCreek" → "Battle Creek")
+    # Preserves hyphens (e.g. "Winston-Salem" stays as-is)
+    location = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", raw_location)
+
+    year = int(year_str)
+    month = _MONTH_TO_INT[month_abbr]
+    day = int(day_str)
+
+    return {
+        "location": location,
+        "year": year,
+        "month": month,
+        "day": day,
+        "date": f"{year:04d}-{month:02d}-{day:02d}",
+    }
+
 
 # ---------------------------------------------------------------------------
 # Sentence tokenization helper (lazy NLTK import)
@@ -169,6 +231,9 @@ class DocumentLoader:
         # Split document into chunks using the configured strategy
         chunks = self.chunk_text(content)
 
+        # Extract structured metadata from filename (location, date, year, etc.)
+        speech_metadata = extract_speech_metadata(file_path.name)
+
         # Create metadata for each chunk
         metadatas = []
         chunk_ids = []
@@ -177,13 +242,14 @@ class DocumentLoader:
             chunk_id = f"{file_path.stem}_chunk_{i}"
             chunk_ids.append(chunk_id)
 
-            metadatas.append(
-                {
-                    "source": file_path.name,
-                    "chunk_index": i,
-                    "total_chunks": len(chunks),
-                }
-            )
+            metadata: Dict[str, Any] = {
+                "source": file_path.name,
+                "chunk_index": i,
+                "total_chunks": len(chunks),
+            }
+            metadata.update(speech_metadata)
+
+            metadatas.append(metadata)
 
         return chunks, metadatas, chunk_ids
 

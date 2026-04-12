@@ -115,41 +115,9 @@ def hyde_search(question: str, llm, embedding_model, collection) -> List[Chunk]:
 
 ---
 
-### 6. Extended Chunk Metadata
+### ~~6. Extended Chunk Metadata~~ ✅ Completed
 
-**Current State:**
-
-- Chunks have basic metadata: `source`, `chunk_index`, `total_chunks`
-- Missing: date, location, temporal context
-
-**Why This Matters:**
-Rich metadata enables:
-
-- **Temporal filtering**: "What did he say in 2020 vs 2019?"
-- **Location-based queries**: "What topics in battleground states?"
-- **Better source attribution**: Display dates in citations
-- **Metadata filtering**: Pre-filter before semantic search
-
-**Implementation:**
-
-```python
-# Parse filename: "BattleCreekDec19_2019.txt"
-def extract_metadata(filename: str) -> dict:
-    # Extract location and date from filename pattern
-    match = re.match(r"(\w+)([A-Z][a-z]+\d+)_(\d{4})\.txt", filename)
-    if match:
-        return {
-            "location": match.group(1),       # "BattleCreek"
-            "date_str": match.group(2),        # "Dec19"
-            "year": int(match.group(3)),       # 2019
-            "source": filename
-        }
-```
-
-**Benefits:** Enables metadata filtering, better citations, temporal analysis
-
-**Effort:** Small (2-3 hours)  
-**Files:** `src/services/rag/document_loader.py`
+> Implemented filename-based metadata extraction. See Completed section below for details. Files modified: `src/services/rag/document_loader.py`, `src/services/rag/models.py`, `src/services/rag_service.py`, `src/services/llm/gemini.py`.
 
 ---
 
@@ -199,6 +167,7 @@ Already implemented:
 
 - ✅ **Semantic Chunking for RAG**: Custom implementation using NLTK sentence tokenization + embedding-based cosine similarity breakpoint detection. Configurable via `chunking_strategy` ("semantic" or "fixed"), `semantic_breakpoint_percentile`, `semantic_min_chunk_size`, and `semantic_similarity_threshold`. Falls back to `RecursiveCharacterTextSplitter` for oversized groups. Produces ~2354 semantically coherent chunks from 35 speeches (vs ~1082 with fixed chunking).
 - ✅ **Cosine Similarity Threshold Filtering + RAG Guardrails**: Three-layer guardrails pipeline integrated into the RAG service. **Layer 1 — Pre-retrieval validation:** rejects empty/too-short queries before any search. **Layer 2 — Post-retrieval relevance filtering:** sigmoid-normalized relevance scores (cross-encoder logits → 0-1 probability) with configurable threshold (default 0.4); fetches 2× candidates for filtering headroom, returns "no relevant info" if all results are below threshold. **Layer 3 — Post-generation grounding verification:** token-overlap heuristic between answer content words and retrieved context (stop-word filtered, configurable threshold 0.3); appends a caveat if grounding fails. Additionally strengthened the RAG prompt with explicit anti-hallucination instructions. Response schema extended with `guardrails` metadata (enabled, triggered, relevance_filtered, grounding_score, grounding_passed). Fully configurable per environment via `similarity_threshold`, `grounding_threshold`, `guardrails_enabled`. 32 dedicated tests.
+- ✅ **Extended Chunk Metadata**: Filename-based metadata extraction (`extract_speech_metadata()`) parses `{Location}{MonthDay}_{Year}.txt` filenames into structured fields: `location` (CamelCase→spaced, hyphen-preserved), `year`, `month`, `day`, `date` (ISO format). Enriched metadata flows through the full pipeline — stored in ChromaDB, propagated via `ContextChunk.from_search_result()`, surfaced in LLM source labels and API response context. Handles all 35 speech filenames including edge cases (multi-word cities, hyphenated names). 13 dedicated tests.
 - ✅ **Cross-Encoder Re-ranking**: Using `ms-marco-MiniLM-L-6-v2` for precision optimization
 - ✅ **Hybrid Search (ANN + BM25)**: ChromaDB HNSW + BM25Okapi with 70/30 weighting
 - ✅ **Basic Chunk Metadata**: source, chunk_index, total_chunks

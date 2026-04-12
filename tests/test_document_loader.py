@@ -342,3 +342,159 @@ class TestSemanticChunking:
         assert len(chunks) == len(metadatas) == len(ids)
         assert all(m["source"] == "speech.txt" for m in metadatas)
         assert all("speech_chunk_" in cid for cid in ids)
+
+
+class TestExtractSpeechMetadata:
+    """Test suite for filename-based speech metadata extraction."""
+
+    def test_standard_filename(self):
+        """Test standard single-word location filename."""
+        from src.services.rag.document_loader import extract_speech_metadata
+
+        result = extract_speech_metadata("CincinnatiAug1_2019.txt")
+        assert result == {
+            "location": "Cincinnati",
+            "year": 2019,
+            "month": 8,
+            "day": 1,
+            "date": "2019-08-01",
+        }
+
+    def test_multi_word_location(self):
+        """Test CamelCase multi-word location like BattleCreek."""
+        from src.services.rag.document_loader import extract_speech_metadata
+
+        result = extract_speech_metadata("BattleCreekDec19_2019.txt")
+        assert result["location"] == "Battle Creek"
+        assert result["date"] == "2019-12-19"
+
+    def test_hyphenated_location(self):
+        """Test hyphenated location like Winston-Salem."""
+        from src.services.rag.document_loader import extract_speech_metadata
+
+        result = extract_speech_metadata("Winston-SalemSep8_2020.txt")
+        assert result["location"] == "Winston-Salem"
+        assert result["year"] == 2020
+        assert result["month"] == 9
+        assert result["day"] == 8
+
+    def test_two_word_state_name(self):
+        """Test compound location like NewHampshire or NewMexico."""
+        from src.services.rag.document_loader import extract_speech_metadata
+
+        result = extract_speech_metadata("NewHampshireAug15_2019.txt")
+        assert result["location"] == "New Hampshire"
+        assert result["date"] == "2019-08-15"
+
+        result2 = extract_speech_metadata("NewMexicoSep16_2019.txt")
+        assert result2["location"] == "New Mexico"
+
+    def test_multi_word_city(self):
+        """Test multi-word city names like LasVegas and ColoradorSprings."""
+        from src.services.rag.document_loader import extract_speech_metadata
+
+        result = extract_speech_metadata("LasVegasFeb21_2020.txt")
+        assert result["location"] == "Las Vegas"
+        assert result["date"] == "2020-02-21"
+
+        result2 = extract_speech_metadata("ColoradorSpringsFeb20_2020.txt")
+        assert result2["location"] == "Colorador Springs"
+
+    def test_all_months(self):
+        """Test that all month abbreviations are recognized."""
+        from src.services.rag.document_loader import extract_speech_metadata
+
+        months = {
+            "Jan": 1,
+            "Feb": 2,
+            "Mar": 3,
+            "Apr": 4,
+            "May": 5,
+            "Jun": 6,
+            "Jul": 7,
+            "Aug": 8,
+            "Sep": 9,
+            "Oct": 10,
+            "Nov": 11,
+            "Dec": 12,
+        }
+        for abbr, num in months.items():
+            result = extract_speech_metadata(f"TestCity{abbr}15_2020.txt")
+            assert result["month"] == num, f"Failed for {abbr}"
+
+    def test_non_matching_filename(self):
+        """Test that non-matching filenames return empty dict."""
+        from src.services.rag.document_loader import extract_speech_metadata
+
+        assert extract_speech_metadata("readme.txt") == {}
+        assert extract_speech_metadata("notes.md") == {}
+        assert extract_speech_metadata("") == {}
+
+    def test_real_filenames_sample(self):
+        """Test a representative sample of actual speech filenames."""
+        from src.services.rag.document_loader import extract_speech_metadata
+
+        cases = [
+            ("BemidjiSep18_2020.txt", "Bemidji", 2020, 9, 18),
+            ("CharlestonFeb28_2020.txt", "Charleston", 2020, 2, 28),
+            ("DallasOct17_2019.txt", "Dallas", 2019, 10, 17),
+            ("GreenvilleJul17_2019.txt", "Greenville", 2019, 7, 17),
+            ("TulsaJun20_2020.txt", "Tulsa", 2020, 6, 20),
+            ("MilwaukeeJan14_2020.txt", "Milwaukee", 2020, 1, 14),
+            ("PittsburghSep22_2020.txt", "Pittsburgh", 2020, 9, 22),
+        ]
+        for filename, location, year, month, day in cases:
+            result = extract_speech_metadata(filename)
+            assert result["location"] == location, f"Location mismatch for {filename}"
+            assert result["year"] == year, f"Year mismatch for {filename}"
+            assert result["month"] == month, f"Month mismatch for {filename}"
+            assert result["day"] == day, f"Day mismatch for {filename}"
+
+    def test_metadata_included_in_loaded_chunks(self, tmp_path):
+        """Test that metadata extraction is integrated into document loading."""
+        test_file = tmp_path / "BattleCreekDec19_2019.txt"
+        test_file.write_text("This is a test speech about the economy." * 5, encoding="utf-8")
+
+        loader = DocumentLoader(chunk_size=500, chunk_overlap=50, chunking_strategy="fixed")
+        chunks, metadatas, ids = loader.load_from_directory(str(tmp_path))
+
+        assert len(chunks) >= 1
+        for m in metadatas:
+            assert m["source"] == "BattleCreekDec19_2019.txt"
+            assert m["location"] == "Battle Creek"
+            assert m["year"] == 2019
+            assert m["month"] == 12
+            assert m["day"] == 19
+            assert m["date"] == "2019-12-19"
+            # Original fields still present
+            assert "chunk_index" in m
+            assert "total_chunks" in m
+
+    def test_non_matching_file_has_no_extra_metadata(self, tmp_path):
+        """Test that files not matching the pattern still load without extra fields."""
+        test_file = tmp_path / "random_notes.txt"
+        test_file.write_text("Some content here.", encoding="utf-8")
+
+        loader = DocumentLoader(chunk_size=500, chunk_overlap=50, chunking_strategy="fixed")
+        chunks, metadatas, ids = loader.load_from_directory(str(tmp_path))
+
+        assert len(chunks) >= 1
+        for m in metadatas:
+            assert m["source"] == "random_notes.txt"
+            assert "location" not in m
+            assert "year" not in m
+
+    def test_real_data_directory_metadata(self):
+        """Test metadata extraction on real speech files if available."""
+        from src.services.rag.document_loader import extract_speech_metadata
+
+        data_dir = Path("data/Donald Trump Rally Speeches")
+        if not data_dir.exists():
+            pytest.skip("Data directory not found")
+
+        for file_path in data_dir.glob("*.txt"):
+            result = extract_speech_metadata(file_path.name)
+            assert result, f"Failed to extract metadata from {file_path.name}"
+            assert "location" in result
+            assert "year" in result
+            assert result["year"] in (2019, 2020)

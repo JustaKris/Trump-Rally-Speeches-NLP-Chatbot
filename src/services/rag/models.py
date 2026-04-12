@@ -101,6 +101,9 @@ class ContextChunk(BaseModel):
     source: str
     chunk_index: int
     score: Optional[float] = None
+    location: Optional[str] = None
+    date: Optional[str] = None
+    year: Optional[int] = None
 
     @classmethod
     def from_search_result(cls, result: SearchResult) -> "ContextChunk":
@@ -110,4 +113,7 @@ class ContextChunk(BaseModel):
             source=result.source_name,
             chunk_index=result.chunk_index,
             score=result.effective_score,
+            location=result.metadata.get("location"),
+            date=result.metadata.get("date"),
+            year=result.metadata.get("year"),
         )

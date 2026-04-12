@@ -141,12 +141,21 @@ class GeminiLLM(LLMProvider):
             text = chunk.get("text", "")
             source = chunk.get("source", "unknown")
             chunk_idx = chunk.get("chunk_index", 0)
+            location = chunk.get("location")
+            date = chunk.get("date")
 
             # Check length limit
             if total_length + len(text) > max_context_length:
                 break
 
-            context_parts.append(f"[Source {i + 1}: {source}, Part {chunk_idx + 1}]\n{text}")
+            # Build source label with location/date when available
+            label_parts = [f"Source {i + 1}: {source}", f"Part {chunk_idx + 1}"]
+            if location:
+                label_parts.append(location)
+            if date:
+                label_parts.append(date)
+
+            context_parts.append(f"[{', '.join(label_parts)}]\n{text}")
             sources_used.add(source)
             total_length += len(text)
 

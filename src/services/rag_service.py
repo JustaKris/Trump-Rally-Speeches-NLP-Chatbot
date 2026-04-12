@@ -380,6 +380,9 @@ class RAGService:
                 "source": chunk.source,
                 "chunk_index": chunk.chunk_index,
                 "score": chunk.score,
+                "location": chunk.location,
+                "date": chunk.date,
+                "year": chunk.year,
             }
             for chunk in context_chunks
         ]
@@ -434,7 +437,13 @@ class RAGService:
         """
         # Convert ContextChunk objects to dicts for LLM service
         context_dicts = [
-            {"text": chunk.text, "source": chunk.source, "chunk_index": chunk.chunk_index}
+            {
+                "text": chunk.text,
+                "source": chunk.source,
+                "chunk_index": chunk.chunk_index,
+                "location": chunk.location,
+                "date": chunk.date,
+            }
             for chunk in context_chunks
         ]
 
