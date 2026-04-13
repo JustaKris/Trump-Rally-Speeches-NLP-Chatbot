@@ -1,228 +1,120 @@
-# Project Roadmap & Future Improvements
+# Roadmap
 
-This document tracks planned enhancements, technical debt, and ideas for improving the Trump Rally Speeches NLP Chatbot. Items are categorized by priority and complexity to help with implementation planning.
-
-> **For Interview Prep:** Focus on understanding *why* each improvement matters and *how* it would be implemented
+What's been built, what's next, and the reasoning behind each decision. This serves as both a technical changelog for the RAG pipeline and a decision log — the kind of thing I wish more open-source projects maintained.
 
 ---
 
-## 🎯 High Priority Improvements
+## What's Been Done
 
-### ~~1. Semantic Chunking for RAG~~ ✅ Completed
+The core RAG pipeline is significantly beyond tutorial-grade at this point. Here's what's implemented and why each piece exists.
 
-> Implemented with custom sentence-level embedding similarity approach (no `langchain_experimental` dependency). See Completed section below for details. Files modified: `src/services/rag/document_loader.py`, `src/config/settings.py`, `src/services/rag_service.py`, `src/main.py`, all config YAMLs.
+### Semantic Chunking
+
+Custom sentence-level chunking using NLTK tokenisation + embedding cosine similarity to detect topic boundaries. Not the LangChain off-the-shelf splitter — this one actually groups sentences by meaning.
+
+- Configurable via `chunking_strategy`, `semantic_breakpoint_percentile`, `semantic_min_chunk_size`
+- Falls back to `RecursiveCharacterTextSplitter` for any groups that exceed `chunk_size`
+- Produces ~2,354 coherent chunks from 35 speeches (vs ~1,082 with naive fixed-size splitting)
+
+**Why it matters:** Fixed-size chunking cuts mid-sentence and mid-thought. Semantic chunks preserve complete ideas, which directly improves embedding quality and retrieval relevance.
+
+### Three-Layer RAG Guardrails
+
+A pipeline that prevents the system from hallucinating or returning garbage:
+
+1. **Pre-retrieval validation** — Rejects empty/trivially short queries before any compute is spent
+2. **Post-retrieval relevance filtering** — Cross-encoder logits are sigmoid-normalised to 0–1 scores; results below a configurable threshold (default 0.01) are dropped. Fetches 2× candidates for filtering headroom
+3. **Post-generation grounding verification** — Token-overlap heuristic between the generated answer and retrieved context. If the overlap is too low, a caveat is appended
+
+Response metadata exposes everything: `guardrails.relevance_filtered`, `grounding_score`, `grounding_passed`. 32 dedicated tests.
+
+### Query Rewriting
+
+LLM-powered query cleaning that sits between guardrails Layer 1 and search. Fixes typos, corrects spelling, and expands abbreviations — but deliberately does *not* add synonyms or broaden scope (that was actually degrading retrieval quality for well-formed queries, so I dialled it back to conservative cleaning only).
+
+- Uses the existing LLM provider at `temperature=0.0` for deterministic rewrites
+- Safety guards: empty-query passthrough, error fallback to original, rejection of suspiciously long rewrites (>5× original length)
+- The rewritten query drives search; the original is preserved for entity extraction and answer generation
+- 16 dedicated tests
+
+### Extended Chunk Metadata
+
+Filename-based metadata extraction: `BattleCreekDec19_2019.txt` → `location: "Battle Creek"`, `date: "2019-12-19"`, `year: 2019`. Metadata flows through the full pipeline — stored in ChromaDB, propagated through search results, surfaced in LLM source labels and API responses. Handles CamelCase splitting, hyphenated names, all 35 filenames. 13 tests.
+
+### Hybrid Search (Semantic + BM25 + Cross-Encoder)
+
+Dense MPNet embeddings (768d) combined with BM25 keyword matching (70/30 weighting) and cross-encoder reranking (`ms-marco-MiniLM-L-6-v2`). The cross-encoder is the precision layer — it takes the top candidates and re-scores them with a more compute-intensive model.
+
+### Pluggable LLM Providers
+
+Factory pattern with lazy imports. Swap between Gemini, OpenAI, and Anthropic by changing `LLM_PROVIDER` in your env. Abstract base class ensures a consistent interface. Only the provider you're using gets imported.
+
+### CI/CD Pipeline
+
+Nine GitHub Actions workflows: `python-tests.yml`, `python-lint.yml`, `python-typecheck.yml`, `security-audit.yml`, `markdown-lint.yml`, `build-push-docker.yml`, `deploy-docs.yml`, `deploy-azure.yml`, `deploy-render.yml`. Tests, lint, and security are required gates; type-check is informational.
+
+### Also Done
+
+- **Modular RAG architecture** — Dedicated components for search, confidence, entity analysis, and document loading
+- **Multi-factor confidence scoring** — Weighted combination of retrieval quality, consistency, coverage, and entity presence
+- **Component testing** — 66%+ coverage, 191 tests
+- **Type safety** — Pydantic models for all data structures
+- **Production logging** — JSON output for prod, coloured pretty-print for dev
 
 ---
 
-### 2. Query Rewriting with LangChain Prompt Templates
+## What's Next
 
-**Current State:**
+### HyDE (Hypothetical Document Embeddings)
 
-- User queries are passed directly to the search engine without modification
-- Typos, vague language, or ambiguous phrasing can hurt retrieval quality
+The next retrieval improvement. Instead of embedding the user's short query directly, generate a hypothetical answer first and embed *that*. The hypothetical document's embedding is much closer to actual speech chunks than a 5-word question.
 
-**Why This Matters:**
-Users don't always phrase questions optimally for retrieval. Query rewriting reformulates the input to be more search-friendly:
-
-- Fix typos and grammatical errors
-- Expand abbreviations and acronyms
-- Add synonyms to broaden search coverage
-- Decompose complex multi-part questions
-
-**How It Works:**
-
-1. User submits query → LLM rewrites to search-optimized version
-2. Optionally generate multiple query variants for broader recall
-3. Search with improved query → better chunk retrieval
-
-**Implementation:**
-
-```python
-from langchain.prompts import PromptTemplate
-
-query_rewrite_prompt = PromptTemplate(
-    input_variables=["question"],
-    template="""You are a search query optimizer. Rewrite the following question 
-to be more effective for semantic search over political speech transcripts.
-
-Original question: {question}
-
-Rewritten query (fix typos, expand abbreviations, add relevant terms):"""
-)
+```text
+User: "What about the wall?"  →  5 tokens
+HyDE: "Trump discussed building a border wall..."  →  30+ tokens, closer to actual chunks
 ```
 
-**Benefits:** 10-20% improvement in retrieval recall for poorly-phrased queries
+The final answer is still grounded in *real* retrieved chunks — HyDE only affects the search vector.
 
-**Effort:** Small (2-4 hours)  
-**Files:** `src/services/rag_service.py`, new `src/services/rag/query_rewriter.py`
+**Effort:** Medium — touches `search_engine.py` and needs an LLM call per query.
 
----
+### Response Caching
 
-### 3. HyDE (Hypothetical Document Embeddings)
+Redis-backed caching for repeated queries. LLM calls are expensive and slow; caching common questions would cut both cost and latency significantly.
 
-**Current State:**
+### Enhanced NER
 
-- Query embedding is generated directly from user question
-- Short questions may not embed close to relevant long-form document chunks
+Current entity extraction uses capitalisation heuristics. Proper NER with spaCy or a HuggingFace model would catch multi-word entities, disambiguate, and handle edge cases.
 
-**Why This Matters:**
-HyDE bridges the gap between short queries and long documents by generating a hypothetical answer first, then searching with *that* embedding:
+### Topic Modelling
 
-- User question: "What about the wall?" (5 tokens)
-- Hypothetical doc: "Trump discussed building a border wall to prevent illegal immigration..." (30+ tokens)
-- The hypothetical doc embedding is much closer to actual speech chunks than the short query
+BERTopic over the full speech corpus for automatic theme discovery. Different from the existing per-request topic extraction — this would be a corpus-level analysis.
 
-**How HyDE Works:**
+### Prompt Engineering
 
-1. User asks question
-2. LLM generates a *hypothetical* document that would answer the question
-3. Embed the hypothetical document (not the question)
-4. Search using that embedding → finds more relevant chunks
-5. Ground the final answer in the *real* retrieved chunks
-
-**Implementation:**
-
-```python
-def hyde_search(question: str, llm, embedding_model, collection) -> List[Chunk]:
-    # Step 1: Generate hypothetical answer
-    hypothetical = llm.generate(f"Write a paragraph answering: {question}")
-
-    # Step 2: Embed the hypothetical document
-    hyde_embedding = embedding_model.encode(hypothetical)
-
-    # Step 3: Search with hypothetical embedding
-    results = collection.query(query_embeddings=[hyde_embedding], n_results=5)
-
-    return results
-```
-
-**Benefits:** Especially effective for short, vague, or keyword-style queries
-
-**Effort:** Medium (4-8 hours)  
-**Files:** `src/services/rag/search_engine.py`
+Few-shot examples and chain-of-thought prompting in the RAG answer generation. Low effort, potentially high impact on answer quality.
 
 ---
 
-### ~~4. Cosine Similarity Threshold Filtering~~ ✅ Completed
+## Considered and Removed
 
-> Implemented as part of the three-layer RAG Guardrails system. See Completed section below for details. Files modified: `src/services/rag/models.py`, `src/services/rag/guardrails.py`, `src/services/rag_service.py`, `src/config/settings.py`, all config YAMLs.
+Some items were on the roadmap but removed after evaluation:
 
----
-
-### ~~5. RAG Guardrails (Context Grounding + Safety)~~ ✅ Completed
-
-> Implemented as a three-layer guardrails pipeline (pre-retrieval validation → post-retrieval relevance filtering → post-generation grounding verification). See Completed section below for details. Files modified: `src/services/rag/guardrails.py` (new), `src/services/rag_service.py`, `src/services/llm/base.py`, `src/models/schemas.py`, `src/config/settings.py`, all config YAMLs.
-
----
-
-### ~~6. Extended Chunk Metadata~~ ✅ Completed
-
-> Implemented filename-based metadata extraction. See Completed section below for details. Files modified: `src/services/rag/document_loader.py`, `src/services/rag/models.py`, `src/services/rag_service.py`, `src/services/llm/gemini.py`.
+| Item | Why It Was Removed |
+| --- | --- |
+| **GPU Acceleration** | No CUDA available; project runs on Azure free tier. Not viable. |
+| **Model Quantisation** | Not a bottleneck at this scale — 35 documents, CPU inference is fast enough |
+| **Async Processing** | Over-engineered for the current corpus size |
+| **Alternative Embeddings** | Adds API cost/external dependency for marginal gain over MPNet |
+| **Fine-tuned Embeddings** | Requires significant compute and training data we don't have |
 
 ---
 
-## 🚀 Performance & Scalability (Big Hitters)
+## Adding to This Roadmap
 
-| Improvement | Impact | Effort | Notes |
-| ------------ | -------- | -------- | ------- |
-| **Model Quantization** | 4x memory reduction | Medium | INT8/ONNX for FinBERT/RoBERTa |
-| **GPU Acceleration** | 5-10x faster inference | Medium | CUDA support, Docker GPU |
-| **Response Caching** | Reduced LLM costs | Medium | Redis for common queries |
-| **Async Processing** | Non-blocking API | Large | Celery for heavy analytics |
+If you're contributing or have ideas:
 
----
-
-## 🧠 Advanced NLP (Big Hitters)
-
-| Improvement | Impact | Effort | Notes |
-| ------------ | -------- | -------- | ------- |
-| **Enhanced NER** | Better entity extraction | Medium | spaCy or HuggingFace NER |
-| **Topic Modeling** | Auto-discover themes | Medium | BERTopic over speeches |
-
----
-
-## 🛡️ Production Readiness (Big Hitters)
-
-| Improvement | Impact | Effort | Notes |
-| ------------ | -------- | -------- | ------- |
-| **API Auth + Rate Limiting** | Security | Medium | API keys, per-IP limits |
-| **Observability** | Debugging | Medium | Prometheus + Grafana |
-| **CI/CD Pipeline** | Automation | Medium | GitHub Actions |
-
----
-
-## 🔬 Research & Experimentation
-
-| Improvement | Impact | Effort | Notes |
-| ------------ | -------- | -------- | ------- |
-| **Alternative Embeddings** | Retrieval quality | Medium | Test OpenAI vs MPNet |
-| **Fine-tuned Embeddings** | Domain accuracy | Large | Political speech domain |
-| **Prompt Engineering** | Answer quality | Small | Few-shot, chain-of-thought |
-
----
-
-## ✅ Completed (For Reference)
-
-Already implemented:
-
-- ✅ **Semantic Chunking for RAG**: Custom implementation using NLTK sentence tokenization + embedding-based cosine similarity breakpoint detection. Configurable via `chunking_strategy` ("semantic" or "fixed"), `semantic_breakpoint_percentile`, `semantic_min_chunk_size`, and `semantic_similarity_threshold`. Falls back to `RecursiveCharacterTextSplitter` for oversized groups. Produces ~2354 semantically coherent chunks from 35 speeches (vs ~1082 with fixed chunking).
-- ✅ **Cosine Similarity Threshold Filtering + RAG Guardrails**: Three-layer guardrails pipeline integrated into the RAG service. **Layer 1 — Pre-retrieval validation:** rejects empty/too-short queries before any search. **Layer 2 — Post-retrieval relevance filtering:** sigmoid-normalized relevance scores (cross-encoder logits → 0-1 probability) with configurable threshold (default 0.4); fetches 2× candidates for filtering headroom, returns "no relevant info" if all results are below threshold. **Layer 3 — Post-generation grounding verification:** token-overlap heuristic between answer content words and retrieved context (stop-word filtered, configurable threshold 0.3); appends a caveat if grounding fails. Additionally strengthened the RAG prompt with explicit anti-hallucination instructions. Response schema extended with `guardrails` metadata (enabled, triggered, relevance_filtered, grounding_score, grounding_passed). Fully configurable per environment via `similarity_threshold`, `grounding_threshold`, `guardrails_enabled`. 32 dedicated tests.
-- ✅ **Extended Chunk Metadata**: Filename-based metadata extraction (`extract_speech_metadata()`) parses `{Location}{MonthDay}_{Year}.txt` filenames into structured fields: `location` (CamelCase→spaced, hyphen-preserved), `year`, `month`, `day`, `date` (ISO format). Enriched metadata flows through the full pipeline — stored in ChromaDB, propagated via `ContextChunk.from_search_result()`, surfaced in LLM source labels and API response context. Handles all 35 speech filenames including edge cases (multi-word cities, hyphenated names). 13 dedicated tests.
-- ✅ **Cross-Encoder Re-ranking**: Using `ms-marco-MiniLM-L-6-v2` for precision optimization
-- ✅ **Hybrid Search (ANN + BM25)**: ChromaDB HNSW + BM25Okapi with 70/30 weighting
-- ✅ **Basic Chunk Metadata**: source, chunk_index, total_chunks
-- ✅ **LLM Provider Abstraction**: Pluggable Gemini/OpenAI/Anthropic support
-- ✅ **Modular RAG Architecture**: Separated components (search, confidence, entities)
-- ✅ **Component Testing**: 65%+ test coverage
-- ✅ **Type Safety**: Pydantic models for all data structures
-- ✅ **Production Logging**: JSON + colored output for different environments
-
----
-
-## 📝 Notes for Interview Prep
-
-**When discussing improvements, mention:**
-
-1. **Why it matters** (business value, user experience, accuracy)
-2. **Technical approach** (specific tools, algorithms, architectures)
-3. **Trade-offs** (complexity vs. benefit, cost vs. performance)
-4. **Measurable impact** (% improvement in accuracy, latency reduction, etc.)
-
-**Example:**
-> "I implemented semantic chunking to replace fixed-size character splitting. The approach uses NLTK sentence tokenization, embeds each sentence with our existing MPNet model, computes cosine similarity between consecutive sentences, and detects topic boundaries via percentile-based breakpoints. This produced ~2354 semantically coherent chunks from 35 speeches (vs ~1082 fixed chunks), with each chunk preserving complete ideas. The implementation avoids the `langchain_experimental` dependency by using a custom algorithm with configurable threshold and fallback to `RecursiveCharacterTextSplitter` for oversized groups."
-
----
-
-## 🏷️ Contribution Guidelines
-
-When adding items to this roadmap:
-
-1. **Add context**: Why is this needed? What problem does it solve?
-2. **Technical details**: How would it work? What tools/libraries?
-3. **Effort estimate**: Small (hours), Medium (days), Large (weeks)
-4. **Dependencies**: What needs to be done first?
-5. **Success metrics**: How do we know it worked?
-
-**Template:**
-
-```markdown
-### Feature Name
-
-**Current State:** [What we have now]
-
-**Why This Matters:** [Problem being solved]
-
-**How It Works:** [Technical approach]
-
-**Implementation:** [Code/tools/steps]
-
-**Benefits:** [Concrete improvements]
-
-**Effort:** [Time estimate]
-**Files:** [What changes]
-**Dependencies:** [Prerequisites]
-```
-
----
-
-*This roadmap is a living document. Feel free to add ideas, update priorities, or move items to "Completed" as work progresses!*
+1. **Context** — What problem does it solve?
+2. **Technical approach** — What tools/libraries? Where in the codebase?
+3. **Effort** — Small (hours), Medium (days), Large (weeks)
+4. **Trade-offs** — What's the cost of adding this?

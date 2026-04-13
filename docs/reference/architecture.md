@@ -222,12 +222,14 @@ The RAG service now uses a modular design with dedicated components:
 **Components Used:**
 
 - `SearchEngine` (from `services/rag/search_engine.py`)
+- `RAGGuardrails` (from `services/rag/guardrails.py`)
+- `QueryRewriter` (from `services/rag/query_rewriter.py`)
 - `ConfidenceCalculator` (from `services/rag/confidence.py`)
 - `EntityAnalyzer` (from `services/rag/entity_analyzer.py`)
 - `DocumentLoader` (from `services/rag/document_loader.py`)
 - `LLMProvider` (from `services/llm/`) - Pluggable provider abstraction
 
-### 5. **LLM Service** (`src/services/llm/`)
+### 4. **LLM Service** (`src/services/llm/`)
 
 Pluggable LLM provider abstraction with support for multiple AI models.
 
@@ -283,15 +285,11 @@ response = llm.generate_content(
 )
 ```
 
-### 6. **Text Preprocessing** (`src/utils/text_preprocessing.py`)
+### 5. **RAG Components** (`src/services/rag/`)
 
 Modular, testable components for RAG functionality.
 
-### 4. **RAG Components** (`src/services/rag/`)
-
-Modular, testable components for RAG functionality.
-
-#### 4.1 **SearchEngine** (`search_engine.py`)
+#### 5.1 **SearchEngine** (`search_engine.py`)
 
 Hybrid search engine combining multiple retrieval strategies.
 
@@ -309,7 +307,7 @@ Hybrid search engine combining multiple retrieval strategies.
 - `hybrid` - Combines semantic + BM25 (default weights: 0.7/0.3)
 - `reranking` - Optional cross-encoder for top results
 
-#### 4.2 **ConfidenceCalculator** (`confidence.py`)
+#### 5.2 **ConfidenceCalculator** (`confidence.py`)
 
 Multi-factor confidence scoring for RAG answers.
 
@@ -333,7 +331,7 @@ Multi-factor confidence scoring for RAG answers.
 - Detailed explanation
 - Individual factor scores
 
-#### 4.3 **EntityAnalyzer** (`entity_analyzer.py`)
+#### 5.3 **EntityAnalyzer** (`entity_analyzer.py`)
 
 Entity extraction and statistical analysis.
 
@@ -363,38 +361,51 @@ Entity extraction and statistical analysis.
 }
 ```
 
-#### 4.4 **DocumentLoader** (`document_loader.py`)
+#### 5.4 **DocumentLoader** (`document_loader.py`)
 
-Smart document loading and chunking.
+Smart document loading with semantic chunking and metadata extraction.
 
 **Features:**
 
-- **Recursive Text Splitting:** LangChain RecursiveCharacterTextSplitter
-- **Configurable Chunking:** Default 2048 chars (~512-768 tokens)
-- **Overlap:** 150 char overlap for context continuity
-- **Metadata Tracking:** Preserves source filename, chunk index, total chunks
+- **Semantic Chunking:** NLTK sentence tokenisation + embedding cosine similarity for topic boundary detection
+- **Fallback Splitting:** `RecursiveCharacterTextSplitter` for groups that exceed `chunk_size`
+- **Metadata Extraction:** Parses speech filenames into structured location, date, and year fields
+- **Configurable:** Strategy ("semantic" or "fixed"), breakpoint percentile, min chunk size
 - **Directory Loading:** Batch loading from directories with progress tracking
 
 **Chunking Strategy:**
 
 ```python
-chunk_size = 2048       # ~512-768 tokens (full context)
-chunk_overlap = 150     # ~100-150 tokens (preserve continuity)
+chunking_strategy = "semantic"           # or "fixed"
+semantic_breakpoint_percentile = 90.0   # topic-shift threshold
+semantic_min_chunk_size = 256           # merge small groups
+chunk_size = 2048                       # max chunk size (fallback)
+chunk_overlap = 150                     # overlap for fixed chunking
 ```
 
-### 5. **LLM Service** (`src/services/llm_service.py`)
+#### 5.5 **RAGGuardrails** (`guardrails.py`)
 
-Google Gemini integration for answer generation.
+Three-layer quality pipeline preventing hallucination and ensuring answer grounding.
+
+**Layers:**
+
+- **Layer 1 (Pre-retrieval):** Rejects empty or trivially short queries
+- **Layer 2 (Post-retrieval):** Sigmoid-normalised cross-encoder relevance filtering
+- **Layer 3 (Post-generation):** Token-overlap grounding verification between answer and context
+
+#### 5.6 **QueryRewriter** (`query_rewriter.py`)
+
+LLM-powered query cleaning for improved search retrieval.
 
 **Features:**
 
-- **Context-Aware Prompting:** Builds prompts with retrieved context
-- **Entity-Focused Generation:** Emphasizes entity mentions when applicable
-- **Fallback Extraction:** Returns context snippets if LLM fails
-- **Source Attribution:** Tracks and cites source documents
-- **Error Handling:** Graceful degradation with informative fallbacks
+- Fixes typos, spelling mistakes, and grammar
+- Expands abbreviations and acronyms
+- Deterministic rewrites (temperature=0.0)
+- Safety guards: error fallback, length rejection, empty passthrough
+- Rewritten query drives search; original preserved for entity extraction and answer generation
 
-### 4. **Text Preprocessing** (`src/utils/text_preprocessing.py`)
+### 6. **Text Preprocessing** (`src/utils/text_preprocessing.py`)
 
 Text cleaning and normalization utilities.
 
@@ -484,6 +495,8 @@ flowchart TB
     
     subgraph Query["🔍 Query Pipeline"]
         direction TB
+        Guardrails["🛡️ RAGGuardrails<br/><small>Validation → Relevance → Grounding</small>"]
+        Rewriter["✍️ QueryRewriter<br/><small>LLM Query Cleaning</small>"]
         Search["🔎 SearchEngine<br/><small>Hybrid Retrieval<br/>Semantic + BM25</small>"]
         Entities["🏷️ EntityAnalyzer<br/><small>Extraction & Stats</small>"]
         Confidence["📊 ConfidenceCalculator<br/><small>Multi-factor Scoring</small>"]
@@ -491,6 +504,8 @@ flowchart TB
     end
     
     RagService -.->|"Index Documents"| Loader
+    RagService -->|"Validate"| Guardrails
+    RagService -->|"Clean Query"| Rewriter
     RagService <-->|"Query"| Search
     Search <-->|"Retrieve"| DB
     RagService -->|"Extract Entities"| Entities
@@ -513,16 +528,17 @@ flowchart TB
 ```python
 # DocumentLoader handles chunking
 1. Load documents from directory
-2. Split into chunks (RecursiveCharacterTextSplitter)
-   - chunk_size: 2048 characters (~512-768 tokens)
-   - chunk_overlap: 150 characters (~100-150 tokens)
-3. Generate embeddings via ChromaDB
+2. Split into chunks:
+   - Semantic chunking (default): sentence embeddings + cosine
+     similarity to detect topic boundaries
+   - Fixed chunking (fallback): RecursiveCharacterTextSplitter
+     with chunk_size=2048, overlap=150
+3. Extract metadata from filenames:
+   - location, date, year, chunk_index, total_chunks
+4. Generate embeddings via ChromaDB
    - Model: all-mpnet-base-v2 (sentence-transformers)
    - Dimension: 768
-4. Store in ChromaDB with metadata:
-   - source: filename
-   - chunk_index: position in document
-   - total_chunks: document length
+5. Store in ChromaDB with metadata
 ```
 
 **2. Querying:**
@@ -530,32 +546,42 @@ flowchart TB
 ```python
 # Orchestrated by RAGService, delegated to components
 1. Receive question from user
-2. EntityAnalyzer extracts entities from question
-3. SearchEngine performs hybrid retrieval:
+2. RAGGuardrails Layer 1: validate query (reject empty/trivial)
+3. QueryRewriter cleans query via LLM:
+   - Fix typos, expand abbreviations
+   - Does NOT broaden scope or add synonyms
+4. EntityAnalyzer extracts entities from original question
+5. SearchEngine performs hybrid retrieval (using rewritten query):
    a. Semantic search: cosine similarity on embeddings
    b. BM25 search: keyword matching
    c. Combine results with weights (0.7 semantic, 0.3 BM25)
    d. Optional cross-encoder reranking
-4. ConfidenceCalculator computes multi-factor score:
+6. RAGGuardrails Layer 2: filter chunks by relevance
+   - Sigmoid-normalised cross-encoder scoring
+   - Remove chunks below relevance threshold
+7. ConfidenceCalculator computes multi-factor score:
    - Retrieval quality (40%): average semantic similarity
    - Consistency (25%): low score variance
    - Coverage (20%): normalized chunk count
    - Entity coverage (15%): % chunks mentioning entities
-5. EntityAnalyzer generates statistics (if entities found):
+8. EntityAnalyzer generates statistics (if entities found):
    - Mention counts across corpus
    - Speech coverage percentage
    - Sentiment analysis (optional)
    - Co-occurrence analysis
-6. LLMProvider generates answer:
+9. LLMProvider generates answer:
    - Build context-aware prompt
    - Include entity focus if applicable
    - Fallback to context extraction if LLM fails
-7. Return complete response:
-   - Generated answer
-   - Confidence level + score + explanation
-   - Supporting context chunks
-   - Source attribution
-   - Entity statistics (if applicable)
+10. RAGGuardrails Layer 3: grounding verification
+    - Token-overlap check between answer and source context
+    - Flag ungrounded answers
+11. Return complete response:
+    - Generated answer
+    - Confidence level + score + explanation
+    - Supporting context chunks
+    - Source attribution
+    - Entity statistics (if applicable)
 ```
 
 **3. Confidence Scoring:**
