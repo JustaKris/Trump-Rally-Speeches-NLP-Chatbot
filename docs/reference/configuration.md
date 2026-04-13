@@ -300,6 +300,25 @@ RAG_SIMILARITY_THRESHOLD="0.01"
 RAG_GROUNDING_THRESHOLD="0.3"
 ```
 
+#### Query Rewriting
+
+LLM-powered query optimisation that rewrites user queries before search to fix typos, expand abbreviations, and improve retrieval quality:
+
+```yaml
+rag:
+  query_rewriting_enabled: true   # Enable/disable LLM query rewriting
+```
+
+| Setting | Default | Description |
+| --- | --- | --- |
+| `query_rewriting_enabled` | `true` | Enables LLM-powered query rewriting before search. Requires an active LLM provider. Falls back to the original query on error |
+
+Environment variable override:
+
+```env
+RAG_QUERY_REWRITING_ENABLED="true"
+```
+
 ### Data Directories
 
 Configured under `paths` in YAML:

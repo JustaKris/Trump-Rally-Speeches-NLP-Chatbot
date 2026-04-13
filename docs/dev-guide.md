@@ -77,8 +77,8 @@ docker run --rm -it -p 8000:8000 --env-file .env --name nlp-chatbot trump-speech
 docker run -d -p 8000:8000 --env-file .env --name nlp-chatbot trump-speeches-nlp-chatbot
 
 # Persist ChromaDB data across container runs
-docker run --rm -it -p 8000:8000 \
-  -v "${PWD}/data/chromadb:/app/data/chromadb" \
+docker run --rm -it -p 8000:8000 `
+  -v "${PWD}/data/chromadb:/app/data/chromadb" `
   --env-file .env --name nlp-chatbot trump-speeches-nlp-chatbot
 
 # View logs

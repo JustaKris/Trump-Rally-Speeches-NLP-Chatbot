@@ -1,453 +1,177 @@
 # Changelog
 
-All notable changes and improvements to the Trump Speeches NLP Chatbot API.
+All notable changes to the Trump Speeches NLP Chatbot.
 
-## [Latest] - December 2025
+## [0.4.0] — April 2026
 
-### Added - Pluggable LLM Provider Architecture 🔌
+### Added — RAG Guardrails
 
-**Enhanced Modules: `src/services/llm/`**
+**Module: `src/services/rag/guardrails.py`**
 
-Major architectural improvement enabling support for multiple LLM providers with a unified interface:
+Three-layer input validation pipeline running before retrieval:
 
-- **Provider Abstraction**:
-  - **`base.py`**: Abstract `LLMProvider` interface defining standard methods
-  - **`factory.py`**: Factory pattern with lazy imports for optional dependencies
-  - **`gemini.py`**: Google Gemini implementation (default, always available)
-  - **`openai.py`**: OpenAI GPT models (optional: `uv sync --group llm-openai`)
-  - **`anthropic.py`**: Anthropic Claude models (optional: `uv sync --group llm-anthropic`)
+- **Layer 1 — Topic Filter**: LLM-based relevance check. Blocks questions outside the speech corpus scope.
+- **Layer 2 — Safety Filter**: Screens for harmful, manipulative, or deceptive intent.
+- **Layer 3 — Quality Filter**: Ensures queries are specific enough to produce a useful answer.
 
-- **Model-Agnostic Configuration**:
-  - Single config interface: `LLM_PROVIDER`, `LLM_API_KEY`, `LLM_MODEL_NAME`
-  - Easy provider switching via environment variables
-  - No code changes required to switch between providers
+Rejected queries return a structured response with a clear reason rather than a hallucinated answer.
 
-- **Benefits**:
-  - **Flexibility**: Switch providers without code changes
-  - **Cost Optimization**: Choose cost-effective models per use case
-  - **Vendor Independence**: No lock-in to single LLM provider
-  - **Easy Testing**: Compare results across different models
-  - **Minimal Dependencies**: Only install providers you use
+### Added — Query Rewriting
 
-**Configuration Example**:
+**Module: `src/services/rag/query_rewriter.py`**
+
+LLM-powered query cleaner running between guardrails and retrieval:
+
+- Fixes spelling, grammar, and ambiguous phrasing
+- Resolves pronouns and implicit references ("he said" → "Trump said")
+- Conservative by design — no synonym expansion, no scope broadening
+- Falls back to the original query if the rewrite is worse or fails
+
+### Enhanced — Semantic Chunking
+
+**Module: `src/services/rag/document_loader.py`**
+
+Replaced fixed-size text splitting with semantic boundary detection:
+
+- Splits at natural discourse boundaries (topic shifts) rather than arbitrary character counts
+- Each chunk is a self-contained thought rather than a mid-sentence fragment
+- Extended chunk metadata: `speech_date`, `filename`, `char_start`, `char_end`, `chunk_index`
+- Metadata enables date-range filtering, source attribution, and improved confidence scoring
+
+### Enhanced — Documentation 2
+
+- README reduced from ~630 to ~250 lines — merged three redundant feature sections, added complete API endpoint table (including previously undocumented `/health`, `/config`, `/diagnostics`), fixed inaccurate project tree
+- `docs/index.md` reduced from ~230 to ~45 lines — removed duplicated curl examples, tech stack lists, and link lists that mirrored the sidebar
+- Architecture reference updated: added RAGGuardrails and QueryRewriter components, updated pipeline Mermaid diagram, updated workflow to 11 steps
+- Fixed portfolio/showcase language across all docs
+- Fixed 3 broken doc links
+
+---
+
+## [0.3.0] — December 2025
+
+### Added — Pluggable LLM Provider Architecture
+
+**Modules: `src/services/llm/`**
+
+Unified interface for multiple LLM providers:
+
+- **`base.py`**: Abstract `LLMProvider` interface
+- **`factory.py`**: Factory pattern with lazy imports for optional dependencies
+- **`gemini.py`**: Google Gemini (default, always installed)
+- **`openai.py`**: OpenAI GPT (optional: `uv sync --group llm-openai`)
+- **`anthropic.py`**: Anthropic Claude (optional: `uv sync --group llm-anthropic`)
+
+Switch providers via three environment variables — no code changes required:
 
 ```bash
-# Use OpenAI instead of Gemini
 LLM_PROVIDER=openai
 LLM_API_KEY=sk-your_openai_key
 LLM_MODEL_NAME=gpt-4o-mini
 ```
 
-### Enhanced - Documentation & Best Practices 📚
+### Enhanced — Documentation
 
-- **Added LICENSE file**: Proper MIT license in root directory
-- **Added FAQ.md**: Comprehensive FAQ covering setup, usage, troubleshooting, architecture
-- **Updated all documentation**: Modernized to reflect Ruff (replacing Black/flake8/isort)
-- **Fixed markdown linting**: All MD032, MD031, MD040 issues resolved
-- **Updated pyproject.toml**: Ruff as single tool for formatting and linting
+- Added MIT `LICENSE` file
+- Added `docs/reference/faq.md`
+- Updated all docs to reference Ruff (replacing Black/flake8/isort)
+- Fixed markdown linting issues (MD032, MD031, MD040)
 
-### Enhanced - Dark Mode UI Improvements 🌙
+### Enhanced — Dark Mode UI
 
-- **Fixed sentiment interpretation truncation**: Increased `max_tokens` from 800 → 2000
-- **Enhanced scrollbar visibility**: Custom purple scrollbar for dark mode
-- **Improved card contrast**: Better readability in low-light environments
-- **Professional color scheme**: Purple gradient (#667eea to #764ba2) maintained throughout
-
-### Enhanced - Architecture Documentation 📐
-
-- **Modernized Mermaid diagrams**: Updated all flowcharts with color coding and emojis
-- **Added project thumbnail**: Production-ready overview diagram
-- **Updated component descriptions**: Reflects modular RAG architecture
-- **Enhanced deployment diagrams**: Shows CI/CD pipelines and multi-cloud deployment
-
-**Version**: 0.3.0 (December 2025)
+- Increased `max_tokens` for sentiment interpretation (800 → 2000) — fixes response truncation
+- Custom scrollbar styling for dark mode
+- Improved card contrast
 
 ---
 
-## [Previous] - November 2025
+## [0.2.0] — November 2025
 
-### Added - Enhanced AI-Powered Sentiment Analysis 🎭
+### Added — Multi-Model Sentiment Analysis
 
-**Enhanced Module: `src/services/sentiment_service.py`**
+**Module: `src/services/sentiment_service.py`**
 
-Major upgrade to sentiment analysis using multi-model AI approach with contextual interpretation:
+Three-model ensemble replacing the previous single-model approach:
 
-- **Multi-Model Architecture**:
-  - **FinBERT**: Financial/political sentiment classification (positive/negative/neutral)
-  - **RoBERTa-Emotion**: Six-emotion detection (anger, joy, fear, sadness, surprise, disgust)
-  - **LLM Provider**: Contextual interpretation explaining WHY the models produced their results (supports Gemini, OpenAI, Claude)
+- **FinBERT**: Political/financial sentiment (positive/negative/neutral)
+- **RoBERTa-Emotion**: Six-emotion detection (anger, joy, fear, sadness, surprise, disgust)
+- **LLM Provider**: Contextual interpretation — explains *why* the text received those scores
 
-- **Enhanced Response Schema**:
-  - Sentiment scores (positive/negative/neutral) with confidence
-  - Individual emotion probabilities for all 6 emotions
-  - AI-generated contextual interpretation (2-3 sentences)
-  - Number of chunks processed for long documents
+Response now includes emotion probabilities, sentiment confidence, and an AI-generated 2-3 sentence interpretation.
 
-- **Contextual Interpretation**:
-  - LLM analyzes WHY text received specific sentiment scores
-  - Explains dominant emotions in context of content
-  - Provides specific, insightful analysis (not just emotion labels)
-  - Example: "The text expresses strong positive sentiment about economic achievements, with joy emerging from pride in policy success. However, underlying anger surfaces when discussing immigration, creating emotional complexity that explains the mixed sentiment profile."
+### Added — AI Topic Analysis with Semantic Clustering
 
-- **Clean UI Design**:
-  - AI interpretation as focal point with prominent card display
-  - Compact 2-column grid for sentiment/emotion scores (secondary)
-  - Shows top 3 emotions only to reduce visual clutter
-  - Tab emoji changed to 🎭 for better alignment
-  - Fixed tab wrapping issue with `flex-wrap: nowrap`
+**Module: `src/services/topic_service.py`**
 
-- **Configuration Support**:
-  - Configurable via environment variables in `.env`
-  - `SENTIMENT_MODEL_NAME`, `EMOTION_MODEL_NAME`
-  - `SENTIMENT_INTERPRETATION_TEMPERATURE`, `SENTIMENT_INTERPRETATION_MAX_TOKENS`
-  - All settings in centralized `config.py`
+Replaced keyword frequency counting with semantic clustering:
 
-**API Endpoint**: `POST /analyze/sentiment` (enhanced with emotions and contextual fields)
+- MPNet embeddings (768d) group related keywords into coherent topics
+- KMeans clustering (3–6 clusters, auto-determined by content)
+- LLM generates human-readable labels ("border", "wall", "immigration" → "Border Security")
+- Contextual snippets show keywords in actual speech passages (±100 char windows)
+- LLM summary provides 2-3 sentence thematic analysis
+- Smart filtering removes common verbs and drops low-relevance clusters
 
-**Frontend Updates**:
+### Added — Modular RAG Architecture
 
-- Prominent AI interpretation card with gradient background
-- Compact sentiment breakdown (3 bars)
-- Top 3 emotions display with progress bars
-- Clean, focused layout emphasizing AI insights
+**Modules: `src/services/rag/`**
 
-**Benefits**:
+Refactored monolithic RAG service into independently testable components:
 
-- Goes beyond binary positive/negative to understand emotional nuance
-- Provides explainable AI with clear reasoning
-- Detects emotional complexity and mixed sentiments
-- Human-readable interpretation via advanced LLM
-- Professional, interview-worthy feature showcasing multi-model AI
+- `search_engine.py` — Hybrid search (semantic + BM25 + cross-encoder reranking)
+- `confidence.py` — Multi-factor confidence scoring (retrieval quality, consistency, coverage, entity mentions)
+- `entity_analyzer.py` — Entity extraction, sentiment, and co-occurrence analytics
+- `document_loader.py` — Chunking with metadata
+- `models.py` — Pydantic models for type-safe RAG operations
 
-### Added - AI-Powered Topic Analysis with Semantic Clustering 🎯
+### Added — Production Logging
 
-**New Module: `src/services/topic_service.py`**
+**Module: `src/core/logging_config.py`**
 
-Revolutionary upgrade to topic extraction using semantic clustering and AI-generated insights:
+- JSON format in production (compatible with Azure Application Insights, CloudWatch, ELK)
+- Coloured output in development
+- Auto-detects environment via `ENVIRONMENT` setting
+- Suppresses noisy third-party library logs
 
-- **Semantic Clustering**:
-  - Groups related keywords using MPNet embeddings (768d)
-  - KMeans clustering (3-6 auto-determined clusters)
-  - Ranks by total semantic relevance, not just raw frequency
-  - Example: "economy", "jobs", "employment" → clustered as "Economic Policy"
+### Added — Configuration Management
 
-- **AI-Generated Labels**:
-  - Uses configured LLM to create meaningful cluster labels
-  - Transforms ["border", "wall", "immigration"] → "Border Security"
-  - Falls back to top keyword if LLM unavailable
+**Module: `src/config/settings.py`**
 
-- **Contextual Snippets**:
-  - Extracts text passages showing keywords in actual use
-  - ±100 character context windows around keywords
-  - Highlights keywords with markdown bold formatting
-  - Deduplicates nearby occurrences for variety
+Pydantic Settings-based configuration system:
 
-- **AI-Generated Summaries**:
-  - LLM provides 2-3 sentence interpretation of main themes
-  - Identifies dominant topics and interesting patterns
-  - Objective, analytical perspective on content
+- Type-safe validation with clear error messages on startup
+- Full `.env` support for local and cloud deployment
+- Covers LLM provider, RAG parameters, model names, data paths, and API config
 
-- **Smart Filtering** (NEW):
-  - Excludes common verbs (want, think, know, etc.) from keywords
-  - Filters clusters with avg relevance < 50%
-  - Ensures high-quality, meaningful topics
+### Fixed — ChromaDB Duplicate Warnings
 
-**API Endpoint**: `POST /analyze/topics` (replaced old frequency-based version)
+Implemented chunk deduplication on indexing:
 
-**Frontend Updates**:
-
-- Moved to second position in UI (right after RAG)
-- Renamed to "AI Topic Analysis"
-- Enhanced description explaining semantic clustering and LLM usage
-- Shows AI-generated labels and summaries
-- Contextual snippets with keyword highlighting
-
-**Documentation**:
-
-- Guide: `docs/howto/topic-extraction.md` updated with current endpoint
-- Updated architecture documentation
-- Removed "enhanced" terminology throughout
-
-**Benefits**:
-
-- Goes beyond word frequency to understand semantic relationships
-- Provides human-interpretable topic labels
-- Shows real-world context with highlighted examples
-- Offers AI-powered analytical insights
-- Filters out noise for cleaner results
-
-## [Recent Updates] - November 2025
-
-### Added - Modular RAG Architecture (Code Refactoring)
-
-**New Modules: `src/services/rag/`**
-
-Restructured RAG service into dedicated, testable components:
-
-- **Component Separation**:
-  - `search_engine.py` - Hybrid search with semantic, BM25, and cross-encoder reranking
-  - `confidence.py` - Multi-factor confidence scoring (retrieval quality, consistency, coverage, entity mentions)
-  - `entity_analyzer.py` - Entity extraction, sentiment analysis, co-occurrence analytics
-  - `document_loader.py` - Smart chunking with metadata tracking
-  - `models.py` - Pydantic data models for type-safe RAG operations
-
-- **Improved Testability**:
-  - 65%+ overall test coverage, 90%+ for core RAG components
-  - Component-level unit tests with mocked dependencies
-  - Integration tests for full RAG pipeline
-  - 108 tests total (28 integration, 80 component/unit)
-
-- **Type Safety**: Pydantic models for all RAG data structures
-- **Maintainability**: Clear separation of concerns, easier to extend and debug
-- **Performance**: Unchanged - modular design maintains original efficiency
-
-**Benefits**:
-
-- Each component testable in isolation
-- Easier to understand and modify individual features
-- Better error tracking and debugging
-- Foundation for future enhancements
-
-### Added - Production Logging System
-
-**New Module: `src/logging_config.py`**
-
-Implemented professional logging with automatic environment detection:
-
-- **Dual-Format Support**: JSON logs for production, colored logs for development
-- **Auto-Detection**: Uses `ENVIRONMENT` setting to choose appropriate format
-- **Cloud-Ready**: JSON format works with Azure Application Insights, CloudWatch, ELK
-- **Structured Output**: Consistent timestamp, level, module name, message format
-- **Third-Party Suppression**: Automatic filtering of noisy library logs
-- **Uvicorn Integration**: Proper configuration of web server logs
-
-**Benefits**:
-
-- Deploy to Azure/Docker without code changes
-- Stream JSON logs to monitoring tools
-- Debug locally with colored, readable output
-- Filter by module, level, or content in production
-
-### Added - Configuration Management System
-
-**New Module: `src/config.py`**
-
-Created Pydantic Settings-based configuration system:
-
-- **Type-Safe**: Automatic validation of all settings with clear error messages
-- **Environment Variables**: Full `.env` file support for local and cloud deployment
-- **Centralized**: All configuration in one place with defaults and descriptions
-- **Cloud-Native**: Works seamlessly with Azure App Service, Docker, Kubernetes
-- **Flexible**: Support for multiple LLM providers (Gemini, OpenAI, Anthropic)
-
-**Key Settings**:
-
-- Application: name, version, environment, log level
-- LLM: provider, API keys, models, parameters
-- RAG: chunk size, top-k, hybrid search, reranking
-- Models: sentiment, embedding, reranker models
-- Data: directories for speeches and ChromaDB
-- API: host, port, reload, CORS origins
-
-### Fixed - ChromaDB Duplicate Warnings
-
-**Updated: `src/rag_service.py`**
-
-Implemented smart deduplication to prevent re-indexing existing chunks:
-
-- Check existing IDs before adding new chunks
-- Skip already-indexed documents automatically
-- Log clear info about new vs skipped chunks
-- 100x faster re-indexing (skip embedding computation)
-
-**Before**: 1000+ warnings on every query
-
-```text
-WARNING chromadb... Add of existing embedding ID: ToledoJan9_2020_chunk_0
-WARNING chromadb... Add of existing embedding ID: ToledoJan9_2020_chunk_1
-...
-```
-
-**After**: Clean logs with informative messages
-
-```text
-INFO src.rag_service Adding 0 new chunks (skipped 1082 duplicates)
-```
-
-### Updated - Service Architecture
-
-#### Dependency Injection Pattern
-
-Refactored services to accept configuration explicitly:
-
-- `GeminiLLM`: Accepts API key, model name, temperature as parameters
-- `RAGService`: Accepts `llm_service` instance (optional)
-- `SentimentAnalyzer`: Accepts configurable model name
-- All services use module-level loggers (`logging.getLogger(__name__)`)
-
-**Benefits**:
-
-- Easier testing (mock dependencies)
-- Clearer initialization flow
-- Better separation of concerns
-- More flexible configuration
-
-### Updated - Application Branding
-
-**Unified Naming Convention**: "Trump Speeches NLP Chatbot API"
-
-Updated branding across application:
-
-- API module docstrings
-- HTML page titles
-- Frontend headers
-- Endpoint descriptions
-- Fallback HTML pages
-
-**Key Changes**:
-
-- Specified technologies in descriptions (Gemini, ChromaDB, FinBERT)
-- Updated tab descriptions with specific features
-- Improved dataset explanations
-- Added example questions relevant to content
-
-### Documentation
-
-**New/Updated Files**:
-
-- `docs/reference/configuration.md` - Complete configuration guide
-- `docs/howto/logging.md` - Logging best practices and formats
-- `docs/CHANGELOG.md` - This file
-- `.env.example` - Configuration template (if not already present)
-
-## [Previous Version] - October 2025
-
-### Core Features
-
-- **RAG Q&A System**: ChromaDB + MPNet embeddings + Gemini LLM
-- **Hybrid Search**: Semantic search + BM25 keyword matching
-- **Cross-Encoder Reranking**: Improved precision for search results
-- **Multi-Factor Confidence**: Sophisticated confidence scoring
-- **Entity Analytics**: Automatic entity extraction with sentiment analysis
-- **FastAPI Backend**: 12+ RESTful endpoints
-- **Interactive Frontend**: Single-page web interface
-- **Docker Support**: Multi-stage build with health checks
-- **CI/CD Pipeline**: GitHub Actions with tests and security scanning
-- **Comprehensive Testing**: pytest with 50%+ coverage
-
-### ML Models
-
-- **Gemini 2.5 Flash**: Answer generation
-- **FinBERT**: Sentiment analysis
-- **all-mpnet-base-v2**: 768-dim semantic embeddings
-- **ms-marco-MiniLM**: Cross-encoder reranking
-
-### Deployment
-
-- Docker + Docker Compose support
-- Render deployment configuration
-- Azure Web App compatible
-- Health check endpoint
-- Environment-based configuration
-
-## Migration Guide
-
-### From Old Configuration (Direct Environment Variables)
-
-**Before**:
-
-```python
-import os
-api_key = os.getenv("GEMINI_API_KEY")
-print("Loading model...")
-```
-
-**After**:
-
-```python
-from src.config import get_settings
-import logging
-
-settings = get_settings()
-logger = logging.getLogger(__name__)
-
-api_key = settings.gemini_api_key
-logger.info("Loading model...")
-```
-
-### From Old Logging (Print Statements)
-
-**Before**:
-
-```python
-print(f"Loaded {count} documents")
-```
-
-**After**:
-
-```python
-logger.info(f"Loaded {count} documents")
-```
-
-## Breaking Changes
-
-None. All changes are backwards-compatible or internal improvements.
-
-## Upgrading
-
-1. **Update dependencies**:
-
-   ```bash
-   uv sync
-   ```
-
-2. **Create `.env` file** (if not exists):
-
-   ```bash
-   cp .env.example .env
-   ```
-
-3. **Set API key in `.env`**:
-
-   ```env
-   GEMINI_API_KEY=your_key_here
-   ```
-
-4. **Run the application**:
-
-   ```bash
-   uv run uvicorn src.api:app --reload
-   ```
-
-The application will automatically use the new logging and configuration systems.
-
-## Future Roadmap
-
-### Planned Features
-
-- **Multiple LLM Providers**: OpenAI GPT-4, Anthropic Claude support
-- **Advanced Entity Analytics**: Knowledge graph visualization
-- **Query Caching**: Redis layer for common questions
-- **Async Processing**: Background jobs for heavy analytics
-- **Enhanced NER**: spaCy or Hugging Face transformers
-- **Fact Extraction**: Structured information from speeches
-
-### Performance Improvements
-
-- **Model Quantization**: Reduce model sizes
-- **GPU Acceleration**: CUDA support for faster inference
-- **Response Streaming**: WebSocket for real-time answers
-- **Database Optimization**: Connection pooling, query optimization
-
-### Infrastructure
-
-- **Kubernetes**: Container orchestration
-- **Auto-scaling**: Dynamic resource allocation
-- **Multi-region**: Global deployment
-- **Monitoring**: Prometheus + Grafana integration
+- Checks existing chunk IDs before embedding
+- Eliminates 1000+ `WARNING: Add of existing embedding ID` messages on every query
+- Re-indexing skips already-embedded chunks
 
 ---
 
-**Project Repository**: [GitHub](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot)  
+## [0.1.0] — October 2025
+
+Initial release:
+
+- RAG Q&A via ChromaDB + MPNet embeddings + Gemini LLM
+- Hybrid search: semantic + BM25 keyword matching
+- Cross-encoder reranking
+- Multi-factor confidence scoring
+- Entity analytics with sentiment analysis
+- FastAPI backend with 12+ endpoints
+- Single-page web interface
+- Docker multi-stage build with health checks
+- GitHub Actions CI/CD (tests, lint, type-check, security, Docker, docs deploy)
+- pytest suite with 50%+ coverage
+
+**ML Models**: Gemini 2.5 Flash · FinBERT · all-mpnet-base-v2 · ms-marco-MiniLM
+
+---
+
+**Repository**: [GitHub](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot)  
 **Documentation**: [GitHub Pages](https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/)  
 **Maintainer**: Kristiyan Bonev

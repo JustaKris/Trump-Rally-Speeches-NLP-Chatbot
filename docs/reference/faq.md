@@ -4,7 +4,7 @@
 
 ### What is this project?
 
-A production-ready NLP application showcasing advanced AI/ML techniques including:
+An NLP platform that analyses 35 Trump rally speech transcripts using:
 
 - Retrieval-Augmented Generation (RAG) with hybrid search
 - Multi-model sentiment analysis with LLM interpretation
@@ -13,19 +13,6 @@ A production-ready NLP application showcasing advanced AI/ML techniques includin
 - Pluggable LLM provider architecture (Gemini, OpenAI, Claude)
 
 Built with FastAPI, ChromaDB, PyTorch, and Transformers, deployed on Azure with full CI/CD pipelines.
-
-### Is this production-ready?
-
-Yes! The project includes:
-
-- Comprehensive testing (65%+ coverage)
-- Production logging (JSON format)
-- Docker containerization
-- GitHub Actions CI/CD
-- Security scanning (Bandit, pip-audit)
-- Automated deployment to Azure
-- Health check endpoints
-- Error handling and validation
 
 ### Can I use this for my own project?
 
@@ -93,11 +80,14 @@ curl -X POST http://localhost:8000/rag/ask \
 
 The system will:
 
-1. Extract entities from your question
-2. Perform hybrid search (semantic + BM25)
-3. Calculate confidence scores
-4. Generate an AI answer using the LLM
-5. Return sources and entity statistics
+1. Validate the query (guardrails Layer 1)
+2. Rewrite the query for better retrieval (typo fixing, abbreviation expansion)
+3. Extract entities from the original question
+4. Perform hybrid search (semantic + BM25) with cross-encoder reranking
+5. Filter results by relevance threshold (guardrails Layer 2)
+6. Generate an AI answer using the LLM
+7. Verify the answer is grounded in retrieved context (guardrails Layer 3)
+8. Calculate confidence scores and return sources + entity statistics
 
 ### What's the difference between semantic and hybrid search?
 
@@ -327,7 +317,7 @@ uv run ruff check . --fix
 4. Add dependency to `pyproject.toml` in a new optional group
 5. Update documentation
 
-See [anthropic.py](../src/services/llm/anthropic.py) as an example.
+See [`anthropic.py`](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot/blob/main/src/services/llm/anthropic.py) as an example.
 
 ### How is logging configured?
 
@@ -336,7 +326,7 @@ The application uses structured logging:
 - **Development:** Pretty colored output with loguru-style formatting
 - **Production:** JSON format for log aggregation (ELK, CloudWatch, etc.)
 
-Configured in [src/core/logging_config.py](../src/core/logging_config.py)
+Configured in [`src/core/logging_config.py`](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot/blob/main/src/core/logging_config.py)
 
 ---
 
@@ -369,7 +359,7 @@ The system will:
 
 ### How much data can the RAG system handle?
 
-**Current dataset:** 35 documents, ~300,000 words, 1,082 chunks
+**Current dataset:** 35 documents, ~300,000 words, ~2,354 chunks (semantic chunking)
 
 **Tested limits:** Up to 10,000 chunks (several million words)
 
@@ -418,6 +408,8 @@ POST /rag/index  # Re-indexes from source files
 
 - **`RAGService`** (orchestrator) - Manages ChromaDB, coordinates components, handles indexing
 - **`SearchEngine`** (component) - Performs search operations (semantic, BM25, hybrid, reranking)
+- **`RAGGuardrails`** (component) - Three-layer quality gates (validation, relevance filtering, grounding)
+- **`QueryRewriter`** (component) - LLM-powered query cleaning for better retrieval
 - **`ConfidenceCalculator`** (component) - Calculates multi-factor confidence scores
 - **`EntityAnalyzer`** (component) - Extracts entities and generates statistics
 - **`DocumentLoader`** (component) - Loads and chunks documents
@@ -445,7 +437,7 @@ LangChain is used selectively (text splitting utilities) where it adds value wit
 
 ### Can I contribute to this project?
 
-This is primarily a portfolio project, but suggestions and feedback are welcome!
+Suggestions and feedback are welcome!
 
 **To suggest improvements:**
 

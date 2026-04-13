@@ -3,7 +3,7 @@
 
 # Site metadata
 site_name: Trump Speeches NLP Chatbot
-site_description: Production-ready NLP Chatbot API with RAG, multi-model sentiment analysis, and AI-powered topic extraction
+site_description: NLP Chatbot API with RAG, multi-model sentiment analysis, and AI-powered topic extraction
 site_author: Kristiyan Bonev
 site_url: https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/
 

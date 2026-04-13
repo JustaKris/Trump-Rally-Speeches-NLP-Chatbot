@@ -97,6 +97,7 @@ Set `LLM_PROVIDER=openai` or `LLM_PROVIDER=anthropic` in `.env` after installing
 - **`RAGGuardrails`** (`guardrails.py`) - Three-layer pipeline protection: query validation, relevance filtering, grounding verification
 - **`ConfidenceCalculator`** (`confidence.py`) - Multi-factor confidence scoring
 - **`EntityAnalyzer`** (`entity_analyzer.py`) - Entity extraction, sentiment, co-occurrence analysis
+- **`QueryRewriter`** (`query_rewriter.py`) - LLM-powered query optimisation for improved search retrieval
 - **`DocumentLoader`** (`document_loader.py`) - Semantic chunking with embedding-based topic boundary detection; extracts structured metadata (location, date, year) from speech filenames
 
 **Supporting Services:**
@@ -360,7 +361,55 @@ rag:
   grounding_threshold: 0.3        # Min token-overlap for grounding check
 ```
 
-### 7. Extended Chunk Metadata
+### 7. LLM-Powered Query Rewriting
+
+The `QueryRewriter` component optimises user queries before search to improve retrieval quality.
+
+**How It Works:**
+
+1. User submits a natural language question
+2. The LLM rewrites it to be more search-friendly (fix typos, expand abbreviations, add synonyms)
+3. The rewritten query is used for semantic search
+4. The **original** query is preserved for entity extraction and LLM answer generation
+
+**Design Decisions:**
+
+- **Deterministic rewrites:** Uses `temperature=0.0` to ensure consistent results
+- **Safety guards:** Empty-query passthrough, disabled passthrough via config, error fallback to original query, suspiciously-long-rewrite rejection (>5× original length)
+- **Separation of concerns:** Rewritten query drives search; original query drives entity analysis and answer generation. This preserves user intent while improving retrieval.
+
+**Example:**
+
+| Original Query | Rewritten Query |
+| --- | --- |
+| `"wut did trump say bout the wall"` | `"What did Trump say about the border wall and immigration?"` |
+| `"economy"` | `"What were the economic policies and economy-related topics discussed?"` |
+| `"What was said about China?"` | `"What was said about China?"` (unchanged — already optimal) |
+
+**Response Metadata:**
+
+Every response includes query rewriting metadata when active:
+
+```json
+{
+  "query_rewriting": {
+    "enabled": true,
+    "original_query": "wut about the wall",
+    "rewritten_query": "What did Trump say about the border wall and immigration?"
+  }
+}
+```
+
+**Configuration:**
+
+```yaml
+rag:
+  query_rewriting_enabled: true   # Enable/disable query rewriting
+```
+
+---
+
+### 8. Extended Chunk Metadata
 
 Each speech filename encodes the rally location and date. The `extract_speech_metadata()` function in `DocumentLoader` parses this automatically during document loading, enriching every chunk with structured metadata.
 
@@ -369,7 +418,7 @@ Each speech filename encodes the rally location and date. The `extract_speech_me
 **Extracted Fields:**
 
 | Field | Type | Example |
-|-------|------|---------|
+| ------- | ------ | --------- |
 | `location` | `str` | `"Battle Creek"` |
 | `year` | `int` | `2019` |
 | `month` | `int` | `12` |
@@ -499,6 +548,7 @@ rag = RAGService(
     llm_service=llm_service,                  # Pluggable LLM provider
     use_reranking=True,                       # Enable cross-encoder
     use_hybrid_search=True,                   # Enable BM25 + semantic
+    query_rewriting_enabled=True,             # Enable LLM query rewriting
 )
 ```
 
@@ -512,6 +562,8 @@ The RAG service automatically initializes all components:
 # Initialized internally:
 # - DocumentLoader (for chunking)
 # - SearchEngine (for hybrid retrieval)
+# - RAGGuardrails (for three-layer protection)
+# - QueryRewriter (for LLM query optimisation)
 # - ConfidenceCalculator (for scoring)
 # - EntityAnalyzer (for entity extraction)
 # - GeminiLLM (for answer generation, if use_llm=True)
@@ -689,5 +741,3 @@ for i, result in enumerate(results, 1):
 - [GitHub Repository](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot) — Source code
 
 ---
-
-*This RAG system demonstrates production-ready AI engineering with vector databases, pluggable LLM providers, and sophisticated retrieval techniques.*

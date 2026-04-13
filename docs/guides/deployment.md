@@ -944,7 +944,7 @@ az webapp restart --resource-group trump-nlp-rg --name trump-speeches-nlp
 
 | Platform | Free Tier | Paid Tier | Best For |
 | ---------- | ----------- | ----------- | ---------- |
-| **Render** | ✅ Yes (with limitations) | $7/month starter | Quick demos, portfolio |
+| **Render** | ✅ Yes (with limitations) | $7/month starter | Quick demos, small projects |
 | **Azure** | ✅ Yes (F1: 60 min/day) | $13/month (B1) | Enterprise, Azure ecosystem |
 | **Railway** | ✅ $5 free credit | Pay-as-you-go | Simple projects |
 | **Fly.io** | ✅ Free allowance | Pay-as-you-go | Global deployment |
@@ -967,6 +967,6 @@ After deployment:
 
 For issues or questions:
 
-- Check the [main README](../README.md)
+- Check the [main README](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot#readme)
 - Review API documentation at `/docs`
 - Open an issue on GitHub
