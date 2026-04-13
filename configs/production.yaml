@@ -50,6 +50,9 @@ rag:
   similarity_threshold: 0.01
   grounding_threshold: 0.3
 
+  # Query rewriting — LLM-powered query optimization for better retrieval
+  query_rewriting_enabled: true
+
 # ---------------------------------------------------------------------------
 # ML model configuration
 # ---------------------------------------------------------------------------

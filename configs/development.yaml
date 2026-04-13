@@ -58,6 +58,9 @@ rag:
                                  # so sigmoid values are small. 0.01 ≈ logit > -4.6.
   grounding_threshold: 0.3       # Min token-overlap for grounding check
 
+  # Query rewriting — LLM-powered query optimization for better retrieval
+  query_rewriting_enabled: true  # Rewrite queries to fix typos & improve search
+
 # ---------------------------------------------------------------------------
 # ML model configuration
 # ---------------------------------------------------------------------------

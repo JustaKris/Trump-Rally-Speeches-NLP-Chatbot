@@ -67,6 +67,7 @@ class RAGSettings(BaseSettings):
     similarity_threshold: float = Field(default=0.01, ge=0.0, le=1.0)
     guardrails_enabled: bool = True
     grounding_threshold: float = Field(default=0.3, ge=0.0, le=1.0)
+    query_rewriting_enabled: bool = True
 
 
 class ModelSettings(BaseSettings):

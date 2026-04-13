@@ -168,6 +168,7 @@ class DocumentLoader:
             chunk_overlap=chunk_overlap,
             length_function=len,
             separators=["\n\n", "\n", ". ", " ", ""],
+            keep_separator="end",
         )
 
         logger.info(

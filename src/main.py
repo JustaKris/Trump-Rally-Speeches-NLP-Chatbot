@@ -116,6 +116,7 @@ async def lifespan(app: FastAPI):
             guardrails_enabled=settings.rag.guardrails_enabled,
             similarity_threshold=settings.rag.similarity_threshold,
             grounding_threshold=settings.rag.grounding_threshold,
+            query_rewriting_enabled=settings.rag.query_rewriting_enabled,
         )
 
         # Check if collection is empty and load documents if needed

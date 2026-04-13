@@ -20,6 +20,7 @@ from .models import (
     EntityStatistics,
     SearchResult,
 )
+from .query_rewriter import QueryRewriter
 from .search_engine import SearchEngine
 
 __all__ = [
@@ -29,6 +30,7 @@ __all__ = [
     "EntityAnalyzer",
     "ConfidenceCalculator",
     "RAGGuardrails",
+    "QueryRewriter",
     # Models
     "SearchResult",
     "ContextChunk",

@@ -19,6 +19,7 @@ from .rag.confidence import ConfidenceCalculator
 from .rag.document_loader import DocumentLoader
 from .rag.entity_analyzer import EntityAnalyzer
 from .rag.guardrails import RAGGuardrails
+from .rag.query_rewriter import QueryRewriter
 from .rag.search_engine import SearchEngine
 
 # Disable ChromaDB telemetry
@@ -52,6 +53,7 @@ class RAGService:
         guardrails_enabled: bool = True,
         similarity_threshold: float = 0.01,
         grounding_threshold: float = 0.3,
+        query_rewriting_enabled: bool = True,
     ):
         """Initialize RAG service with modular components.
 
@@ -72,6 +74,7 @@ class RAGService:
             guardrails_enabled: Enable relevance filtering and grounding checks
             similarity_threshold: Min normalised relevance score to keep a result (0-1)
             grounding_threshold: Min token-overlap ratio for grounding verification (0-1)
+            query_rewriting_enabled: Enable LLM-powered query rewriting for better retrieval
         """
         self.collection_name = collection_name
         self.persist_directory = persist_directory
@@ -145,6 +148,14 @@ class RAGService:
                 similarity_threshold=similarity_threshold,
                 grounding_threshold=grounding_threshold,
             )
+
+        # Initialize query rewriter (LLM-powered query optimization)
+        self.query_rewriter: Optional[QueryRewriter] = None
+        if query_rewriting_enabled and llm_service:
+            self.query_rewriter = QueryRewriter(llm=llm_service, enabled=True)
+            logger.info("✓ Query rewriter enabled")
+        elif query_rewriting_enabled and not llm_service:
+            logger.info("Query rewriting requested but no LLM available — disabled")
 
         # Check if collection has existing data
         count = self.collection.count()
@@ -280,12 +291,13 @@ class RAGService:
 
         Pipeline:
         1. (Guardrails) Validate the incoming query
-        2. Extract entities from the question
-        3. Search for relevant context (fetch extra candidates when filtering)
-        4. (Guardrails) Filter results below the relevance threshold
-        5. Generate an answer via LLM (or extraction fallback)
-        6. (Guardrails) Verify the answer is grounded in context
-        7. Calculate confidence and build response
+        2. (Query Rewriting) Rewrite query for better retrieval
+        3. Extract entities from the question
+        4. Search for relevant context (fetch extra candidates when filtering)
+        5. (Guardrails) Filter results below the relevance threshold
+        6. Generate an answer via LLM (or extraction fallback)
+        7. (Guardrails) Verify the answer is grounded in context
+        8. Calculate confidence and build response
 
         Args:
             question: Question to answer
@@ -304,13 +316,19 @@ class RAGService:
                     entities=[], reason=rejection_reason or "Invalid query"
                 )
 
-        # Extract entities from question
+        # --- Query rewriting for better retrieval ---
+        original_question = question
+        search_query = question  # query used for search (may be rewritten)
+        if self.query_rewriter:
+            search_query = self.query_rewriter.rewrite(question)
+
+        # Extract entities from original question (user intent, not rewritten)
         entities = self.entity_analyzer.extract_entities(question)
         logger.debug(f"Extracted entities: {entities}")
 
         # Fetch extra candidates when guardrails will filter
         fetch_k = top_k * 2 if self.guardrails else top_k
-        results = self.search_engine.search(question, fetch_k)
+        results = self.search_engine.search(search_query, fetch_k)
 
         if not results:
             return self._no_relevant_info_response(
@@ -419,6 +437,16 @@ class RAGService:
             "llm_powered": self.llm is not None,
             "guardrails": guardrails_meta,
         }
+
+        # Include query rewriting metadata when the query was rewritten
+        if search_query != original_question:
+            response["query_rewriting"] = {
+                "enabled": True,
+                "original_query": original_question,
+                "rewritten_query": search_query,
+            }
+        elif self.query_rewriter:
+            response["query_rewriting"] = {"enabled": True, "rewritten": False}
 
         if entity_stats:
             response["entity_statistics"] = entity_stats
