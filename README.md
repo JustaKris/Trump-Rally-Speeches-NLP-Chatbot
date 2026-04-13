@@ -8,41 +8,38 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A full-stack NLP application built from the ground up — combining retrieval-augmented generation, hybrid search, multi-model sentiment analysis, and AI-powered topic extraction into a production-ready FastAPI service. Features semantic document chunking, pluggable LLM providers (Gemini, OpenAI, Claude), comprehensive testing, and automated deployment pipelines.
+A full-stack NLP platform built from scratch — retrieval-augmented generation with hybrid search, multi-model sentiment analysis, and AI-powered topic extraction, all wrapped in a FastAPI service with pluggable LLM providers (Gemini, OpenAI, Claude), semantic document chunking, and automated deployment pipelines.
 
-This is a portfolio project. The code is the resume. If you want to see how I think about software, architecture, and ML engineering — you're in the right place.
-
-## What Makes This Worth Looking At
-
-If you're evaluating this for an AI/ML Engineering or Senior Backend role, here's the stuff I'd want you to notice:
-
-- **Custom Semantic Chunking** — Not off-the-shelf LangChain chunking. I built a custom sentence-level embedding similarity chunker using NLTK + cosine similarity with configurable percentile-based breakpoints and automatic size constraint enforcement with tail-merging. It produces meaningfully coherent chunks instead of arbitrarily sliced text. The kind of thing that actually matters for RAG quality.
-- **Production RAG Pipeline** — Not a LangChain tutorial copy-paste. Modular components (search, confidence scoring, entity analysis, document loading) each with their own responsibilities, tests, and clean interfaces. Hybrid search combining dense embeddings, BM25 keyword matching, and cross-encoder reranking.
-- **Three-Layer RAG Guardrails** — Pre-retrieval query validation → post-retrieval relevance filtering (sigmoid-normalized cross-encoder scores with configurable threshold) → post-generation grounding verification (token-overlap heuristic). The system refuses to hallucinate: if no retrieved chunks pass the relevance gate, it says "I don't know" instead of fabricating an answer. The kind of production safety net that separates a demo from something you'd actually trust.
-- **Multi-Provider LLM Abstraction** — Factory pattern with lazy imports, abstract base class, model-agnostic config. Swap between Gemini, OpenAI, and Anthropic by changing one env var. The kind of architecture that scales when requirements change.
-- **Ensemble Sentiment Analysis** — Three models working together: FinBERT for sentiment polarity, RoBERTa for emotion detection, and an LLM for contextual interpretation. Not just "positive/negative" — actual nuanced analysis with explanations.
-- **The Engineering, Not Just the ML** — Type hints everywhere, Pydantic validation, structured logging (JSON for prod, pretty for dev), CI/CD with GitHub Actions, Docker multi-stage builds, 65%+ test coverage. The boring stuff that separates a demo from something you'd actually deploy.
+The code is the resume. If you want to see how I think about software, architecture, and ML engineering — you're in the right place.
 
 ## What's Inside
 
-### The AI Stack
+### RAG Pipeline
 
-- **RAG Q&A System** — Natural language questions over 300,000+ words using ChromaDB vector storage, MPNet embeddings (768d), and hybrid search combining semantic similarity with BM25 keyword matching
-- **Three-Layer RAG Guardrails** — Pre-retrieval validation, post-retrieval cosine similarity threshold filtering (sigmoid-normalized relevance scores), and post-generation grounding verification to prevent hallucination and ensure answers are grounded in retrieved context
-- **Semantic Document Chunking** — Custom sentence-level embedding similarity chunker (not LangChain's) that produces coherent, meaningful chunks with configurable similarity thresholds and automatic tail-merging
-- **Multi-Provider LLM Integration** — Pluggable architecture supporting Gemini, OpenAI GPT, and Anthropic Claude with a unified interface and lazy-loaded dependencies
-- **Smart Confidence Scoring** — Multi-factor calculation weighing semantic similarity, answer consistency, context coverage, and entity presence
-- **Entity Analytics Engine** — Extract entities with sentiment analysis, track co-occurrences, and map contextual associations across documents
-- **Advanced Sentiment Analysis** — Ensemble approach combining FinBERT (sentiment), RoBERTa (emotion detection), and LLM-generated contextual interpretation
-- **AI-Powered Topic Clustering** — DBSCAN semantic clustering with sentence-transformers + LLM-generated labels and summaries
+This isn't a LangChain tutorial copy-paste. It's a modular pipeline where each component (search, confidence scoring, entity analysis, document loading, guardrails, query rewriting) has its own responsibilities, tests, and clean interfaces.
 
-### The Engineering Side
+- **Hybrid Search** — Dense MPNet embeddings (768d) + BM25 keyword matching (70/30 weighting) + cross-encoder reranking for precision
+- **Three-Layer Guardrails** — Pre-retrieval query validation → post-retrieval relevance filtering (sigmoid-normalised cross-encoder scores) → post-generation grounding verification. If no chunks pass the relevance gate, it says "I don't know" instead of hallucinating
+- **Query Rewriting** — LLM-powered query cleaning (typos, abbreviations) before search. Conservative by design — no synonym expansion, no scope broadening. Deterministic rewrites at temperature=0.0
+- **Semantic Chunking** — Custom sentence-level embedding similarity chunker (not LangChain's off-the-shelf splitter). NLTK tokenisation + cosine similarity with configurable percentile-based breakpoints and tail-merging. Produces ~2,354 coherent chunks from 35 speeches
+- **Smart Confidence Scoring** — Multi-factor calculation: retrieval quality (40%), consistency (25%), coverage (20%), entity presence (15%)
+- **Entity Analytics** — Extraction with sentiment analysis, co-occurrence tracking, and speech coverage mapping
 
-- **FastAPI Backend** — 12+ RESTful endpoints with async handling, dependency injection, Pydantic validation, and comprehensive error handling
-- **Modular RAG Architecture** — Separated concerns with dedicated components for search, confidence calculation, entity analysis, and document loading
-- **Production Deployment** — Multi-stage Docker builds, Azure Web App hosting, GitHub Actions CI/CD, automated testing and security scanning
-- **Developer Experience** — Type hints throughout, structured logging (JSON for prod, pretty for dev), comprehensive documentation with MkDocs, and 65%+ test coverage
-- **Modern Python Tooling** — uv for dependency management, Ruff for linting/formatting, pytest with parametrized tests, mypy for type checking
+### Sentiment Analysis
+
+Three models working together: FinBERT for polarity, RoBERTa for emotion detection, and an LLM for contextual interpretation. Not just "positive/negative" — actual nuanced analysis with explanations.
+
+### Topic Extraction
+
+DBSCAN semantic clustering with sentence-transformers, LLM-generated topic labels and summaries, contextual snippets with keyword highlighting.
+
+### The Engineering
+
+- **Pluggable LLM Providers** — Factory pattern with lazy imports. Swap Gemini/OpenAI/Anthropic by changing one env var
+- **FastAPI Backend** — 12+ endpoints, async handling, Pydantic validation, dependency injection
+- **CI/CD** — 9 GitHub Actions workflows: tests, lint, type-check, security, Docker, docs, Azure/Render deployment
+- **Testing** — 191 tests, 66%+ coverage, parametrised test cases
+- **Modern Python** — uv, Ruff, mypy, structured logging (JSON for prod, pretty for dev), Docker multi-stage builds
 
 ## Try It Live
 
@@ -63,184 +60,27 @@ The API is deployed on Azure and ready to explore:
 >
 > **Recommended workflow:** Open the link, refresh every 30 seconds for a few minutes until the page loads successfully. Once loaded, the app is responsive.
 
-## How It Works
+## API Endpoints
 
-### RAG System Architecture
+| Endpoint | Method | Description |
+| --- | --- | --- |
+| `/rag/ask` | POST | Ask questions — returns AI-generated answers with confidence scores and source attribution |
+| `/rag/search` | POST | Semantic search over indexed documents |
+| `/rag/stats` | GET | Vector database statistics |
+| `/rag/index` | POST | Index/re-index documents |
+| `/analyze/sentiment` | POST | Multi-model sentiment analysis (FinBERT + RoBERTa + LLM) |
+| `/analyze/topics` | POST | AI-powered topic extraction with semantic clustering |
+| `/analyze/words` | POST | Word frequency analysis |
+| `/analyze/ngrams` | POST | N-gram analysis |
+| `/health` | GET | System health and service status |
+| `/config` | GET | Public runtime configuration |
+| `/diagnostics` | GET | Detailed diagnostics for troubleshooting |
 
-Built a modular question-answering system over 35 political speeches (300,000+ words) with these components:
+Interactive docs at `/docs` (Swagger) and `/redoc` (ReDoc). Web UI at `/`.
 
-**Core Services:**
+## The Dataset
 
-- **`services/rag_service.py`** — Orchestrates RAG pipeline, manages ChromaDB, coordinates components
-- **`services/llm/`** — Pluggable LLM abstraction layer supporting multiple providers (Gemini, OpenAI, Anthropic)
-  - **`base.py`** — Abstract LLMProvider interface
-  - **`factory.py`** — Factory pattern with lazy imports for optional providers
-  - **`gemini.py`** — Google Gemini implementation
-  - **`openai.py`** — OpenAI GPT models (optional dependency)
-  - **`anthropic.py`** — Anthropic Claude models (optional dependency)
-
-**Modular RAG Components** (`services/rag/`):
-
-- **`search_engine.py`** — Hybrid search combining semantic (MPNet 768d), BM25 keyword, and cross-encoder reranking
-- **`guardrails.py`** — Three-layer RAG guardrails: query validation, relevance filtering, and grounding verification
-- **`confidence.py`** — Multi-factor confidence scoring (retrieval quality, consistency, coverage, entity mentions)
-- **`entity_analyzer.py`** — Entity extraction with sentiment analysis, speech coverage, and co-occurrence analytics
-- **`document_loader.py`** — Semantic chunking with sentence-level embedding similarity and configurable breakpoints; extracts structured location/date metadata from speech filenames for richer source attribution
-- **`models.py`** — Pydantic data models for type-safe RAG operations
-
-**RAG API Endpoints:**
-
-- `POST /rag/ask` — Ask natural language questions with AI-generated answers
-- `POST /rag/search` — Semantic search over indexed documents
-- `GET /rag/stats` — Vector database statistics and health check
-- `POST /rag/index` — Index/re-index documents
-
-### 📝 Traditional NLP Endpoints
-
-**API Layer** (`api/`):
-
-- **`routes_chatbot.py`** — RAG question-answering endpoints
-- **`routes_nlp.py`** — Traditional NLP analysis endpoints
-- **`routes_health.py`** — Health checks and system status
-- **`dependencies.py`** — Dependency injection for services
-
-**Core Services:**
-
-- **`services/nlp_service.py`** — Word frequency, n-gram analysis
-- **`services/sentiment_service.py`** — Enhanced AI-powered sentiment analysis with emotion detection and contextual interpretation
-- **`services/topic_service.py`** — AI-powered topic extraction with semantic clustering and LLM-generated summaries
-
-**Additional Endpoints:**
-
-- `POST /analyze/sentiment` — Multi-model sentiment analysis (FinBERT + RoBERTa emotions + Gemini interpretation)
-- `POST /analyze/words` — Word frequency
-- `POST /analyze/topics` — AI-powered topic extraction with semantic clustering and contextual analysis
-- `POST /analyze/ngrams` — N-gram analysis
-
-### 📊 Demo Dataset
-
-35 political rally speech transcripts (2019-2020) totaling 300,000+ words — indexed in ChromaDB for RAG queries. The dataset demonstrates the system's ability to handle real-world political text with nuanced language.
-
-### 🎨 Interactive Web Interface
-
-Single-page application at the root (`/`) for testing all API features including the RAG Q&A system.
-
-### 📓 Analysis Notebooks
-
-Jupyter notebooks showcasing statistical NLP and exploratory data analysis techniques on the speech corpus.
-
-## Technical Highlights
-
-### AI/ML Engineering
-
-- **RAG Systems**: End-to-end retrieval-augmented generation with ChromaDB vector database
-- **Semantic Chunking**: Custom sentence-level embedding similarity chunker with percentile-based breakpoints and tail-merging
-- **LLM Integration**: Multi-provider abstraction layer with Gemini, OpenAI GPT, and Anthropic Claude support
-- **Design Patterns**: Factory pattern with lazy imports, abstract base classes, dependency injection
-- **Semantic Search**: Hybrid search combining dense embeddings (MPNet) and sparse retrieval (BM25)
-- **Model Selection**: Cross-encoder reranking for precision optimization
-- **Confidence Scoring**: Multi-factor confidence calculation for answer quality assessment
-- **Transformer Models**: FinBERT sentiment analysis, sentence-transformers for embeddings
-- **Entity Analytics**: NER-based entity extraction with sentiment and co-occurrence analysis
-
-### Backend Engineering
-
-- **API Development**: Production-grade FastAPI with 12+ RESTful endpoints, async request handling, modular route organization
-- **Vector Databases**: ChromaDB with persistent storage, smart deduplication, efficient querying
-- **Modular Architecture**: Separated concerns with dedicated services for search, confidence, entities, and document loading
-- **Configuration Management**: Pydantic Settings with type validation and environment-based config
-- **Production Logging**: JSON-formatted logs for cloud platforms, colored output for development
-- **Error Handling**: Graceful fallbacks, comprehensive exception handling, structured error responses
-- **Performance**: Semantic chunking for coherent retrieval, hybrid search, cross-encoder reranking
-- **Type Safety**: Full Pydantic validation, Python 3.11+ type hints throughout
-- **Dependency Injection**: Clean service initialization and testable architecture
-
-### DevOps & Quality
-
-- **Containerization**: Multi-stage Docker builds, non-root user, health checks
-- **CI/CD**: GitHub Actions with automated testing, security scanning, code quality gates
-- **Testing**: pytest with 65%+ coverage, unit and integration tests, parametrized test cases, modular component testing
-- **Code Quality**: Ruff (linting + formatting), mypy (type checking) enforced via CI
-- **Security**: pip-audit for vulnerability scanning, bandit for security analysis
-- **Documentation**: Comprehensive MkDocs site, API docs via Swagger/ReDoc, inline docstrings
-- **Observability**: Structured logging, health endpoints, startup configuration display
-
-## What You Can Ask
-
-The RAG system handles complex queries like:
-
-- *"What economic policies were discussed in the speeches?"*
-- *"How many times was Biden mentioned and in what context?"*
-- *"What did the speaker say about immigration?"*
-- *"Compare the themes between 2019 and 2020 speeches"*
-
-It retrieves relevant chunks via hybrid search, analyzes entities and sentiment, calculates multi-factor confidence scores, and generates coherent answers with source attribution.
-
-## What's New
-
-### Semantic Chunking for RAG (Recent)
-
-- **Custom Implementation**: Sentence-level embedding similarity chunker — no LangChain experimental dependency
-- **Smart Breakpoints**: Percentile-based similarity thresholds detect natural topic shifts in text
-- **Size Enforcement**: Automatic tail-merging prevents orphan chunks while respecting configurable min/max sizes
-- **Configurable**: Similarity threshold, breakpoint percentile, and chunk sizes all adjustable via YAML configs
-- **Result**: 2,354 semantically coherent chunks from 35 speeches — noticeably better retrieval quality than fixed-size chunking
-
-### LLM Provider Abstraction (Recent)
-
-- **Multi-Provider Support**: Pluggable architecture supporting Gemini, OpenAI GPT, and Anthropic Claude
-- **Model-Agnostic Configuration**: Single configuration interface for all providers (`LLM_API_KEY`, `LLM_MODEL_NAME`)
-- **Factory Pattern**: Lazy imports with optional dependencies for clean provider switching
-- **Type-Safe Interface**: Abstract base class ensuring consistent LLM behavior across providers
-- **Easy Extension**: Add new providers by implementing the `LLMProvider` interface
-
-### Enhanced AI-Powered NLP Features
-
-- **Multi-Model Sentiment Analysis**:
-  - FinBERT for sentiment classification (positive/negative/neutral)
-  - RoBERTa emotion detection (anger, joy, fear, sadness, surprise, disgust)
-  - Gemini LLM for contextual interpretation explaining WHY the models produced their results
-  - Clean UI with AI interpretation as the focal point, compact score visualization
-- **Semantic Topic Extraction**:
-  - Sentence-transformer embeddings for semantic similarity
-  - DBSCAN clustering for intelligent topic grouping
-  - LLM-generated cluster labels and comprehensive topic summaries
-  - Interactive snippets showing topic occurrences in context
-- **Centralized Configuration**: All NLP parameters (thresholds, model names, excluded verbs) configurable via environment variables
-
-### Modular RAG Architecture (Code Refactoring)
-
-- **Component Separation**: Extracted RAG functionality into dedicated, testable modules
-  - `SearchEngine`: Hybrid search with semantic, BM25, and cross-encoder reranking
-  - `ConfidenceCalculator`: Multi-factor confidence scoring
-  - `EntityAnalyzer`: Entity extraction, sentiment, and co-occurrence analysis
-  - `DocumentLoader`: Smart chunking with metadata tracking
-- **Improved Testability**: 65%+ test coverage with component-level unit tests
-- **Type Safety**: Pydantic models for all RAG data structures
-- **Maintainability**: Clear separation of concerns, easier to extend and debug
-
-### Production-Ready Logging
-
-- **Dual-format logging**: JSON for production/cloud, colored for development
-- **Automatic environment detection**: Zero configuration needed
-- **Cloud-native**: Works with Azure Application Insights, CloudWatch, ELK stack
-- **Smart filtering**: Suppresses noisy third-party library logs
-
-### Professional Configuration Management
-
-- **Type-safe settings**: Pydantic validation catches errors at startup
-- **Environment-based**: Full `.env` file support for local and cloud deployment
-- **Flexible**: Support for multiple LLM providers (Gemini, OpenAI, Anthropic)
-- **Cloud-ready**: Seamless Azure/AWS deployment with environment variables
-
-### Performance & Reliability
-
-- **Smart deduplication**: Prevents re-indexing existing ChromaDB chunks
-- **100x faster re-indexing**: Skip embedding computation for existing documents
-- **Clean logs**: No more duplicate ID warnings or telemetry errors
-- **Dependency injection**: Better testability and cleaner initialization
-
-[See full changelog](docs/CHANGELOG.md)
+35 rally speech transcripts (2019–2020), 300,000+ words, indexed as ~2,354 semantic chunks in ChromaDB. Real-world political text with nuanced language — a good stress test for NLP.
 
 ## Get Started
 
@@ -412,212 +252,89 @@ Navigate to `notebooks/` to explore statistical NLP analysis and visualizations.
 
 ## Testing & Code Quality
 
-Built with testing in mind — comprehensive test suite with pytest, automated CI/CD, and modern Python tooling.
-
-### Run Tests
-
 ```powershell
-# Install dev dependencies
-uv sync --group dev
-
-# Run all tests with coverage
-uv run pytest
-
-# Run only unit tests
-uv run pytest -m unit
-
-# Run only integration tests
-uv run pytest -m integration
-
-# Generate HTML coverage report
-uv run pytest --cov=src --cov-report=html
+uv sync --group dev        # Install dev dependencies
+uv run pytest              # Run all tests with coverage
+uv run ruff check src/     # Lint
+uv run ruff format src/    # Format
+uv run mypy src/           # Type check
+uv run bandit -r src/ -c pyproject.toml  # Security scan
 ```
 
-### Code Quality Checks
-
-```powershell
-# Format code
-uv run ruff format src/
-
-# Lint code
-uv run ruff check src/
-uv run ruff check src/ --fix  # Auto-fix issues
-
-# Type checking
-uv run mypy src/
-
-# Security scan
-uv run bandit -r src/ -c pyproject.toml
-
-# Run all checks
-uv run ruff format src/ && uv run ruff check src/ && uv run pytest
-```
+CI/CD runs 9 GitHub Actions workflows on every push: tests (Python 3.11 + 3.12), lint, type-check, security scanning, Docker build, docs deployment, and Azure/Render deployment.
 
 ### CI/CD Pipeline
 
 The project uses modular GitHub Actions workflows for continuous integration:
 
-- ✅ **Automated testing** on Python 3.11, 3.12 ([`python-tests.yml`](.github/workflows/python-tests.yml))
-- ✅ **Code quality** — Ruff linting and formatting ([`python-lint.yml`](.github/workflows/python-lint.yml))
-- ✅ **Type checking** — Mypy static analysis ([`python-typecheck.yml`](.github/workflows/python-typecheck.yml))
-- ✅ **Security scanning** — Bandit and pip-audit ([`security-audit.yml`](.github/workflows/security-audit.yml))
-- ✅ **Documentation** — Auto-deploy to GitHub Pages ([`deploy-docs.yml`](.github/workflows/deploy-docs.yml))
-- ✅ **Docker builds** — Automated image builds ([`build-push-docker.yml`](.github/workflows/build-push-docker.yml))
+- ✅ **Automated Testing** on Python 3.11, 3.12 ([`python-tests.yml`](.github/workflows/python-tests.yml))
+- ✅ **Code Quality** — Ruff linting and formatting ([`python-lint.yml`](.github/workflows/python-lint.yml))
+- ✅ **Type Checking** — Mypy static analysis ([`python-typecheck.yml`](.github/workflows/python-typecheck.yml))
+- ✅ **Security Scanning** — Bandit and pip-audit ([`security-audit.yml`](.github/workflows/security-audit.yml))
+- ✅ **Documentation Linting** — Markdownlint ([`markdown-lint.yml`](.github/workflows/markdown-lint.yml))
+- ✅ **Documentation Deployment** — Auto-deploy to GitHub Pages ([`deploy-docs.yml`](.github/workflows/deploy-docs.yml))
+- ✅ **Docker Build and Push** — Automated image build and push to DockerHub ([`build-push-docker.yml`](.github/workflows/build-push-docker.yml))
+- ✅ **Azure Deployment** — Deploy to Azure on push to main ([`deploy-azure.yml`](.github/workflows/deploy-azure.yml))
 
 For detailed testing documentation, see the [Testing Guide](https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/development/testing/).
 
-## 📦 Core Dependencies
-
-**RAG & LLM:**
-
-- `chromadb` — Vector database for embeddings
-- `google-generativeai` — Gemini LLM integration (default provider)
-- `openai` — OpenAI GPT models (optional: `uv sync --group llm-openai`)
-- `anthropic` — Anthropic Claude models (optional: `uv sync --group llm-anthropic`)
-- `sentence-transformers` — MPNet embeddings (768d)
-- `rank-bm25` — Keyword search for hybrid retrieval
-- `langchain` — Text splitting utilities
-
-**NLP & ML:**
-
-- `transformers` + `torch` — FinBERT sentiment analysis, RoBERTa emotion detection
-- `nltk` — Text preprocessing
-- `scikit-learn` — DBSCAN clustering, cosine similarity
-
-**API & Infrastructure:**
-
-- `fastapi` — REST API framework
-- `uvicorn` — ASGI server
-- `pydantic` — Data validation
-
-See `pyproject.toml` for complete dependency list.
-
-## 💡 Project Structure
+## Project Structure
 
 ```text
-Trump-Rally-Speeches-NLP-Chatbot/
-│
-├── src/                          # Production API code
-│   ├── main.py                  # Application entry point
-│   ├── api/                     # API routes and dependencies
-│   │   ├── routes_chatbot.py    #    RAG endpoints
-│   │   ├── routes_nlp.py        #    NLP analysis endpoints
-│   │   ├── routes_health.py     #    Health checks
-│   │   └── dependencies.py      #    Dependency injection
-│   ├── services/
-│   │   ├── rag_service.py       # ⭐ RAG orchestration
-│   │   ├── llm/                 # ⭐ Pluggable LLM providers
-│   │   │   ├── base.py          #    Abstract LLMProvider interface
-│   │   │   ├── factory.py       #    Factory pattern with lazy imports
-│   │   │   ├── gemini.py        #    Google Gemini implementation
-│   │   │   ├── openai.py        #    OpenAI GPT (optional)
-│   │   │   └── anthropic.py     #    Anthropic Claude (optional)
-│   │   ├── rag/                 # Modular RAG components
-│   │   │   ├── search_engine.py #    Hybrid search
-│   │   │   ├── confidence.py    #    Confidence scoring
-│   │   │   ├── entity_analyzer.py #  Entity extraction
-│   │   │   ├── document_loader.py #  Semantic chunking
-│   │   │   └── models.py        #    Pydantic data models
-│   │   ├── sentiment_service.py # Multi-model sentiment
-│   │   ├── topic_service.py     # Semantic topic extraction
-│   │   └── nlp_service.py       # Word frequency, n-grams
-│   ├── config/
-│   │   └── settings.py          # Pydantic settings
-│   ├── core/
-│   │   ├── preprocessing.py     # Text preprocessing
-│   │   └── logging_config.py    # Structured logging
-│   ├── models/                  # ML models
-│   │   └── sentiment.py         # FinBERT wrapper
-│   └── utils/
-│       └── data_loader.py       # Data loading utilities
-│
-├── data/
-│   ├── Donald Trump Rally Speeches/  # 35 speech transcripts
-│   └── chromadb/                     # Vector database persistence
-│
-├── src/
-│   └── static/
-│       └── index.html           # Web interface
-│
-├── notebooks/                   # Exploratory analysis
-│   ├── 1. Word Frequency & Topics Analysis.ipynb
-│   └── 2. Sentiment Analysis.ipynb
-├── tests/                       # pytest test suite (65%+ coverage)
-│   ├── conftest.py             # Test fixtures
-│   ├── test_rag_integration.py # RAG system tests
-│   ├── test_search_engine.py   # Hybrid search tests
-│   ├── test_confidence.py      # Confidence scoring tests
-│   └── ...                     # Additional test modules
-├── docs/                        # Documentation (MkDocs site)
-│   ├── index.md                # Docs homepage
-│   ├── guides/                 # Getting started guides
-│   ├── howto/                  # Task-oriented guides
-│   ├── reference/              # Technical reference
-│   ├── development/            # Development guides
-│   └── copilot-artifacts/      # Deep-dive educational docs
-├── .github/
-│   └── workflows/              # CI/CD pipelines
-│       ├── python-tests.yml    # Automated testing
-│       ├── python-lint.yml     # Code quality checks
-│       ├── security-audit.yml  # Security scanning
-│       └── deploy-docs.yml     # Documentation deployment
-├── configs/                     # Environment configurations
-│   ├── development.yaml
-│   ├── staging.yaml
-│   └── production.yaml
-├── Dockerfile                   # Multi-stage Docker build
-├── docker-compose.yml           # Container orchestration
-├── mkdocs.yml                   # Documentation site config
-├── pyproject.toml               # Dependencies & project metadata
-├── .env.example                 # Environment variables template
-└── LICENSE                      # MIT License
+src/
+├── main.py                      # Application entry point
+├── api/
+│   ├── routes_chatbot.py        # RAG endpoints
+│   ├── routes_nlp.py            # NLP analysis endpoints
+│   ├── routes_health.py         # Health, config, diagnostics
+│   └── dependencies.py          # Dependency injection
+├── services/
+│   ├── rag_service.py           # RAG orchestration
+│   ├── llm/                     # Pluggable LLM providers
+│   │   ├── base.py              #   Abstract interface
+│   │   ├── factory.py           #   Factory + lazy imports
+│   │   ├── gemini.py            #   Google Gemini
+│   │   ├── openai.py            #   OpenAI GPT (optional)
+│   │   └── anthropic.py         #   Anthropic Claude (optional)
+│   ├── rag/                     # Modular RAG components
+│   │   ├── search_engine.py     #   Hybrid search
+│   │   ├── guardrails.py        #   Three-layer guardrails
+│   │   ├── query_rewriter.py    #   LLM query cleaning
+│   │   ├── confidence.py        #   Multi-factor scoring
+│   │   ├── entity_analyzer.py   #   Entity extraction + analytics
+│   │   ├── document_loader.py   #   Semantic chunking + metadata
+│   │   └── models.py            #   Pydantic data models
+│   ├── sentiment_service.py     # Multi-model sentiment
+│   ├── topic_service.py         # Semantic topic extraction
+│   └── nlp_service.py           # Word frequency, n-grams
+├── config/settings.py           # Pydantic settings
+├── core/
+│   ├── preprocessing.py         # Text preprocessing
+│   └── logging_config.py        # Structured logging
+├── models/sentiment.py          # FinBERT wrapper
+├── utils/
+│   ├── embeddings.py            # Embedding utilities
+│   ├── formatters.py            # Response formatting
+│   ├── io_helpers.py            # Data loading
+│   └── text_preprocessing.py    # Text cleaning
+└── templates/index.html         # Web UI
+
+tests/                           # 191 tests, 66%+ coverage
+data/                            # Speech transcripts + ChromaDB
+configs/                         # YAML env configs (dev/staging/prod)
+docs/                            # MkDocs documentation site
 ```
 
-## 📚 Documentation
+## Documentation
 
-**📘 [Full Documentation Site](https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/)** — Complete guides, tutorials, and API reference
+**[Full Documentation Site](https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/)** — Guides, architecture diagrams, and reference docs.
 
-### View Documentation Locally (Optional)
+To run locally: `uv sync --group docs && uv run mkdocs serve --dev-addr localhost:8001`
 
-```powershell
-# Install docs dependencies
-uv sync --group docs
+## License
 
-# Serve docs with live reload (use port 8001 to avoid API conflict)
-uv run mkdocs serve --dev-addr localhost:8001
-```
-
-Then open <http://localhost:8001> in your browser.
-
-For more information on working with the documentation, see the [Documentation Guide](https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/guides/documentation/).
-
-## 📄 License
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
-Copyright © 2025 Kristiyan Bonev and contributors
-
-### Attribution
-
-This repository is for educational and portfolio purposes. The speech transcripts are publicly available data used for demonstrative NLP analysis.
-
-**Key Technologies:**
-
-- [Hugging Face Transformers](https://huggingface.co/docs/transformers/) — BERT-based models
-- [FinBERT](https://huggingface.co/ProsusAI/finbert) — Sentiment analysis
-- [sentence-transformers](https://www.sbert.net/) — MPNet embeddings
-- [ChromaDB](https://www.trychroma.com/) — Vector database
-- [FastAPI](https://fastapi.tiangolo.com/) — Modern web framework
-- [uv](https://docs.astral.sh/uv/) — Python package manager
+MIT License — see [LICENSE](LICENSE). Speech transcripts are publicly available data.
 
 ---
 
-## Get in Touch
-
-### Kristiyan Bonev
-
-- GitHub: [@JustaKris](https://github.com/JustaKris)
-- LinkedIn: [Kristiyan Bonev](https://www.linkedin.com/in/kristiyan-bonev-profile/)
-- Email: <k.s.bonev@gmail.com>
-
-Built this from scratch to explore modern NLP techniques and production ML deployment. Dive into the code, try the API, or reach out if you want to chat about RAG systems, LLM integration, or anything else!
+**Kristiyan Bonev** — [GitHub](https://github.com/JustaKris) · [LinkedIn](https://www.linkedin.com/in/kristiyan-bonev-profile/) · [k.s.bonev@gmail.com](mailto:k.s.bonev@gmail.com)
