@@ -113,7 +113,7 @@ graph TB
 
 ## Component Architecture
 
-### 1. **API Layer** (`src/api/`)
+### 1. **API Layer** (`src/speech_nlp/api/`)
 
 FastAPI application with modular route organization.
 
@@ -144,7 +144,7 @@ FastAPI application with modular route organization.
 - `/analyze/ngrams` - N-gram analysis
 - `/health` - Health check
 
-### 2. **Sentiment Analysis** (`src/services/sentiment_service.py`)
+### 2. **Sentiment Analysis** (`src/speech_nlp/services/analysis/sentiment.py`)
 
 AI-powered multi-model sentiment analysis with emotion detection and contextual interpretation.
 
@@ -209,7 +209,7 @@ flowchart LR
 }
 ```
 
-### 3. **RAG Service** (`src/services/rag_service.py`)
+### 3. **RAG Service** (`src/speech_nlp/services/rag/service.py`)
 
 Orchestrates the RAG pipeline, coordinating modular components for intelligent question answering.
 
@@ -221,15 +221,15 @@ The RAG service now uses a modular design with dedicated components:
 
 **Components Used:**
 
-- `SearchEngine` (from `services/rag/search_engine.py`)
+- `SearchEngine` (from `services/rag/search.py`)
 - `RAGGuardrails` (from `services/rag/guardrails.py`)
-- `QueryRewriter` (from `services/rag/query_rewriter.py`)
+- `QueryRewriter` (from `services/rag/rewriter.py`)
 - `ConfidenceCalculator` (from `services/rag/confidence.py`)
-- `EntityAnalyzer` (from `services/rag/entity_analyzer.py`)
-- `DocumentLoader` (from `services/rag/document_loader.py`)
+- `EntityAnalyzer` (from `services/rag/entities.py`)
+- `DocumentLoader` (from `services/rag/chunking.py`)
 - `LLMProvider` (from `services/llm/`) - Pluggable provider abstraction
 
-### 4. **LLM Service** (`src/services/llm/`)
+### 4. **LLM Service** (`src/speech_nlp/services/llm/`)
 
 Pluggable LLM provider abstraction with support for multiple AI models.
 
@@ -272,7 +272,7 @@ class LLMProvider(ABC):
 **Usage Example:**
 
 ```python
-from src.services.llm import create_llm_provider
+from speech_nlp.services.llm import create_llm_provider
 
 # Create provider based on LLM_PROVIDER env variable
 llm = create_llm_provider()
@@ -285,11 +285,11 @@ response = llm.generate_content(
 )
 ```
 
-### 5. **RAG Components** (`src/services/rag/`)
+### 5. **RAG Components** (`src/speech_nlp/services/rag/`)
 
 Modular, testable components for RAG functionality.
 
-#### 5.1 **SearchEngine** (`search_engine.py`)
+#### 5.1 **SearchEngine** (`search.py`)
 
 Hybrid search engine combining multiple retrieval strategies.
 
@@ -331,7 +331,7 @@ Multi-factor confidence scoring for RAG answers.
 - Detailed explanation
 - Individual factor scores
 
-#### 5.3 **EntityAnalyzer** (`entity_analyzer.py`)
+#### 5.3 **EntityAnalyzer** (`entities.py`)
 
 Entity extraction and statistical analysis.
 
@@ -361,7 +361,7 @@ Entity extraction and statistical analysis.
 }
 ```
 
-#### 5.4 **DocumentLoader** (`document_loader.py`)
+#### 5.4 **DocumentLoader** (`chunking.py`)
 
 Smart document loading with semantic chunking and metadata extraction.
 
@@ -393,7 +393,7 @@ Three-layer quality pipeline preventing hallucination and ensuring answer ground
 - **Layer 2 (Post-retrieval):** Sigmoid-normalised cross-encoder relevance filtering
 - **Layer 3 (Post-generation):** Token-overlap grounding verification between answer and context
 
-#### 5.6 **QueryRewriter** (`query_rewriter.py`)
+#### 5.6 **QueryRewriter** (`rewriter.py`)
 
 LLM-powered query cleaning for improved search retrieval.
 
@@ -405,7 +405,7 @@ LLM-powered query cleaning for improved search retrieval.
 - Safety guards: error fallback, length rejection, empty passthrough
 - Rewritten query drives search; original preserved for entity extraction and answer generation
 
-### 6. **Text Preprocessing** (`src/utils/text_preprocessing.py`)
+### 6. **Text Preprocessing** (`src/speech_nlp/utils/text.py`)
 
 Text cleaning and normalization utilities.
 
@@ -417,17 +417,17 @@ Text cleaning and normalization utilities.
 - URL removal
 - N-gram extraction
 
-### 7. **Utilities** (`src/utils/`)
+### 7. **Utilities** (`src/speech_nlp/utils/`)
 
 Data loading and analysis helpers.
 
 **Modules:**
 
-- `io_helpers.py` - Speech loading and dataset statistics
-- `formatters.py` - Response formatting utilities
-- `text_preprocessing.py` - Text cleaning and tokenization
+- `io.py` - Speech loading and dataset statistics
+- `formatting.py` - Response formatting utilities
+- `text.py` - Text cleaning and tokenization
 
-### 8. **AI-Powered Topic Analysis** (`src/services/topic_service.py`)
+### 8. **AI-Powered Topic Analysis** (`src/speech_nlp/services/analysis/topics.py`)
 
 Advanced topic extraction with semantic clustering and LLM-generated insights.
 
@@ -1078,7 +1078,7 @@ LLM_API_KEY=sk-your_openai_key
 LLM_MODEL_NAME=gpt-4o-mini
 
 # 3. Restart application
-uv run uvicorn src.api:app --reload
+uv run uvicorn speech_nlp.app:app --reload
 ```
 
 **From Gemini to Anthropic:**
@@ -1093,7 +1093,7 @@ LLM_API_KEY=sk-ant-your_anthropic_key
 LLM_MODEL_NAME=claude-3-5-sonnet-20241022
 
 # 3. Restart application
-uv run uvicorn src.api:app --reload
+uv run uvicorn speech_nlp.app:app --reload
 ```
 
 ### Benefits

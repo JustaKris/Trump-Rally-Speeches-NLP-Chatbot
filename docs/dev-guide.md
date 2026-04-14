@@ -45,10 +45,10 @@ LLM_API_KEY=your_gemini_api_key_here
 
 ```powershell
 # Start the dev server with hot reload
-uv run uvicorn src.main:app --reload
+uv run uvicorn speech_nlp.app:app --reload
 
 # Or bind to all interfaces (useful for testing on a local network)
-uv run uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+uv run uvicorn speech_nlp.app:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 Once running:
@@ -168,17 +168,15 @@ Set `ENVIRONMENT=staging` or `ENVIRONMENT=production` to switch config files.
 ## Project Structure (Key Paths)
 
 ```text
-src/
-  main.py                   # App entry point, startup hooks
-  api/                      # FastAPI route handlers
+src/speech_nlp/
+  app.py                     # Application entry point, startup hooks
+  api/                       # FastAPI route handlers
   services/
-    rag_service.py           # RAG pipeline orchestrator
-    rag/                     # Search, chunking, confidence, entity analysis
+    rag/                     # RAG orchestrator, search, chunking, confidence, entities
     llm/                     # Pluggable LLM providers (Gemini, OpenAI, Anthropic)
-    sentiment_service.py     # FinBERT + RoBERTa + LLM sentiment
-    topic_service.py         # Semantic topic clustering
-  config/settings.py         # Pydantic settings (all config fields live here)
-  models/schemas.py          # Pydantic request/response models
+    analysis/                # Sentiment, topics, text processing
+  config/                    # Pydantic settings + structured logging
+  schemas/                   # Request/response models
   templates/index.html       # Single-page frontend
 data/
   chromadb/                  # Persisted vector store

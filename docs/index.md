@@ -9,7 +9,7 @@ git clone https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot.git
 cd Trump-Rally-Speeches-NLP-Chatbot
 uv sync
 cp .env.example .env  # Add your LLM_API_KEY
-uv run uvicorn src.main:app --reload
+uv run uvicorn speech_nlp.app:app --reload
 ```
 
 → **[Full Quickstart Guide](guides/quickstart.md)** | **[Developer Guide](dev-guide.md)** (daily reference)

@@ -14,7 +14,7 @@ uv run ruff format src/ scripts/ tests/
 uv run ruff format --check src/ scripts/ tests/
 
 # Format specific files
-uv run ruff format src/tv_hml/config/schema.py
+uv run ruff format src/speech_nlp/config/settings.py
 ```
 
 ## Ruff Formatter
@@ -267,11 +267,11 @@ import pandas as pd
 import numpy as np
 from pydantic import BaseModel
 
-from tv_hml.config.schema import Settings
-from tv_hml.utils.calendar import get_days_in_month
+from speech_nlp.config.schema import Settings
+from speech_nlp.utils.calendar import get_days_in_month
 
 # Bad - mixed order
-from tv_hml.config.schema import Settings
+from speech_nlp.config.schema import Settings
 import pandas as pd
 import os
 from pydantic import BaseModel

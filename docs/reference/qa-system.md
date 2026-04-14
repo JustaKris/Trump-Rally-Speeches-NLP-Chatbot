@@ -54,7 +54,7 @@ cp .env.example .env
 # Edit .env: Set LLM_API_KEY and LLM_PROVIDER
 
 # Run the server
-uv run uvicorn src.main:app --reload
+uv run uvicorn speech_nlp.app:app --reload
 ```
 
 API available at `http://localhost:8000`.
@@ -89,7 +89,7 @@ Set `LLM_PROVIDER=openai` or `LLM_PROVIDER=anthropic` in `.env` after installing
 
 **Orchestration:**
 
-- **`RAGService`** (`services/rag_service.py`) - Manages ChromaDB collection and coordinates components
+- **`RAGService`** (`services/rag/service.py`) - Manages ChromaDB collection and coordinates components
 
 **Specialized Services** (`services/rag/`):
 
@@ -536,7 +536,7 @@ LLM_MODEL_NAME=gemini-2.0-flash-exp
 ### RAGService Parameters
 
 ```python
-from src.services.rag_service import RAGService
+from speech_nlp.services.rag.service import RAGService
 
 rag = RAGService(
     collection_name="speeches",
@@ -675,25 +675,25 @@ uv run pytest tests/test_entity_analyzer.py -v
 uv run pytest tests/test_confidence.py -v
 
 # Run all RAG-related tests with coverage
-uv run pytest tests/test_*rag*.py tests/test_*search*.py tests/test_*entity*.py tests/test_*confidence*.py --cov=src.services.rag --cov=src.services.rag_service
+uv run pytest tests/test_*rag*.py tests/test_*search*.py tests/test_*entity*.py tests/test_*confidence*.py --cov=speech_nlp.services.rag
 ```
 
 ### Code Quality
 
 ```bash
 # Lint and format
-uv run ruff check src/services/rag_service.py src/services/rag/
-uv run ruff format src/services/rag_service.py src/services/rag/
+uv run ruff check src/speech_nlp/services/rag/
+uv run ruff format src/speech_nlp/services/rag/
 
 # Type checking
-uv run mypy src/services/rag_service.py src/services/rag/
+uv run mypy src/speech_nlp/services/rag/
 ```
 
 ### Local Development
 
 ```bash
 # Run with hot reload
-uv run uvicorn src.main:app --reload --log-level debug
+uv run uvicorn speech_nlp.app:app --reload --log-level debug
 
 # Test RAG endpoint manually
 curl -X POST http://localhost:8000/rag/ask \
@@ -718,7 +718,7 @@ logging:
 **Inspect retrieved chunks:**
 
 ```python
-from src.services.rag_service import RAGService
+from speech_nlp.services.rag.service import RAGService
 
 rag = RAGService()
 results = rag.search("immigration policy", top_k=5)

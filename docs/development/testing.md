@@ -143,7 +143,7 @@ def test_example(temp_data_dir, test_settings):
 
 ```python
 import pytest
-from tv_hml.utils.calendar import get_days_in_month
+from speech_nlp.utils.calendar import get_days_in_month
 
 class TestCalendarFunctions:
     """Test calendar utility functions."""
@@ -165,8 +165,8 @@ class TestCalendarFunctions:
 ### Integration Test Example
 
 ```python
-from tv_hml.config.schema import Settings
-from tv_hml.utils.directory import DirectoryManager
+from speech_nlp.config.schema import Settings
+from speech_nlp.utils.directory import DirectoryManager
 
 class TestConfigurationIntegration:
     """Test integration between config and directory management."""
@@ -234,7 +234,7 @@ class TestS3Download:
 ### Current Coverage by Module
 
 | Module | Coverage | Status | Priority |
-|--------|----------|--------|----------|
+| -------- | ---------- | -------- | ---------- |
 | `utils.calendar` | 100% | ✅ Complete | - |
 | `utils.exceptions` | 100% | ✅ Complete | - |
 | `utils.types` | 100% | ✅ Complete | - |
@@ -322,7 +322,7 @@ markers = [
 
 ### Common Issues
 
-**Issue**: `ModuleNotFoundError: No module named 'tv_hml'`
+**Issue**: `ModuleNotFoundError: No module named 'speech_nlp'`
 
 ```powershell
 # Install package in editable mode

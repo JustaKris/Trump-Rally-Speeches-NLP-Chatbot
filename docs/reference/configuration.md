@@ -6,7 +6,7 @@ This project uses **Pydantic Settings v2** for type-safe configuration, combinin
 
 ### Core Components
 
-1. **`src/config/settings.py`** - Central configuration module with `Settings` class
+1. **`src/speech_nlp/config/settings.py`** - Central configuration module with `Settings` class
 2. **YAML config files** in `configs/` (e.g., `configs/development.yaml`, `configs/production.yaml`)
 3. **`.env` file** - Environment variables for sensitive values and overrides
 4. **Validation** - Automatic type checking and validation via Pydantic
@@ -89,7 +89,7 @@ LLM_MODEL_NAME=claude-3-5-sonnet-20241022
 ### 4. Run the Application
 
 ```bash
-uv run uvicorn src.api:app --host 0.0.0.0 --port 8000 --reload
+uv run uvicorn speech_nlp.app:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 The app will automatically:
@@ -205,7 +205,7 @@ LLM_ENABLED="false"
 3. **Restart application**:
 
    ```bash
-   uv run uvicorn src.api:app --reload
+   uv run uvicorn speech_nlp.app:app --reload
    ```
 
 The application will automatically use the new provider without code changes.
@@ -391,7 +391,7 @@ api:
 ### Accessing Settings
 
 ```python
-from src.config.settings import get_settings
+from speech_nlp.config.settings import get_settings
 
 settings = get_settings()
 
@@ -429,7 +429,7 @@ settings.setup_logging()
 
 ## Logging Configuration
 
-The project uses `src/logging_config.py` for production-ready logging with automatic format detection.
+The project uses `src/speech_nlp/config/logging.py` for production-ready logging with automatic format detection.
 
 ### Log Levels
 
@@ -446,8 +446,8 @@ The project uses `src/logging_config.py` for production-ready logging with autom
 Automatically enabled when `ENVIRONMENT=development`:
 
 ```text
-2025-11-04 12:34:56 | INFO     | src.api              | Application startup complete
-2025-11-04 12:34:57 | DEBUG    | src.rag_service      | Performing hybrid search
+2025-11-04 12:34:56 | INFO     | speech_nlp.app       | Application startup complete
+2025-11-04 12:34:57 | DEBUG    | speech_nlp.services.rag | Performing hybrid search
 ```
 
 - ANSI colors by level (green=INFO, red=ERROR, etc.)
@@ -459,8 +459,8 @@ Automatically enabled when `ENVIRONMENT=development`:
 Automatically enabled when `ENVIRONMENT=production`:
 
 ```json
-{"timestamp": "2025-11-04 12:34:56", "level": "INFO", "name": "src.api", "message": "Application startup complete"}
-{"timestamp": "2025-11-04 12:34:57", "level": "DEBUG", "name": "src.rag_service", "message": "Performing hybrid search"}
+{"timestamp": "2025-11-04 12:34:56", "level": "INFO", "name": "speech_nlp.app", "message": "Application startup complete"}
+{"timestamp": "2025-11-04 12:34:57", "level": "DEBUG", "name": "speech_nlp.services.rag", "message": "Performing hybrid search"}
 ```
 
 - Machine-parseable JSON
@@ -589,7 +589,7 @@ ERROR: ValidationError: 1 validation error for Settings
 
 ```bash
 # Check if API key is set
-python -c "from src.config.settings import get_settings; print(get_settings().get_llm_api_key())"
+python -c "from speech_nlp.config.settings import get_settings; print(get_settings().get_llm_api_key())"
 ```
 
 ## Migration from Old Code
@@ -606,7 +606,7 @@ api_key = os.getenv("GEMINI_API_KEY")
 **After:**
 
 ```python
-from src.config import get_settings
+from speech_nlp.config import get_settings
 settings = get_settings()
 api_key = settings.gemini_api_key  # Type-safe!
 ```

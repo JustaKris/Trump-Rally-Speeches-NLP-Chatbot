@@ -162,7 +162,7 @@ POST /analyze/sentiment
 **Parameters:**
 
 | Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
+| ----------- | ------ | ---------- | ------------- |
 | `text` | string | Yes | Text to analyze (any length) |
 
 ### Response
@@ -195,7 +195,7 @@ POST /analyze/sentiment
 **Fields Explained:**
 
 | Field | Type | Description |
-|-------|------|-------------|
+| ------- | ------ | ------------- |
 | `sentiment` | string | Dominant sentiment: "positive", "negative", or "neutral" |
 | `confidence` | float | Confidence score (0-1) for dominant sentiment |
 | `scores` | object | Probability distribution across all sentiments |
@@ -484,7 +484,7 @@ cp .env.example .env
 # Edit .env and add your LLM_API_KEY
 
 # Run the API server
-uv run uvicorn src.main:app --reload
+uv run uvicorn speech_nlp.app:app --reload
 ```
 
 The API will be available at `http://localhost:8000`.
@@ -515,7 +515,7 @@ LLM_MODEL_NAME=gemini-2.0-flash-exp  # Or gemini-2.5-flash
 You can override default models in code:
 
 ```python
-from src.services.sentiment_service import EnhancedSentimentAnalyzer
+from speech_nlp.services.analysis.sentiment import EnhancedSentimentAnalyzer
 
 analyzer = EnhancedSentimentAnalyzer(
     sentiment_model="distilbert-base-uncased-finetuned-sst-2-english",  # Generic sentiment
@@ -632,7 +632,7 @@ def analyze_sentiment_by_topic(text):
 uv run pytest tests/test_confidence.py -v
 
 # Run with coverage
-uv run pytest tests/test_confidence.py --cov=src.services.sentiment_service
+uv run pytest tests/test_confidence.py --cov=speech_nlp.services.analysis.sentiment
 
 # Run all NLP tests
 uv run pytest tests/test_*.py -k sentiment
@@ -642,18 +642,18 @@ uv run pytest tests/test_*.py -k sentiment
 
 ```bash
 # Lint and format code
-uv run ruff check src/services/sentiment_service.py
-uv run ruff format src/services/sentiment_service.py
+uv run ruff check src/speech_nlp/services/analysis/sentiment.py
+uv run ruff format src/speech_nlp/services/analysis/sentiment.py
 
 # Type checking
-uv run mypy src/services/sentiment_service.py
+uv run mypy src/speech_nlp/services/analysis/sentiment.py
 ```
 
 ### Local Development
 
 ```bash
 # Run with hot reload
-uv run uvicorn src.main:app --reload --log-level debug
+uv run uvicorn speech_nlp.app:app --reload --log-level debug
 
 # Test endpoint manually
 curl -X POST http://localhost:8000/analyze/sentiment \
@@ -686,7 +686,7 @@ curl -X POST http://localhost:8000/analyze/sentiment \
 
    ```bash
    # View logs in development
-   uv run uvicorn src.main:app --log-level debug
+   uv run uvicorn speech_nlp.app:app --log-level debug
    ```
 
 2. **Check available memory:** Models require ~770 MB + overhead
@@ -709,7 +709,7 @@ curl -X POST http://localhost:8000/analyze/sentiment \
 
    ```bash
    # Kill existing process and restart
-   uv run uvicorn src.main:app --reload
+   uv run uvicorn speech_nlp.app:app --reload
    ```
 
 ### Empty or Missing Contextual Interpretation

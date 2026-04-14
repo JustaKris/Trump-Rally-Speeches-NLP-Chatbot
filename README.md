@@ -161,7 +161,7 @@ Interactive docs at `/docs` (Swagger) and `/redoc` (ReDoc). Web UI at `/`.
 3. **Start the FastAPI server**
 
    ```powershell
-   uv run uvicorn src.main:app --reload
+   uv run uvicorn speech_nlp.app:app --reload
    ```
 
 4. **Access the application**
@@ -281,43 +281,49 @@ For detailed testing documentation, see the [Testing Guide](https://justakris.gi
 ## Project Structure
 
 ```text
-src/
-├── main.py                      # Application entry point
+src/speech_nlp/
+├── app.py                       # Application entry point
+├── constants.py                 # Application-wide constants
+├── exceptions.py                # Custom exception classes
+├── security.py                  # API key + input sanitization
 ├── api/
-│   ├── routes_chatbot.py        # RAG endpoints
-│   ├── routes_nlp.py            # NLP analysis endpoints
-│   ├── routes_health.py         # Health, config, diagnostics
+│   ├── chatbot.py               # RAG endpoints
+│   ├── analysis.py              # NLP analysis endpoints
+│   ├── health.py                # Health, config, diagnostics
 │   └── dependencies.py          # Dependency injection
+├── config/
+│   ├── settings.py              # Pydantic settings
+│   └── logging.py               # Structured logging (JSON + color)
+├── schemas/
+│   ├── requests.py              # API request models
+│   └── responses.py             # API response models
 ├── services/
-│   ├── rag_service.py           # RAG orchestration
 │   ├── llm/                     # Pluggable LLM providers
 │   │   ├── base.py              #   Abstract interface
 │   │   ├── factory.py           #   Factory + lazy imports
 │   │   ├── gemini.py            #   Google Gemini
 │   │   ├── openai.py            #   OpenAI GPT (optional)
 │   │   └── anthropic.py         #   Anthropic Claude (optional)
-│   ├── rag/                     # Modular RAG components
-│   │   ├── search_engine.py     #   Hybrid search
+│   ├── rag/                     # RAG pipeline components
+│   │   ├── service.py           #   RAG orchestrator
+│   │   ├── search.py            #   Hybrid search
 │   │   ├── guardrails.py        #   Three-layer guardrails
-│   │   ├── query_rewriter.py    #   LLM query cleaning
+│   │   ├── rewriter.py          #   LLM query cleaning
 │   │   ├── confidence.py        #   Multi-factor scoring
-│   │   ├── entity_analyzer.py   #   Entity extraction + analytics
-│   │   ├── document_loader.py   #   Semantic chunking + metadata
-│   │   └── models.py            #   Pydantic data models
-│   ├── sentiment_service.py     # Multi-model sentiment
-│   ├── topic_service.py         # Semantic topic extraction
-│   └── nlp_service.py           # Word frequency, n-grams
-├── config/settings.py           # Pydantic settings
-├── core/
-│   ├── preprocessing.py         # Text preprocessing
-│   └── logging_config.py        # Structured logging
-├── models/sentiment.py          # FinBERT wrapper
+│   │   ├── entities.py          #   Entity extraction + analytics
+│   │   ├── chunking.py          #   Semantic chunking + metadata
+│   │   └── models.py            #   Internal domain models
+│   └── analysis/
+│       ├── sentiment.py         # Multi-model sentiment
+│       ├── topics.py            # Semantic topic extraction
+│       └── text.py              # Word frequency, n-grams
 ├── utils/
 │   ├── embeddings.py            # Embedding utilities
-│   ├── formatters.py            # Response formatting
-│   ├── io_helpers.py            # Data loading
-│   └── text_preprocessing.py    # Text cleaning
-└── templates/index.html         # Web UI
+│   ├── formatting.py            # Response formatting
+│   ├── io.py                    # Data loading
+│   └── text.py                  # Text cleaning
+├── templates/index.html         # Web UI
+└── static/                      # CSS + images
 
 tests/                           # 191 tests, 66%+ coverage
 data/                            # Speech transcripts + ChromaDB

@@ -276,7 +276,7 @@ If interpretations are still truncated, increase to 3000 or 4000.
 Another application is using port 8000. Run on a different port:
 
 ```bash
-uv run uvicorn src.main:app --port 8001
+uv run uvicorn speech_nlp.app:app --port 8001
 ```
 
 ---
@@ -311,13 +311,13 @@ uv run ruff check . --fix
 
 ### How do I add a new LLM provider?
 
-1. Create `src/services/llm/your_provider.py`
+1. Create `src/speech_nlp/services/llm/your_provider.py`
 2. Implement the `LLMProvider` abstract base class
 3. Add to `factory.py` provider mapping
 4. Add dependency to `pyproject.toml` in a new optional group
 5. Update documentation
 
-See [`anthropic.py`](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot/blob/main/src/services/llm/anthropic.py) as an example.
+See [`anthropic.py`](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot/blob/main/src/speech_nlp/services/llm/anthropic.py) as an example.
 
 ### How is logging configured?
 
@@ -326,7 +326,7 @@ The application uses structured logging:
 - **Development:** Pretty colored output with loguru-style formatting
 - **Production:** JSON format for log aggregation (ELK, CloudWatch, etc.)
 
-Configured in [`src/core/logging_config.py`](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot/blob/main/src/core/logging_config.py)
+Configured in [`src/speech_nlp/config/logging.py`](https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot/blob/main/src/speech_nlp/config/logging.py)
 
 ---
 
@@ -455,7 +455,7 @@ Email: <k.s.bonev@gmail.com> (do not open public issues for security vulnerabili
 
 1. **Start with basics** - Review [quickstart.md](../guides/quickstart.md) and run locally
 2. **Explore architecture** - Read [architecture.md](architecture.md) with diagrams
-3. **Study components** - Review modular RAG components in `src/services/rag/`
+3. **Study components** - Review modular RAG components in `src/speech_nlp/services/rag/`
 4. **Run tests** - See how components are tested in isolation
 5. **Try modifications** - Swap datasets, change parameters, add features
 6. **Deploy** - Follow [deployment.md](../guides/deployment.md) to deploy your own instance

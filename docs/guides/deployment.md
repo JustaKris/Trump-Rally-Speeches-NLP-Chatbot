@@ -84,10 +84,10 @@ This guide covers deploying the Trump Speeches NLP Chatbot API to various platfo
 
    ```powershell
    # Run the API server
-   uv run uvicorn src.main:app --reload
+   uv run uvicorn speech_nlp.app:app --reload
    
    # Run with custom host and port
-   uv run uvicorn src.main:app --host 0.0.0.0 --port 8001 --reload
+   uv run uvicorn speech_nlp.app:app --host 0.0.0.0 --port 8001 --reload
    
    # Run tests
    uv run pytest
@@ -894,10 +894,10 @@ After fixing, verify it parses correctly:
 
 ```powershell
 # Run without Docker to test locally first
-uv run uvicorn src.main:app --reload
+uv run uvicorn speech_nlp.app:app --reload
 
 # Or test the config in Python
-uv run python -c "from src.config.settings import get_settings; s = get_settings(); print(f'Environment: {s.environment}, Log Level: {s.log_level}')"
+uv run python -c "from speech_nlp.config.settings import get_settings; s = get_settings(); print(f'Environment: {s.environment}, Log Level: {s.log_level}')"
 ```
 
 Then try Docker again:

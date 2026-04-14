@@ -6,7 +6,7 @@ All notable changes to the Trump Speeches NLP Chatbot.
 
 ### Added — RAG Guardrails
 
-**Module: `src/services/rag/guardrails.py`**
+**Module: `src/speech_nlp/services/rag/guardrails.py`**
 
 Three-layer input validation pipeline running before retrieval:
 
@@ -18,7 +18,7 @@ Rejected queries return a structured response with a clear reason rather than a 
 
 ### Added — Query Rewriting
 
-**Module: `src/services/rag/query_rewriter.py`**
+**Module: `src/speech_nlp/services/rag/rewriter.py`**
 
 LLM-powered query cleaner running between guardrails and retrieval:
 
@@ -29,7 +29,7 @@ LLM-powered query cleaner running between guardrails and retrieval:
 
 ### Enhanced — Semantic Chunking
 
-**Module: `src/services/rag/document_loader.py`**
+**Module: `src/speech_nlp/services/rag/chunking.py`**
 
 Replaced fixed-size text splitting with semantic boundary detection:
 
@@ -52,7 +52,7 @@ Replaced fixed-size text splitting with semantic boundary detection:
 
 ### Added — Pluggable LLM Provider Architecture
 
-**Modules: `src/services/llm/`**
+**Modules: `src/speech_nlp/services/llm/`**
 
 Unified interface for multiple LLM providers:
 
@@ -89,7 +89,7 @@ LLM_MODEL_NAME=gpt-4o-mini
 
 ### Added — Multi-Model Sentiment Analysis
 
-**Module: `src/services/sentiment_service.py`**
+**Module: `src/speech_nlp/services/analysis/sentiment.py`**
 
 Three-model ensemble replacing the previous single-model approach:
 
@@ -101,7 +101,7 @@ Response now includes emotion probabilities, sentiment confidence, and an AI-gen
 
 ### Added — AI Topic Analysis with Semantic Clustering
 
-**Module: `src/services/topic_service.py`**
+**Module: `src/speech_nlp/services/analysis/topics.py`**
 
 Replaced keyword frequency counting with semantic clustering:
 
@@ -114,19 +114,19 @@ Replaced keyword frequency counting with semantic clustering:
 
 ### Added — Modular RAG Architecture
 
-**Modules: `src/services/rag/`**
+**Modules: `src/speech_nlp/services/rag/`**
 
 Refactored monolithic RAG service into independently testable components:
 
-- `search_engine.py` — Hybrid search (semantic + BM25 + cross-encoder reranking)
+- `search.py` — Hybrid search (semantic + BM25 + cross-encoder reranking)
 - `confidence.py` — Multi-factor confidence scoring (retrieval quality, consistency, coverage, entity mentions)
-- `entity_analyzer.py` — Entity extraction, sentiment, and co-occurrence analytics
-- `document_loader.py` — Chunking with metadata
+- `entities.py` — Entity extraction, sentiment, and co-occurrence analytics
+- `chunking.py` — Chunking with metadata
 - `models.py` — Pydantic models for type-safe RAG operations
 
 ### Added — Production Logging
 
-**Module: `src/core/logging_config.py`**
+**Module: `src/speech_nlp/config/logging.py`**
 
 - JSON format in production (compatible with Azure Application Insights, CloudWatch, ELK)
 - Coloured output in development
@@ -135,7 +135,7 @@ Refactored monolithic RAG service into independently testable components:
 
 ### Added — Configuration Management
 
-**Module: `src/config/settings.py`**
+**Module: `src/speech_nlp/config/settings.py`**
 
 Pydantic Settings-based configuration system:
 

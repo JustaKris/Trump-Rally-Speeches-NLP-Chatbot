@@ -6,7 +6,7 @@
 
 ## Overview
 
-The project uses a centralized logging configuration (`src/core/logging_config.py`) that provides:
+The project uses a centralized logging configuration (`src/speech_nlp/config/logging.py`) that provides:
 
 - **JSON logging** for production/cloud environments (Azure, Docker)
 - **Colorized console logging** for local development
@@ -35,7 +35,7 @@ The FastAPI app automatically configures logging based on settings:
 
 ```python
 # In your own scripts
-from src.config.settings import get_settings
+from speech_nlp.config.settings import get_settings
 
 settings = get_settings()
 settings.setup_logging()  # Configures based on environment
@@ -46,7 +46,7 @@ settings.setup_logging()  # Configures based on environment
 ### Log Levels
 
 | Level | When to Use |
-|-------|-------------|
+| ------- | ------------- |
 | `DEBUG` | Detailed diagnostic information (variable values, flow control) |
 | `INFO` | General operational messages (process started, completed, counts) |
 | `WARNING` | Potentially problematic situations (missing optional files, degraded performance) |
@@ -64,10 +64,10 @@ configure_logging(level="INFO", use_json=False)
 **Output:**
 
 ```text
-2025-12-08 14:32:15 | INFO     | src.services.rag_service | Initializing RAG service with hybrid search
-2025-12-08 14:32:16 | INFO     | src.services.rag_service | Loaded 35 documents from corpus
-2025-12-08 14:32:17 | WARNING  | src.services.llm.gemini  | Rate limit approaching, adding delay
-2025-12-08 14:32:18 | ERROR    | src.services.sentiment_service | Failed to load emotion model: ModelNotFound
+2025-12-08 14:32:15 | INFO     | speech_nlp.services.rag.service | Initializing RAG service with hybrid search
+2025-12-08 14:32:16 | INFO     | speech_nlp.services.rag.service | Loaded 35 documents from corpus
+2025-12-08 14:32:17 | WARNING  | speech_nlp.services.llm.gemini  | Rate limit approaching, adding delay
+2025-12-08 14:32:18 | ERROR    | speech_nlp.services.analysis.sentiment | Failed to load emotion model: ModelNotFound
 ```
 
 **Features:**
@@ -86,8 +86,8 @@ configure_logging(level="INFO", use_json=True)
 **Output:**
 
 ```json
-{"timestamp": "2025-12-08 14:32:15", "level": "INFO", "logger": "src.services.rag_service", "message": "Initializing RAG service", "module": "rag_service", "process": 12345, "thread": 67890}
-{"timestamp": "2025-12-08 14:32:16", "level": "INFO", "logger": "src.services.rag_service", "message": "Loaded 35 documents", "module": "rag_service", "process": 12345, "thread": 67890}
+{"timestamp": "2025-12-08 14:32:15", "level": "INFO", "logger": "speech_nlp.services.rag.service", "message": "Initializing RAG service", "module": "rag_service", "process": 12345, "thread": 67890}
+{"timestamp": "2025-12-08 14:32:16", "level": "INFO", "logger": "speech_nlp.services.rag.service", "message": "Loaded 35 documents", "module": "rag_service", "process": 12345, "thread": 67890}
 ```
 
 **Features:**
@@ -265,11 +265,11 @@ logging.getLogger("some_noisy_library").setLevel(logging.ERROR)
 **Old Code (`logger.py`):**
 
 ```python
-from ayne.tv_hml.utils.logger import setup_logger, get_logger
+from speech_nlp.utils.logger import setup_logger, get_logger
 
 # Setup with file handler
 logger = setup_logger(
-    name="tv_hml.module",
+    name="speech_nlp.module",
     level=logging.INFO,
     log_file="logs/module.log",
     console=True
@@ -279,7 +279,7 @@ logger = setup_logger(
 **New Code (`logging.py`):**
 
 ```python
-from ayne.tv_hml.utils.logging import configure_logging, get_logger
+from speech_nlp.config.logging import configure_logging, get_logger
 
 # Configure once at app startup
 configure_logging(level="INFO", use_json=False)
@@ -291,7 +291,7 @@ logger = get_logger(__name__)
 ### Key Differences
 
 | Feature | Old (`logger.py`) | New (`logging.py`) |
-|---------|-------------------|-------------------|
+| --------- | ------------------- | ------------------- |
 | Configuration | Per-module setup | Global configuration |
 | Format | Console only | JSON or colorized |
 | Filtering | Manual | Automatic for known libraries |
@@ -390,4 +390,4 @@ if __name__ == "__main__":
 ---
 
 **Last Updated:** November 19, 2025  
-**Logging Module:** `src/tv_hml/utils/logging.py`
+**Logging Module:** `src/speech_nlp/config/logging.py`

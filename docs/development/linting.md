@@ -41,7 +41,7 @@ uv run ruff format --check src/ scripts/ tests/
 uv run ruff format src/ scripts/ tests/
 
 # Lint specific files
-uv run ruff check src/services/rag_service.py
+uv run ruff check src/speech_nlp/services/rag/service.py
 
 # Show detailed output
 uv run ruff check src/ --output-format=full
@@ -241,8 +241,8 @@ import numpy as np
 from pydantic import BaseModel
 
 # Local
-from tv_hml.config.schema import Settings
-from tv_hml.utils.calendar import get_days_in_month
+from speech_nlp.config.schema import Settings
+from speech_nlp.utils.calendar import get_days_in_month
 ```
 
 ## Running All Checks

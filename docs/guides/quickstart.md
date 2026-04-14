@@ -35,7 +35,7 @@ Get the Trump Speeches NLP Chatbot API running locally in minutes.
 3. **Run the API**
 
    ```powershell
-   uv run uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+   uv run uvicorn speech_nlp.app:app --host 0.0.0.0 --port 8000 --reload
    ```
 
    The API will automatically:
@@ -50,12 +50,12 @@ Get the Trump Speeches NLP Chatbot API running locally in minutes.
    **Expected startup output**:
 
    ```text
-   2025-11-04 12:34:56 | INFO     | src.api              | Application: Trump Speeches NLP Chatbot API v0.1.0
-   2025-11-04 12:34:56 | INFO     | src.api              | Environment: development
-   2025-11-04 12:34:56 | INFO     | src.api              | ✓ Sentiment analysis model loaded successfully
-   2025-11-04 12:34:57 | INFO     | src.api              | ✓ LLM service initialized and tested successfully
-   2025-11-04 12:34:58 | INFO     | src.api              | ✓ RAG service initialized with 1082 existing chunks
-   2025-11-04 12:34:58 | INFO     | src.api              | Application startup complete
+   2025-11-04 12:34:56 | INFO     | speech_nlp.app       | Application: Trump Speeches NLP Chatbot API v0.1.0
+   2025-11-04 12:34:56 | INFO     | speech_nlp.app       | Environment: development
+   2025-11-04 12:34:56 | INFO     | speech_nlp.app       | ✓ Sentiment analysis model loaded successfully
+   2025-11-04 12:34:57 | INFO     | speech_nlp.app       | ✓ LLM service initialized and tested successfully
+   2025-11-04 12:34:58 | INFO     | speech_nlp.app       | ✓ RAG service initialized with 1082 existing chunks
+   2025-11-04 12:34:58 | INFO     | speech_nlp.app       | Application startup complete
    ```
 
 4. **Access the Application**
@@ -192,7 +192,7 @@ See the [FAQ](../reference/faq.md#how-do-i-switch-from-gemini-to-openai) for ins
 ### Port Already in Use
 
 ```powershell
-uv run uvicorn src.api:app --reload --port 8001
+uv run uvicorn speech_nlp.app:app --reload --port 8001
 ```
 
 ### Module Not Found

@@ -96,7 +96,7 @@ cp .env.example .env
 # Edit .env: Set LLM_API_KEY and LLM_PROVIDER
 
 # Run the server
-uv run uvicorn src.main:app --reload
+uv run uvicorn speech_nlp.app:app --reload
 ```
 
 API available at `http://localhost:8000`.
@@ -193,7 +193,7 @@ async function analyzeTopics(text) {
 ### Request Parameters
 
 | Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
+| ----------- | ------ | --------- | ------------- |
 | `text` | string | required | Text to analyze (in request body) |
 | `top_n` | integer | 10 | Number of topic clusters to return (query param) |
 | `num_clusters` | integer | auto | Number of clusters 3-6, auto-determined (query param) |
@@ -444,7 +444,7 @@ LLM_PROVIDER=gemini
 uv run pytest tests/test_topic_service.py -v
 
 # Run with coverage
-uv run pytest tests/test_topic_service.py --cov=src.services.topic_service
+uv run pytest tests/test_topic_service.py --cov=speech_nlp.services.analysis.topics
 
 # Test topic extraction specifically
 uv run pytest tests/test_topic_service.py::test_extract_topics_enhanced -v
@@ -454,18 +454,18 @@ uv run pytest tests/test_topic_service.py::test_extract_topics_enhanced -v
 
 ```bash
 # Lint and format
-uv run ruff check src/services/topic_service.py
-uv run ruff format src/services/topic_service.py
+uv run ruff check src/speech_nlp/services/analysis/topics.py
+uv run ruff format src/speech_nlp/services/analysis/topics.py
 
 # Type checking
-uv run mypy src/services/topic_service.py
+uv run mypy src/speech_nlp/services/analysis/topics.py
 ```
 
 ### Local Testing
 
 ```bash
 # Start server with hot reload
-uv run uvicorn src.main:app --reload --log-level debug
+uv run uvicorn speech_nlp.app:app --reload --log-level debug
 
 # Test endpoint
 curl -X POST "http://localhost:8000/analyze/topics?top_n=5" \
@@ -487,7 +487,7 @@ logging:
 **Inspect cluster assignments:**
 
 ```python
-from src.services.topic_service import TopicExtractionService
+from speech_nlp.services.analysis.topics import TopicExtractionService
 
 service = TopicExtractionService()
 result = service.extract_topics_enhanced(text, top_n=5)
@@ -532,7 +532,7 @@ for cluster in result['clustered_topics']:
 - **Verify startup logs:** Check for topic service initialization errors
 
   ```bash
-  uv run uvicorn src.main:app --log-level debug
+  uv run uvicorn speech_nlp.app:app --log-level debug
   # Look for "TopicExtractionService initialized" message
   ```
   
@@ -551,7 +551,7 @@ for cluster in result['clustered_topics']:
 
   ```bash
   # Kill process and restart
-  uv run uvicorn src.main:app --reload
+  uv run uvicorn speech_nlp.app:app --reload
   ```
 
 ## See Also
