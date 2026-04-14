@@ -53,7 +53,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy the venv from builder
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
-# Allow Python to find the src package
+# Allow Python to find the speech_nlp package
 ENV PYTHONPATH="/app/src"
 
 # Copy app code
@@ -76,4 +76,4 @@ RUN python -m nltk.downloader punkt stopwords punkt_tab
 
 EXPOSE ${PORT}
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "speech_nlp.app:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from src.services.rag_service import RAGService
+from speech_nlp.services.rag.service import RAGService
 
 
 def cleanup_chromadb(persist_dir: str, service=None):

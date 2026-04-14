@@ -6,7 +6,7 @@ Tests the API routes using FastAPI's TestClient.
 import pytest
 from fastapi.testclient import TestClient
 
-from src.main import app
+from speech_nlp.app import app
 
 
 @pytest.fixture

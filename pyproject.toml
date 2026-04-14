@@ -134,19 +134,16 @@ docs = [
 # ]
 
 # [project.scripts]
-# ayne = "ayne.cli.main:app"
+# speech-nlp = "speech_nlp.app:app"
 
-# [build-system]
-# requires = ["setuptools>=68.0", "wheel"]
-# build-backend = "setuptools.build_meta"
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
 
-# [tool.setuptools]
-# package-dir = {"" = "src"}
-
-# [tool.setuptools.packages.find]
-# where = ["src"]
-# include = ["ayne*"]
-# namespaces = false
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["speech_nlp*"]
+namespaces = false
 
 # Ruff configuration
 [tool.ruff]
@@ -212,7 +209,7 @@ testpaths = ["tests"]
 # Additional options
 addopts = [
     "--verbose",
-    "--cov=src",
+    "--cov=src/speech_nlp",
     "--cov-report=term-missing",
     "--cov-report=html:reports/coverage/html",
     "--cov-report=xml:reports/coverage/coverage.xml",
@@ -220,6 +217,8 @@ addopts = [
     # "--strict-markers",
     # "--disable-warnings",
 ]
+
+pythonpath = ["src"]
 
 # Markers for categorizing tests
 markers = [

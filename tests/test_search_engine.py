@@ -9,8 +9,8 @@ from unittest.mock import MagicMock, Mock, patch
 import numpy as np
 import pytest
 
-from src.services.rag.models import SearchResult
-from src.services.rag.search_engine import SearchEngine
+from speech_nlp.services.rag.models import SearchResult
+from speech_nlp.services.rag.search import SearchEngine
 
 
 class TestSearchEngine:
@@ -102,7 +102,7 @@ class TestSearchEngine:
 
     def test_initialization_with_reranking(self, mock_embedding_model, mock_collection):
         """Test SearchEngine initialization with re-ranking."""
-        with patch("src.services.rag.search_engine.CrossEncoder") as mock_cross_encoder:
+        with patch("speech_nlp.services.rag.search.CrossEncoder") as mock_cross_encoder:
             mock_cross_encoder.return_value = Mock()
 
             engine = SearchEngine(
@@ -253,7 +253,7 @@ class TestSearchEngine:
         # Should return results (testing that weights don't break the search)
         assert isinstance(results, list)
 
-    @patch("src.services.rag.search_engine.CrossEncoder")
+    @patch("speech_nlp.services.rag.search.CrossEncoder")
     def test_reranking_applied(
         self, mock_cross_encoder_class, mock_embedding_model, mock_collection
     ):

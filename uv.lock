@@ -5595,8 +5595,8 @@ wheels = [
 
 [[package]]
 name = "trump-speeches-nlp-chatbot"
-version = "0.1.0"
-source = { virtual = "." }
+version = "0.4.0"
+source = { editable = "." }
 dependencies = [
     { name = "certifi" },
     { name = "chromadb" },

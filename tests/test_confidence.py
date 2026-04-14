@@ -5,8 +5,8 @@ Tests confidence score calculation and explanation generation.
 
 import pytest
 
-from src.services.rag.confidence import ConfidenceCalculator
-from src.services.rag.models import ContextChunk, SearchResult
+from speech_nlp.services.rag.confidence import ConfidenceCalculator
+from speech_nlp.services.rag.models import ContextChunk, SearchResult
 
 
 class TestConfidenceCalculator:

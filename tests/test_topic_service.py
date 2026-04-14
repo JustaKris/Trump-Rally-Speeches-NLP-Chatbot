@@ -5,7 +5,7 @@ Tests semantic clustering, snippet extraction, and AI summary generation.
 
 import pytest
 
-from src.services.topic_service import TopicExtractionService
+from speech_nlp.services.analysis.topics import TopicExtractionService
 
 
 class TestTopicExtractionService:

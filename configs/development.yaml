@@ -6,7 +6,7 @@
 #
 # Effective precedence at runtime:
 #   1. This YAML file (configs/development.yaml)
-#   2. Pydantic model defaults in `src/config/settings.py`
+#   2. Pydantic model defaults in `src/speech_nlp/config/settings.py`
 #   3. Environment variables / `.env` overrides
 ###############################################################################
 

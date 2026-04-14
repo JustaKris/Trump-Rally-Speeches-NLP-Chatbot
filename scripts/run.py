@@ -15,10 +15,10 @@ from pathlib import Path
 import uvicorn
 
 PROJECT_ROOT = Path(__file__).parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+if str(PROJECT_ROOT / "src") not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
-from src.config.settings import get_settings  # noqa: E402
+from speech_nlp.config.settings import get_settings  # noqa: E402
 
 # Get configuration
 settings = get_settings()
@@ -30,10 +30,10 @@ logger = logging.getLogger(__name__)
 
 def main():
     """Launch the application using configured settings."""
-    # Ensure project root is on sys.path so "src" imports work when running from scripts/
+    # Ensure project root is on sys.path so "speech_nlp" imports work when running from scripts/
     PROJECT_ROOT = Path(__file__).parent.parent
-    if str(PROJECT_ROOT) not in sys.path:
-        sys.path.insert(0, str(PROJECT_ROOT))
+    if str(PROJECT_ROOT / "src") not in sys.path:
+        sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
     # Parse CLI arguments (allows overrides)
     parser = argparse.ArgumentParser(
@@ -90,7 +90,7 @@ Examples:
 
     # Import here to avoid loading all the ML models upfront
     # We only need the settings module for config reading
-    from src.config.settings import get_settings
+    from speech_nlp.config.settings import get_settings
 
     # Load settings from config hierarchy
     settings = get_settings()
@@ -112,7 +112,7 @@ Examples:
 
     # Launch uvicorn with settings
     uvicorn.run(
-        "src.main:app",
+        "speech_nlp.app:app",
         host=host,
         port=port,
         reload=reload,

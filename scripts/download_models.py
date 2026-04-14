@@ -18,8 +18,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from sentence_transformers import CrossEncoder, SentenceTransformer
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-from config.settings import Settings
-from core.logging_config import configure_logging, get_logger
+from speech_nlp.config.settings import Settings
+from speech_nlp.config.logging import configure_logging, get_logger
 
 # Configure logging
 configure_logging(level="INFO", use_json=False)

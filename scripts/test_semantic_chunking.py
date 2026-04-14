@@ -5,7 +5,7 @@ import sys
 
 from sentence_transformers import SentenceTransformer
 
-from src.services.rag.document_loader import DocumentLoader
+from speech_nlp.services.rag.chunking import DocumentLoader
 
 DATA_DIR = "data/Donald Trump Rally Speeches"
 

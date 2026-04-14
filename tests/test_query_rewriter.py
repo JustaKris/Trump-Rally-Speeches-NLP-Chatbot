@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, Mock
 
 import pytest
 
-from src.services.rag.query_rewriter import QueryRewriter
+from speech_nlp.services.rag.rewriter import QueryRewriter
 
 
 class TestQueryRewriter:

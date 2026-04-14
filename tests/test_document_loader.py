@@ -9,7 +9,7 @@ from unittest.mock import MagicMock
 import numpy as np
 import pytest
 
-from src.services.rag.document_loader import DocumentLoader
+from speech_nlp.services.rag.chunking import DocumentLoader
 
 
 class TestDocumentLoader:
@@ -349,7 +349,7 @@ class TestExtractSpeechMetadata:
 
     def test_standard_filename(self):
         """Test standard single-word location filename."""
-        from src.services.rag.document_loader import extract_speech_metadata
+        from speech_nlp.services.rag.chunking import extract_speech_metadata
 
         result = extract_speech_metadata("CincinnatiAug1_2019.txt")
         assert result == {
@@ -362,7 +362,7 @@ class TestExtractSpeechMetadata:
 
     def test_multi_word_location(self):
         """Test CamelCase multi-word location like BattleCreek."""
-        from src.services.rag.document_loader import extract_speech_metadata
+        from speech_nlp.services.rag.chunking import extract_speech_metadata
 
         result = extract_speech_metadata("BattleCreekDec19_2019.txt")
         assert result["location"] == "Battle Creek"
@@ -370,7 +370,7 @@ class TestExtractSpeechMetadata:
 
     def test_hyphenated_location(self):
         """Test hyphenated location like Winston-Salem."""
-        from src.services.rag.document_loader import extract_speech_metadata
+        from speech_nlp.services.rag.chunking import extract_speech_metadata
 
         result = extract_speech_metadata("Winston-SalemSep8_2020.txt")
         assert result["location"] == "Winston-Salem"
@@ -380,7 +380,7 @@ class TestExtractSpeechMetadata:
 
     def test_two_word_state_name(self):
         """Test compound location like NewHampshire or NewMexico."""
-        from src.services.rag.document_loader import extract_speech_metadata
+        from speech_nlp.services.rag.chunking import extract_speech_metadata
 
         result = extract_speech_metadata("NewHampshireAug15_2019.txt")
         assert result["location"] == "New Hampshire"
@@ -391,7 +391,7 @@ class TestExtractSpeechMetadata:
 
     def test_multi_word_city(self):
         """Test multi-word city names like LasVegas and ColoradorSprings."""
-        from src.services.rag.document_loader import extract_speech_metadata
+        from speech_nlp.services.rag.chunking import extract_speech_metadata
 
         result = extract_speech_metadata("LasVegasFeb21_2020.txt")
         assert result["location"] == "Las Vegas"
@@ -402,7 +402,7 @@ class TestExtractSpeechMetadata:
 
     def test_all_months(self):
         """Test that all month abbreviations are recognized."""
-        from src.services.rag.document_loader import extract_speech_metadata
+        from speech_nlp.services.rag.chunking import extract_speech_metadata
 
         months = {
             "Jan": 1,
@@ -424,7 +424,7 @@ class TestExtractSpeechMetadata:
 
     def test_non_matching_filename(self):
         """Test that non-matching filenames return empty dict."""
-        from src.services.rag.document_loader import extract_speech_metadata
+        from speech_nlp.services.rag.chunking import extract_speech_metadata
 
         assert extract_speech_metadata("readme.txt") == {}
         assert extract_speech_metadata("notes.md") == {}
@@ -432,7 +432,7 @@ class TestExtractSpeechMetadata:
 
     def test_real_filenames_sample(self):
         """Test a representative sample of actual speech filenames."""
-        from src.services.rag.document_loader import extract_speech_metadata
+        from speech_nlp.services.rag.chunking import extract_speech_metadata
 
         cases = [
             ("BemidjiSep18_2020.txt", "Bemidji", 2020, 9, 18),
@@ -486,7 +486,7 @@ class TestExtractSpeechMetadata:
 
     def test_real_data_directory_metadata(self):
         """Test metadata extraction on real speech files if available."""
-        from src.services.rag.document_loader import extract_speech_metadata
+        from speech_nlp.services.rag.chunking import extract_speech_metadata
 
         data_dir = Path("data/Donald Trump Rally Speeches")
         if not data_dir.exists():

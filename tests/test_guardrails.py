@@ -10,8 +10,8 @@ import math
 
 import pytest
 
-from src.services.rag.guardrails import RAGGuardrails, _extract_content_words
-from src.services.rag.models import ContextChunk, SearchResult
+from speech_nlp.services.rag.guardrails import RAGGuardrails, _extract_content_words
+from speech_nlp.services.rag.models import ContextChunk, SearchResult
 
 # ============================================================================
 # Fixtures

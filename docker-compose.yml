@@ -43,7 +43,7 @@ services:
       - ./src:/app/src
       - ./data:/app/data:ro
       - huggingface-cache:/home/appuser/.cache/huggingface
-    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn speech_nlp.app:app --host 0.0.0.0 --port 8000 --reload
     restart: unless-stopped
     profiles:
       - dev

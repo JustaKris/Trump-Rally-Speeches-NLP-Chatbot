@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, Mock
 
 import pytest
 
-from src.services.rag.entity_analyzer import EntityAnalyzer
+from speech_nlp.services.rag.entities import EntityAnalyzer
 
 
 class TestEntityAnalyzer:

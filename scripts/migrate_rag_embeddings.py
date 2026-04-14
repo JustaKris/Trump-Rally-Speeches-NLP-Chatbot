@@ -10,10 +10,10 @@ Run this script after updating the RAG service to use the new model.
 import sys
 from pathlib import Path
 
-from src.rag_service import RAGService
-
 # Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+from speech_nlp.services.rag.service import RAGService
 
 
 def migrate_embeddings():
