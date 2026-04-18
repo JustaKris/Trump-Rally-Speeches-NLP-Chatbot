@@ -395,6 +395,30 @@
             100% { transform: rotate(360deg); }
         }
         
+        .status-text {
+            margin-top: 15px;
+            color: #aaa;
+            font-size: 14px;
+            height: 1.6em;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .status-text span {
+            display: block;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        
+        .status-text span.fade-out {
+            opacity: 0;
+            transform: translateY(-6px);
+        }
+        
+        .status-text span.fade-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
         .links {
             margin-top: 30px;
             padding: 25px;
@@ -491,7 +515,7 @@
                 
                 <div class="loading" id="ragLoading">
                     <div class="spinner"></div>
-                    <p style="margin-top: 15px; color: #aaa;">🔍 Searching knowledge base and generating answer...</p>
+                    <div class="status-text" id="ragStatus"><span class="fade-in">🔍 Searching knowledge base and generating answer...</span></div>
                 </div>
                 
                 <div class="error" id="ragError"></div>
@@ -532,7 +556,7 @@
                 
                 <div class="loading" id="sentimentLoading">
                     <div class="spinner"></div>
-                    <p style="margin-top: 15px; color: #aaa;">Analyzing sentiment...</p>
+                    <div class="status-text" id="sentimentStatus"><span class="fade-in">🎭 Analyzing sentiment...</span></div>
                 </div>
                 
                 <div class="error" id="sentimentError"></div>
@@ -579,7 +603,7 @@
                 
                 <div class="loading" id="topicsLoading">
                     <div class="spinner"></div>
-                    <p style="margin-top: 15px; color: #aaa;">Analyzing topics with AI...</p>
+                    <div class="status-text" id="topicsStatus"><span class="fade-in">🏷️ Analyzing topics with AI...</span></div>
                 </div>
                 
                 <div class="error" id="topicsError"></div>
@@ -629,6 +653,77 @@
     </div>
     
     <script>
+        // ── Status message cycler ────────────────────────────────
+        // Cycles through pipeline-stage messages with a crossfade.
+        class StatusCycler {
+            constructor(elementId, messages, interval = 2200) {
+                this.el = document.getElementById(elementId);
+                this.messages = messages;
+                this.interval = interval;
+                this.index = 0;
+                this.timer = null;
+            }
+            start() {
+                this.index = 0;
+                this._show(this.messages[0]);
+                if (this.messages.length > 1) {
+                    this.timer = setInterval(() => this._next(), this.interval);
+                }
+            }
+            stop() {
+                clearInterval(this.timer);
+                this.timer = null;
+            }
+            _next() {
+                if (this.index >= this.messages.length - 1) {
+                    // Stay on the last message until the request finishes
+                    clearInterval(this.timer);
+                    return;
+                }
+                this.index++;
+                this._show(this.messages[this.index]);
+            }
+            _show(text) {
+                const span = this.el.querySelector('span');
+                span.classList.remove('fade-in');
+                span.classList.add('fade-out');
+                setTimeout(() => {
+                    span.textContent = text;
+                    span.classList.remove('fade-out');
+                    span.classList.add('fade-in');
+                }, 350);
+            }
+        }
+
+        // Pipeline messages for each feature
+        const ragMessages = [
+            "🛡️ Validating query...",
+            "✍️ Rewriting query for optimal retrieval...",
+            "🏷️ Extracting named entities...",
+            "🔍 Searching 35+ speeches with hybrid semantic search...",
+            "📊 Re-ranking results with cross-encoder...",
+            "🛡️ Filtering chunks by relevance threshold...",
+            "🤖 Generating answer with AI...",
+            "✅ Verifying answer is grounded in sources...",
+            "📈 Scoring confidence...",
+            "✨ Finalizing response..."
+        ];
+
+        const sentimentMessages = [
+            "🎭 Running FinBERT sentiment model...",
+            "😊 Detecting emotions with RoBERTa...",
+            "🤖 Generating AI interpretation...",
+            "📊 Compiling results..."
+        ];
+
+        const topicMessages = [
+            "🏷️ Extracting keywords and phrases...",
+            "🧩 Clustering topics with semantic embeddings...",
+            "📝 Finding contextual examples...",
+            "🤖 Generating AI topic summary...",
+            "📊 Compiling analysis..."
+        ];
+
         // Tab switching
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
@@ -653,6 +748,9 @@
             hideError('sentimentError');
             hideResults('sentimentResults');
             showLoading('sentimentLoading');
+
+            const cycler = new StatusCycler('sentimentStatus', sentimentMessages, 2700);
+            cycler.start();
             
             try {
                 const response = await fetch('/analyze/sentiment', {
@@ -670,6 +768,7 @@
             } catch (error) {
                 showError('sentimentError', error.message);
             } finally {
+                cycler.stop();
                 hideLoading('sentimentLoading');
             }
         }
@@ -795,6 +894,9 @@
             hideError('topicsError');
             hideResults('topicsResults');
             showLoading('topicsLoading');
+
+            const cycler = new StatusCycler('topicsStatus', topicMessages, 2700);
+            cycler.start();
             
             try {
                 const response = await fetch('/analyze/topics', {
@@ -812,6 +914,7 @@
             } catch (error) {
                 showError('topicsError', error.message);
             } finally {
+                cycler.stop();
                 hideLoading('topicsLoading');
             }
         }
@@ -979,6 +1082,9 @@
             hideError('ragError');
             hideResults('ragResults');
             showLoading('ragLoading');
+
+            const cycler = new StatusCycler('ragStatus', ragMessages, 2700);
+            cycler.start();
             
             try {
                 const response = await fetch('/rag/ask', {
@@ -997,6 +1103,7 @@
             } catch (error) {
                 showError('ragError', error.message);
             } finally {
+                cycler.stop();
                 hideLoading('ragLoading');
             }
         }
