@@ -85,38 +85,65 @@
         .tabs {
             display: flex;
             gap: 10px;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #3a3a4a;
+            margin-bottom: 8px;
             flex-wrap: wrap;
             justify-content: center;
-            padding: 10px 0;
+            padding: 10px 10px 0;
         }
         
         .tab {
             padding: 15px 30px;
-            background: none;
-            border: none;
+            background: rgba(30, 30, 46, 0.8);
+            border: 1px solid #3a3a4a;
+            border-bottom: 4px solid transparent;
+            border-radius: 8px 8px 0 0;
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
-            color: #aaa;
+            color: #999;
             transition: all 0.3s;
-            border-bottom: 4px solid transparent;
-            position: relative;
             white-space: nowrap;
         }
         
         .tab:hover {
             color: #667eea;
             background: rgba(102, 126, 234, 0.15);
+            border-color: rgba(102, 126, 234, 0.3);
         }
         
         .tab.active {
             color: #667eea;
+            border-color: rgba(102, 126, 234, 0.35);
             border-bottom-color: #667eea;
             background: rgba(102, 126, 234, 0.2);
         }
-        
+
+        .tab.tab-primary {
+            background: linear-gradient(135deg, rgba(150, 55, 0, 0.45) 0%, rgba(190, 90, 8, 0.35) 100%);
+            color: #d4895a;
+            border-radius: 8px 8px 0 0;
+            border: 1px solid rgba(210, 110, 20, 0.3);
+            border-bottom: 4px solid transparent;
+            font-size: 17px;
+            font-weight: 700;
+            padding: 16px 35px;
+        }
+
+        .tab.tab-primary:hover {
+            background: linear-gradient(135deg, rgba(160, 65, 0, 0.6) 0%, rgba(205, 105, 12, 0.5) 100%);
+            color: #e8a070;
+            border-color: rgba(210, 115, 20, 0.5);
+        }
+
+        .tab.tab-primary.active {
+            background: linear-gradient(135deg, #7a2e00 0%, #b04808 55%, #cc6a10 100%);
+            color: #fff;
+            border-color: rgba(210, 120, 20, 0.65);
+            border-bottom-color: #f5a623;
+            box-shadow: 0 0 24px rgba(180, 80, 10, 0.45);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.35);
+        }
+
         .tab-content {
             display: none;
         }
@@ -124,6 +151,10 @@
         .tab-content.active {
             display: block;
             animation: fadeIn 0.3s ease-in;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.06) 100%);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 16px;
+            padding: 35px;
         }
         
         @keyframes fadeIn {
@@ -134,9 +165,9 @@
         textarea {
             width: 100%;
             min-height: 150px;
-            padding: 15px;
+            padding: 15px 18px;
             border: 2px solid #3a3a4a;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
             font-family: inherit;
             resize: vertical;
@@ -159,15 +190,15 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 15px 40px;
-            border-radius: 10px;
+            padding: 14px 36px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            margin-top: 20px;
+            margin-top: 16px;
+            display: block;
             transition: transform 0.2s, box-shadow 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
         
         button.analyze:hover {
@@ -186,12 +217,8 @@
         }
         
         .results {
-            margin-top: 30px;
-            padding: 25px;
-            background: linear-gradient(135deg, #1e1e2e 0%, #252535 100%);
-            border-radius: 10px;
+            margin-top: 25px;
             display: none;
-            border: 2px solid #3a3a4a;
         }
         
         .results.show {
@@ -199,12 +226,23 @@
         }
         
         .result-card {
-            background: #2a2a3a;
+            background: linear-gradient(135deg, #1e1e2e 0%, #252535 100%);
             padding: 25px;
             border-radius: 12px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            border-left: 4px solid #667eea;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.1);
+            position: relative;
+        }
+
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 12px 12px 0 0;
         }
 
         /* Long-form AI interpretation container: allow full answer with scroll if very long */
@@ -448,12 +486,308 @@
             color: #e0e0e0;
             margin-bottom: 20px;
             font-size: 1.8em;
+            text-align: center;
         }
         
         p, strong {
             color: #e0e0e0;
         }
-        
+
+        /* ── Q&A Hero Section ── */
+        .qa-badge {
+            display: inline-block;
+            padding: 5px 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .qa-title {
+            font-size: 2em;
+            margin-bottom: 12px;
+            color: #e0e0e0;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .qa-description {
+            color: #aaa;
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .sample-questions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .sample-q {
+            padding: 8px 16px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.25);
+            color: #b0b8e8;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .sample-q:hover {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            color: #e0e0e0;
+            transform: translateY(-1px);
+        }
+
+        .qa-input-row {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+        }
+
+        .qa-input-row textarea {
+            flex: 1;
+            min-height: 60px;
+            resize: none;
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 15px;
+            border: 2px solid #3a3a4a;
+            background: #1a1a25;
+            color: #e0e0e0;
+            font-family: inherit;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .qa-input-row textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+        }
+
+        .qa-input-row textarea::placeholder {
+            color: #666;
+        }
+
+        .qa-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+        }
+
+        .qa-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .qa-submit:active {
+            transform: translateY(0);
+        }
+
+        .qa-hero .results {
+            background: none;
+            border: none;
+            padding: 25px 0 0;
+        }
+
+        /* ── Answer Hero Card ── */
+        .answer-card {
+            background: linear-gradient(135deg, #1e1e2e 0%, #252535 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.1);
+            position: relative;
+        }
+
+        .answer-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .answer-card .result-title {
+            font-weight: 700;
+            color: #e0e0e0;
+            margin-bottom: 15px;
+            font-size: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── Sources Bar ── */
+        .sources-bar {
+            padding: 16px 20px;
+            background: #1e1e2e;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border: 1px solid #3a3a4a;
+        }
+
+        .sources-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        /* ── Collapsible Context Panel ── */
+        .context-panel {
+            border: 1px solid #3a3a4a;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .context-panel summary {
+            padding: 16px 20px;
+            background: #1e1e2e;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #aaa;
+            transition: background 0.2s;
+            user-select: none;
+            list-style: none;
+        }
+
+        .context-panel summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .context-panel summary::before {
+            content: '▶ ';
+            display: inline-block;
+            transition: transform 0.2s;
+            margin-right: 6px;
+            font-size: 11px;
+        }
+
+        .context-panel[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        .context-panel summary:hover {
+            background: #252535;
+            color: #e0e0e0;
+        }
+
+        .context-panel > div {
+            padding: 0 20px 20px;
+            background: #1a1a25;
+        }
+
+        /* ── Lab Section Divider ── */
+        .lab-divider {
+            text-align: center;
+            padding: 30px 0 20px;
+            position: relative;
+        }
+
+        .lab-divider-line {
+            position: absolute;
+            top: 42px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #3a3a4a, transparent);
+        }
+
+        .lab-divider-title {
+            position: relative;
+            display: inline-block;
+            background: rgba(20, 20, 30, 0.95);
+            padding: 0 20px;
+            font-size: 1.3em;
+            color: #aaa;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin: 0;
+        }
+
+        .lab-divider-subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        /* ── Project Links ── */
+        .project-links {
+            margin-top: 30px;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #1e1e2e 0%, #252535 100%);
+            border-radius: 10px;
+            border: 1px solid #3a3a4a;
+        }
+
+        .project-links-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #c07030;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .project-links-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 7px;
+        }
+
+        .project-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 6px 13px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .project-links a:hover {
+            background: rgba(102, 126, 234, 0.15);
+            border-color: rgba(102, 126, 234, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .cold-start-note {
+            text-align: center;
+            margin-top: 8px;
+            padding: 6px;
+            font-size: 12px;
+            color: #555;
+            font-style: italic;
+        }
+
         /* Responsive design */
         @media (max-width: 768px) {
             h1 {
@@ -469,17 +803,49 @@
             }
             
             .tab {
-                border-bottom: none;
+                border-bottom: 1px solid #3a3a4a;
                 border-left: 4px solid transparent;
+                border-radius: 8px;
             }
             
             .tab.active {
                 border-left-color: #667eea;
             }
+
+            .tab.tab-primary {
+                border-radius: 0;
+                border: none;
+                border-left: 4px solid rgba(248, 165, 53, 0.6);
+                font-size: 16px;
+                padding: 15px 30px;
+            }
+
+            .tab.tab-primary.active {
+                border-left-color: #f7a535;
+                border-bottom-color: transparent;
+                box-shadow: none;
+            }
             
-            .links a {
+            .project-links a {
                 display: block;
-                margin: 10px 0;
+                margin: 5px 0;
+                text-align: center;
+            }
+
+            .qa-hero {
+                padding: 25px 20px;
+            }
+
+            .qa-title {
+                font-size: 1.5em;
+            }
+
+            .qa-input-row {
+                flex-direction: column;
+            }
+
+            .qa-submit {
+                padding: 14px;
             }
         }
     </style>
@@ -487,31 +853,38 @@
 <body>
     <div class="container">
         <header>
-            <h1>🤖 Trump Speeches NLP Chatbot API</h1>
-            <p class="subtitle">AI-Powered Q&A • Sentiment Analysis • Semantic Search • Advanced NLP</p>
+            <h1>🤖 Trump Speeches NLP Chatbot</h1>
+            <p class="subtitle">A RAG pipeline built from scratch — 10 stages, 3 ML models, zero LangChain.</p>
         </header>
         
         <div class="content">
+            <!-- ═══ UNIFIED FEATURE TABS ═══ -->
             <div class="tabs">
-                <button class="tab active" data-tab="rag">🧠 AI Q&A (RAG)</button>
-                <button class="tab" data-tab="topics">🏷️ AI Topic Analysis</button>
-                <button class="tab" data-tab="sentiment">🎭 Sentiment Analysis</button>
-                <button class="tab" data-tab="stats">📊 Demo Dataset</button>
+                <button class="tab tab-primary active" data-tab="rag">🤖 AI Chatbot</button>
+                <button class="tab" data-tab="sentiment">🎭 Sentiment</button>
+                <button class="tab" data-tab="topics">🏷️ Topics</button>
+                <button class="tab" data-tab="stats">📊 Dataset</button>
             </div>
             
-            <!-- RAG (Ask Questions) Tab - NOW FIRST! -->
-            <div class="tab-content active" id="rag">
-                <h2>🧠 AI-Powered Question Answering</h2>
-                <p style="margin: 15px 0; color: #aaa; font-size: 16px; line-height: 1.6;">
-                    Ask questions about the indexed documents and get intelligent answers powered by <strong>state-of-the-art LLMs</strong> and <strong>ChromaDB vector search</strong>. 
-                    The system uses semantic search to find relevant context, then generates comprehensive answers with confidence scoring and entity analytics.
+            <!-- AI Chatbot Tab (RAG) -->
+            <div class="tab-content qa-hero active" id="rag">
+                <h2 class="qa-title">Ask the AI Chatbot</h2>
+                <p class="qa-description">
+                    Ask anything about <strong>35+ Trump rally speeches</strong> — powered by a <strong>10-stage RAG pipeline</strong> built from scratch:
+                    query rewriting, hybrid semantic search, cross-encoder re-ranking, grounded answer generation, and multi-factor confidence scoring.
+                    Zero LangChain.
                 </p>
-                <p style="margin: 10px 0 20px 0; color: #999; font-size: 14px; line-height: 1.6;">
-                    <strong>💡 Try asking:</strong>
-                    "What are Trump's views on Joe Biden?" • "What is the sentiment toward immigration?" • "What are Trump's views on the news networks?" • "What's the deal with the economy?"
-                </p>
-                <textarea id="ragQuestion" placeholder="Ask a question about the documents... (e.g., 'What are the main economic policies discussed?')" style="min-height: 120px; font-size: 16px;"></textarea>
-                <button class="analyze" onclick="askRAG()">🚀 Ask AI</button>
+                <p style="margin: 0 0 8px; font-size: 13px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Quick test on these topics:</p>
+                <div class="sample-questions">
+                    <span class="sample-q" onclick="setSampleQuestion('What does Trump say about the media and fake news?')">📺 Views on the media</span>
+                    <span class="sample-q" onclick="setSampleQuestion('What are his main points about immigration?')">🌎 Immigration stance</span>
+                    <span class="sample-q" onclick="setSampleQuestion('How does Trump talk about the economy and jobs?')">💰 Economy &amp; jobs</span>
+                    <span class="sample-q" onclick="setSampleQuestion('What does Trump say about Joe Biden?')">🗣️ On Joe Biden</span>
+                </div>
+                <div class="qa-input-row">
+                    <textarea id="ragQuestion" placeholder="Ask a question about the speeches..." rows="2"></textarea>
+                    <button class="qa-submit" onclick="askRAG()">🚀 Ask AI</button>
+                </div>
                 
                 <div class="loading" id="ragLoading">
                     <div class="spinner"></div>
@@ -521,38 +894,31 @@
                 <div class="error" id="ragError"></div>
                 
                 <div class="results" id="ragResults">
-                    <div class="result-card">
+                    <div class="answer-card">
                         <div class="result-title">✨ AI-Generated Answer</div>
-                        <div id="ragAnswer" style="padding: 20px; background: linear-gradient(135deg, #1e1e2e 0%, #252535 100%); border-radius: 8px; line-height: 1.8; font-size: 16px; color: #e0e0e0;"></div>
+                        <div id="ragAnswer" style="padding: 20px; background: linear-gradient(135deg, #1a1a2e 0%, #1e1e30 100%); border-radius: 8px; line-height: 1.8; font-size: 16px; color: #e0e0e0;"></div>
                         <div id="ragConfidence" style="margin-top: 15px; font-size: 14px;"></div>
-                        <div id="ragConfidenceExplanation" style="margin-top: 10px; padding: 15px; background: #2a2a3a; border-radius: 8px; font-size: 14px; color: #aaa;"></div>
+                        <div id="ragConfidenceExplanation" style="margin-top: 10px; padding: 15px; background: rgba(102, 126, 234, 0.05); border-radius: 8px; font-size: 14px; color: #aaa; border: 1px solid #3a3a4a;"></div>
                     </div>
                     
-                    <div class="result-card">
-                        <div class="result-title">📚 Supporting Context</div>
-                        <div id="ragContext"></div>
-                    </div>
-                    
-                    <div class="result-card">
-                        <div class="result-title">📄 Source Documents</div>
+                    <div class="sources-bar">
+                        <span class="sources-label">📄 Sources</span>
                         <div id="ragSources"></div>
                     </div>
                     
-                    <!-- Entity Analytics Card - Commented out for performance
-                    <div class="result-card" id="ragEntitiesCard" style="display: none;">
-                        <div class="result-title">🏷️ Entity Analytics</div>
-                        <div id="ragEntities"></div>
-                    </div>
-                    -->
+                    <details class="context-panel">
+                        <summary>📚 Supporting Context — click to expand retrieved passages</summary>
+                        <div id="ragContext" style="padding-top: 15px;"></div>
+                    </details>
                 </div>
             </div>
             
             <!-- Sentiment Analysis Tab -->
             <div class="tab-content" id="sentiment">
-                <h2>🎭 AI-Powered Sentiment Analysis</h2>
-                <p style="margin: 15px 0; color: #aaa;">Comprehensive emotional analysis combining <strong>FinBERT</strong> sentiment, <strong>RoBERTa</strong> emotion detection, and <strong>AI-powered</strong> interpretation.</p>
-                <textarea id="sentimentText" placeholder="Enter any text to analyze... (e.g., 'This product exceeded my expectations! The quality is amazing and delivery was fast.')"></textarea>
-                <button class="analyze" onclick="analyzeSentiment()">Analyze Sentiment</button>
+                <h2>🎭 Sentiment Analysis</h2>
+                <p class="qa-description">Paste any text and let three ML models fight over what it means — <strong>FinBERT</strong> for financial-grade sentiment, <strong>RoBERTa</strong> for emotion detection, and an <strong>LLM</strong> to explain it all in plain English. Works on anything, not just speeches.</p>
+                <textarea id="sentimentText" placeholder="Paste any text to analyze — news articles, tweets, your boss's passive-aggressive emails..."></textarea>
+                <button class="analyze" onclick="analyzeSentiment()">🎭 Analyze Sentiment</button>
                 
                 <div class="loading" id="sentimentLoading">
                     <div class="spinner"></div>
@@ -565,11 +931,11 @@
                     <!-- AI Interpretation - The Star of the Show -->
                     <div class="result-card">
                         <div class="result-title">✨ AI Sentiment Interpretation</div>
-                        <div id="aiInterpretation" style="padding: 25px; background: linear-gradient(135deg, #1e1e2e 0%, #252535 100%); border-radius: 12px; border-left: 5px solid #667eea; line-height: 1.8; font-size: 17px; color: #e0e0e0; font-weight: 500;"></div>
+                        <div id="aiInterpretation" style="padding: 20px; background: linear-gradient(135deg, #1a1a2e 0%, #1e1e30 100%); border-radius: 8px; line-height: 1.8; font-size: 17px; color: #e0e0e0; font-weight: 500;"></div>
                     </div>
                     
                     <!-- Compact Scores Section -->
-                    <div class="result-card" style="background: #2a2a3a;">
+                    <div class="result-card">
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                             <!-- Sentiment Scores -->
                             <div>
@@ -589,17 +955,11 @@
             
             <!-- Topic Extraction Tab -->
             <div class="tab-content" id="topics">
-                <h2>🏷️ AI-Powered Topic Analysis</h2>
-                <p style="margin: 15px 0; color: #aaa; font-size: 15px; line-height: 1.6;">
-                    Advanced topic extraction using <strong>AI semantic clustering</strong> and <strong>LLM-powered analysis</strong>. 
-                    This system groups related keywords into meaningful themes, shows them in context, and provides an analytical summary.
-                </p>
-                <p style="margin: 10px 0 20px 0; color: #999; font-size: 14px;">
-                    <strong>💡 How it works:</strong> Uses embeddings to cluster related terms (e.g., "economy", "jobs" → "Economic Policy"), 
-                    extracts contextual examples with highlighting, and generates AI insights about the main themes.
-                </p>
-                <textarea id="topicsText" placeholder="Enter text to analyze..."></textarea>
-                <button class="analyze" onclick="analyzeTopics()">Extract Topics</button>
+                <h2>🏷️ Topic Extraction</h2>
+                <p class="qa-description">DBSCAN semantic clustering with sentence-transformers — groups related keywords into meaningful themes,
+                    finds contextual examples with highlighting, and gets an LLM to write the summary. Paste a speech, article, or anything with enough meat to cluster.</p>
+                <textarea id="topicsText" placeholder="Paste a speech, article, or any substantial text..."></textarea>
+                <button class="analyze" onclick="analyzeTopics()">🏷️ Extract Topics</button>
                 
                 <div class="loading" id="topicsLoading">
                     <div class="spinner"></div>
@@ -625,12 +985,10 @@
             
             <!-- Stats Tab -->
             <div class="tab-content" id="stats">
-                <h2>📊 Demo Dataset & RAG Index</h2>
-                <p style="margin: 15px 0; color: #aaa;">
-                    This system comes pre-indexed with <strong>35+ Trump rally speeches (2019-2020)</strong> stored in ChromaDB as semantic embeddings.
-                    The RAG system uses these as a knowledge base for AI-powered question answering. View statistics below, or upload your own documents via the API.
-                </p>
-                <button class="analyze" onclick="loadStats()">Load Demo Dataset Stats</button>
+                <h2>📊 The Dataset</h2>
+                <p class="qa-description"><strong>35 Trump rally speeches (2019–2020)</strong> chunked into ~2,354 semantic segments and indexed in ChromaDB as 768-dimensional MPNet embeddings.
+                    This is the knowledge base the RAG chatbot searches through. Hit the button to see what’s in there.</p>
+                <button class="analyze" onclick="loadStats()">📊 Load Dataset Stats</button>
                 
                 <div class="loading" id="statsLoading">
                     <div class="spinner"></div>
@@ -644,10 +1002,18 @@
                 </div>
             </div>
             
-            <div class="links">
-                <a href="/docs" target="_blank">📚 API Documentation</a>
-                <a href="/redoc" target="_blank">📖 ReDoc</a>
-                <a href="https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot" target="_blank">💻 GitHub Repository</a>
+            <div class="project-links">
+                <div class="project-links-title">Explore the Project</div>
+                <div class="project-links-grid">
+                    <a href="https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot" target="_blank">💻 GitHub</a>
+                    <a href="https://justakris.github.io/Trump-Rally-Speeches-NLP-Chatbot/" target="_blank">📖 Documentation</a>
+                    <a href="https://github.com/JustaKris/Trump-Rally-Speeches-NLP-Chatbot/tree/main/notebooks" target="_blank">📓 Research Notebooks</a>
+                    <a href="/docs" target="_blank">🔧 API Docs (Swagger)</a>
+                    <a href="/redoc" target="_blank">📋 API Docs (ReDoc)</a>
+                </div>
+                <div class="cold-start-note">
+                    ⚡ Running on Azure Free Tier — first load may take a minute while ML models warm up. Patience is a virtue (that I rarely exercise).
+                </div>
             </div>
         </div>
     </div>
@@ -723,6 +1089,12 @@
             "🤖 Generating AI topic summary...",
             "📊 Compiling analysis..."
         ];
+
+        // Set sample question and focus input
+        function setSampleQuestion(text) {
+            document.getElementById('ragQuestion').value = text;
+            document.getElementById('ragQuestion').focus();
+        }
 
         // Tab switching
         document.querySelectorAll('.tab').forEach(tab => {
