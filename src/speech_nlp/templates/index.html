@@ -854,7 +854,7 @@
     <div class="container">
         <header>
             <h1>🤖 Trump Speeches NLP Chatbot</h1>
-            <p class="subtitle">A RAG pipeline built from scratch — 10 stages, 3 ML models, zero LangChain.</p>
+            <p class="subtitle">An NLP playground built on 35 Trump rally speeches — ask questions, analyse sentiment, extract topics, or dig into the dataset. The AI Chatbot is where the real action is.</p>
         </header>
         
         <div class="content">
@@ -872,7 +872,7 @@
                 <p class="qa-description">
                     Ask anything about <strong>35+ Trump rally speeches</strong> — powered by a <strong>10-stage RAG pipeline</strong> built from scratch:
                     query rewriting, hybrid semantic search, cross-encoder re-ranking, grounded answer generation, and multi-factor confidence scoring.
-                    Zero LangChain.
+                    Three ML models under the hood. Zero LangChain.
                 </p>
                 <p style="margin: 0 0 8px; font-size: 13px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Quick test on these topics:</p>
                 <div class="sample-questions">
@@ -916,7 +916,7 @@
             <!-- Sentiment Analysis Tab -->
             <div class="tab-content" id="sentiment">
                 <h2>🎭 Sentiment Analysis</h2>
-                <p class="qa-description">Paste any text and let three ML models fight over what it means — <strong>FinBERT</strong> for financial-grade sentiment, <strong>RoBERTa</strong> for emotion detection, and an <strong>LLM</strong> to explain it all in plain English. Works on anything, not just speeches.</p>
+                <p class="qa-description">Drop in any text and get a three-model breakdown — <strong>FinBERT</strong> scores the sentiment, <strong>RoBERTa</strong> maps the emotions, and an <strong>LLM</strong> ties it together with a plain-English interpretation. Speeches, news articles, tweets, whatever.</p>
                 <textarea id="sentimentText" placeholder="Paste any text to analyze — news articles, tweets, your boss's passive-aggressive emails..."></textarea>
                 <button class="analyze" onclick="analyzeSentiment()">🎭 Analyze Sentiment</button>
                 
@@ -956,8 +956,7 @@
             <!-- Topic Extraction Tab -->
             <div class="tab-content" id="topics">
                 <h2>🏷️ Topic Extraction</h2>
-                <p class="qa-description">DBSCAN semantic clustering with sentence-transformers — groups related keywords into meaningful themes,
-                    finds contextual examples with highlighting, and gets an LLM to write the summary. Paste a speech, article, or anything with enough meat to cluster.</p>
+                <p class="qa-description">Drop in any substantial text and get it broken down into meaningful themes — keywords grouped by semantic similarity, real examples pulled from the source with highlighting, and an LLM summary tying it all together. Under the hood: DBSCAN clustering with sentence-transformers.</p>
                 <textarea id="topicsText" placeholder="Paste a speech, article, or any substantial text..."></textarea>
                 <button class="analyze" onclick="analyzeTopics()">🏷️ Extract Topics</button>
                 
@@ -986,8 +985,7 @@
             <!-- Stats Tab -->
             <div class="tab-content" id="stats">
                 <h2>📊 The Dataset</h2>
-                <p class="qa-description"><strong>35 Trump rally speeches (2019–2020)</strong> chunked into ~2,354 semantic segments and indexed in ChromaDB as 768-dimensional MPNet embeddings.
-                    This is the knowledge base the RAG chatbot searches through. Hit the button to see what’s in there.</p>
+                <p class="qa-description"><strong>35 Trump rally speeches (2019–2020)</strong> chunked into ~2,354 semantic segments, embedded as 768-dimensional MPNet vectors, and indexed in ChromaDB — the knowledge base the RAG chatbot searches. Load the stats to see speech lengths, word counts, and corpus-wide breakdowns.</p>
                 <button class="analyze" onclick="loadStats()">📊 Load Dataset Stats</button>
                 
                 <div class="loading" id="statsLoading">
