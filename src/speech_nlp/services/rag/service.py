@@ -184,7 +184,9 @@ class RAGService:
                 documents = result["documents"]
                 # Ensure documents is a list of strings
                 if isinstance(documents, list) and all(isinstance(d, str) for d in documents):
-                    self.search_engine.initialize_bm25(documents)
+                    ids = result.get("ids") or []
+                    metadatas = result.get("metadatas") or []
+                    self.search_engine.initialize_bm25(documents, ids=ids, metadatas=metadatas)
                     logger.info(f"✓ BM25 index initialized with {len(documents)} documents")
         except Exception as e:
             logger.warning(f"Could not initialize BM25 from existing collection: {e}")

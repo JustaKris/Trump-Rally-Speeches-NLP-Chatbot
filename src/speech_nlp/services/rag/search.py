@@ -57,16 +57,27 @@ class SearchEngine:
         # BM25 will be initialized when documents are loaded
         self.bm25: Optional[BM25Okapi] = None
         self.bm25_corpus: List[List[str]] = []
+        # Stored at init time to guarantee stable index→document mapping
+        self.bm25_documents: List[str] = []
+        self.bm25_doc_ids: List[str] = []
+        self.bm25_metadatas: List[Dict] = []
 
         logger.info(
             f"SearchEngine initialized: hybrid={use_hybrid_search}, reranking={use_reranking}"
         )
 
-    def initialize_bm25(self, documents: List[str]):
+    def initialize_bm25(
+        self,
+        documents: List[str],
+        ids: Optional[List[str]] = None,
+        metadatas: Optional[List[Dict]] = None,
+    ):
         """Initialize BM25 index for keyword search.
 
         Args:
             documents: List of document chunks
+            ids: Optional parallel list of document IDs (same order as documents)
+            metadatas: Optional parallel list of document metadata dicts
         """
         if not self.use_hybrid_search:
             logger.debug("BM25 disabled, skipping initialization")
@@ -76,11 +87,21 @@ class SearchEngine:
             logger.warning("Cannot initialize BM25 with empty document list")
             self.bm25 = None
             self.bm25_corpus = []
+            self.bm25_documents = []
+            self.bm25_doc_ids = []
+            self.bm25_metadatas = []
             return
 
         # Tokenize documents (simple split by whitespace and lowercase)
         self.bm25_corpus = [doc.lower().split() for doc in documents]
         self.bm25 = BM25Okapi(self.bm25_corpus)
+
+        # Store parallel lists so _hybrid_search can look up by corpus index
+        # without a second collection.get() call (whose ordering is not guaranteed)
+        self.bm25_documents = list(documents)
+        self.bm25_doc_ids = list(ids) if ids else [f"doc-{i}" for i in range(len(documents))]
+        self.bm25_metadatas = list(metadatas) if metadatas else [{} for _ in documents]
+
         logger.info(f"BM25 index initialized with {len(documents)} documents")
 
     def search(self, query: str, top_k: int = 5) -> List[SearchResult]:
@@ -160,22 +181,24 @@ class SearchEngine:
             range(len(bm25_scores)), key=lambda i: bm25_scores[i], reverse=True
         )[:candidate_count]
 
-        # Fetch documents for BM25 results
-        all_docs = self.collection.get()
+        # Build BM25 results using documents stored at initialization time.
+        # Using stored copies avoids a second collection.get() call whose ordering
+        # is not guaranteed to match the order used when the BM25 index was built.
         bm25_results = []
 
-        # Build BM25 results
-        if all_docs["documents"] is not None:
-            max_score = max(bm25_scores) if bm25_scores.size > 0 else 1.0
+        if self.bm25_documents:
+            max_score = float(max(bm25_scores)) if bm25_scores.size > 0 else 0.0
+            if max_score == 0.0:
+                max_score = 1.0  # All scores are 0 (e.g. empty query); avoid division by zero
 
             for idx in bm25_top_indices:
-                if idx < len(all_docs["documents"]):
+                if idx < len(self.bm25_documents):
                     bm25_results.append(
                         SearchResult(
-                            document=all_docs["documents"][idx],
-                            metadata=(all_docs["metadatas"][idx] if all_docs["metadatas"] else {}),
+                            document=self.bm25_documents[idx],
+                            metadata=self.bm25_metadatas[idx] if self.bm25_metadatas else {},
                             distance=1.0 - (bm25_scores[idx] / max_score),  # Normalize
-                            id=all_docs["ids"][idx],
+                            id=self.bm25_doc_ids[idx],
                             sources=["bm25"],
                         )
                     )
