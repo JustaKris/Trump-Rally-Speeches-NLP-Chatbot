@@ -26,9 +26,11 @@ from speech_nlp.api.dependencies import (
 )
 from speech_nlp.config.settings import get_settings
 from speech_nlp.services import (
+    CacheService,
     EnhancedSentimentAnalyzer,
     NLPService,
     RAGService,
+    RedisCache,
     TopicExtractionService,
     create_llm_provider,
 )
@@ -99,6 +101,31 @@ async def lifespan(app: FastAPI):
     # Initialize RAG service
     logger.info("Initializing RAG service...")
     try:
+        # Initialize cache service if enabled
+        cache_service = None
+        if settings.cache.enabled:
+            logger.info("Initializing response cache...")
+            try:
+                cache_backend = RedisCache(
+                    host=settings.cache.redis_host,
+                    port=settings.cache.redis_port,
+                    db=settings.cache.redis_db,
+                    password=settings.cache.redis_password,
+                    key_prefix=settings.cache.key_prefix,
+                )
+                cache_service = CacheService(
+                    backend=cache_backend,
+                    key_prefix="rag",
+                    default_ttl_seconds=settings.cache.ttl_seconds,
+                )
+                if cache_backend.using_fallback:
+                    logger.info("✓ Response cache initialized (in-memory fallback)")
+                else:
+                    logger.info("✓ Response cache initialized (Redis)")
+            except Exception as e:
+                logger.warning(f"⚠️  Failed to initialize cache: {e}")
+                logger.warning("   Continuing without response caching")
+
         rag_service = RAGService(
             collection_name=settings.rag.chromadb_collection_name,
             persist_directory=settings.rag.chromadb_persist_directory,
@@ -117,6 +144,7 @@ async def lifespan(app: FastAPI):
             similarity_threshold=settings.rag.similarity_threshold,
             grounding_threshold=settings.rag.grounding_threshold,
             query_rewriting_enabled=settings.rag.query_rewriting_enabled,
+            cache_service=cache_service,
         )
 
         # Check if collection is empty and load documents if needed

@@ -2,6 +2,31 @@
 
 All notable changes to the Trump Speeches NLP Chatbot.
 
+## [0.5.0] — Unreleased
+
+### Added — Response Caching
+
+**Module: `src/speech_nlp/services/cache/`**
+
+Redis-backed caching layer with automatic in-memory fallback:
+
+- **`base.py`**: Abstract `CacheBackend` interface and high-level `CacheService` with hit/miss metrics
+- **`redis.py`**: `RedisCache` with automatic `MemoryCache` fallback when Redis is unavailable
+- Deterministic cache keys using SHA-256 hash of normalised query + top_k
+- Configurable TTL (default: 1 hour) via `CACHE_TTL_SECONDS`
+- Cache statistics: hits, misses, hit rate, backend info
+- Response metadata includes `cached: true` and `cache_key` for cached responses
+
+**Docker Integration:**
+
+- Added `redis:7-alpine` service to `docker-compose.yml` with health checks and persistence
+- 128MB max memory with LRU eviction policy
+- Environment variables: `CACHE_ENABLED`, `CACHE_REDIS_HOST`, `CACHE_REDIS_PORT`, `CACHE_TTL_SECONDS`
+
+**Testing:** 25 dedicated tests covering cache operations, TTL expiration, fallback behaviour, and RAG integration.
+
+---
+
 ## [0.4.0] — April 2026
 
 ### Added — RAG Guardrails

@@ -35,6 +35,7 @@ DBSCAN semantic clustering with sentence-transformers, LLM-generated topic label
 
 ### The Engineering
 
+- **Response Caching** — Redis-backed with in-memory fallback. Eliminates redundant LLM calls for repeated queries with configurable TTL and cache statistics
 - **Pluggable LLM Providers** — Factory pattern with lazy imports. Swap Gemini/OpenAI/Anthropic by changing one env var
 - **FastAPI Backend** — 12+ endpoints, async handling, Pydantic validation, dependency injection
 - **CI/CD** — 9 GitHub Actions workflows: tests, lint, type-check, security, Docker, docs, Azure/Render deployment
@@ -212,11 +213,13 @@ print(response.json()["answer"])
    docker run -it --rm -p 8000:8000 trump-speeches-nlp-chatbot
    ```
 
-3. **Or use Docker Compose**
+3. **Or use Docker Compose** (Recommended — includes Redis for caching)
 
    ```powershell
    docker-compose up -d
    ```
+
+   This starts the API server with Redis for response caching. The cache significantly improves response times for repeated queries.
 
 ### View Documentation Site (Optional)
 

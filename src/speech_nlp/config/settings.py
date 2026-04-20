@@ -118,6 +118,31 @@ class LLMSettings(BaseSettings):
     max_output_tokens: int = Field(default=2048, ge=1, le=8192)
 
 
+class CacheSettings(BaseSettings):
+    """Response caching configuration.
+
+    Redis-backed caching for RAG responses to reduce LLM costs and latency.
+    Falls back to in-memory cache when Redis is unavailable.
+    """
+
+    model_config = SettingsConfigDict(
+        env_prefix="CACHE_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    enabled: bool = Field(default=True, description="Enable response caching")
+    redis_host: str = Field(default="localhost", description="Redis server hostname")
+    redis_port: int = Field(default=6379, ge=1, le=65535, description="Redis server port")
+    redis_db: int = Field(default=0, ge=0, le=15, description="Redis database number")
+    redis_password: Optional[str] = Field(default=None, description="Redis password")
+    ttl_seconds: int = Field(
+        default=3600, ge=60, le=86400, description="Cache TTL in seconds (1 hour default)"
+    )
+    key_prefix: str = Field(default="speech_nlp", description="Redis key namespace prefix")
+
+
 class Settings(BaseSettings):
     """Top-level application settings.
 
@@ -149,6 +174,7 @@ class Settings(BaseSettings):
     models: ModelSettings = Field(default_factory=ModelSettings)
     paths: PathSettings = Field(default_factory=PathSettings)
     llm: LLMSettings = Field(default_factory=LLMSettings)
+    cache: CacheSettings = Field(default_factory=CacheSettings)
 
     # Additional configuration
     sentiment_interpretation_temperature: float = Field(
@@ -267,6 +293,12 @@ class Settings(BaseSettings):
         if self.rag.guardrails_enabled:
             logger.info(f"Similarity Threshold: {self.rag.similarity_threshold}")
             logger.info(f"Grounding Threshold: {self.rag.grounding_threshold}")
+
+        # Cache configuration
+        logger.info(f"Response Caching: {'Enabled' if self.cache.enabled else 'Disabled'}")
+        if self.cache.enabled:
+            logger.info(f"Cache Redis: {self.cache.redis_host}:{self.cache.redis_port}")
+            logger.info(f"Cache TTL: {self.cache.ttl_seconds}s")
 
 
 # ------------------------------------------------------------------
