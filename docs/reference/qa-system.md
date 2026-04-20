@@ -409,6 +409,58 @@ rag:
 
 ---
 
+### 9. Response Caching
+
+Identical questions skip the full RAG pipeline and return a cached answer in milliseconds. The cache layer sits at **Layer 0** of `RAGService.ask()` — before query rewriting, search, or LLM calls.
+
+**Backends:**
+
+- **Redis** (primary) — shared across processes and restarts. Used automatically when `CACHE_ENABLED=true` and Redis is reachable.
+- **MemoryCache** (fallback) — thread-safe in-process dict with TTL. Activates automatically if Redis is unreachable or the `redis` package is not installed.
+
+**Cache key** — SHA-256 hash of the normalised `question + top_k` pair (lowercased, whitespace-collapsed). This means semantically identical questions with different formatting still resolve to the same key.
+
+**Response fields:**
+
+Every `/rag/ask` response includes two cache-related fields:
+
+```json
+{
+  "cached": true,
+  "cache_key": "a3f9..."
+}
+```
+
+**Cache management endpoints** (on the `RAGService`):
+
+- `get_cache_stats()` — hit/miss ratio, total requests
+- `clear_cache()` — flushes all entries for the current key prefix
+
+**Configuration:**
+
+```yaml
+cache:
+  enabled: true
+  redis_host: "redis"          # hostname ("localhost" outside Docker)
+  redis_port: 6379
+  redis_db: 0
+  ttl_seconds: 3600            # 1 hour default
+  key_prefix: "speech_nlp"     # namespace isolation
+```
+
+Environment variable overrides:
+
+```env
+CACHE_ENABLED=true
+CACHE_REDIS_HOST=redis
+CACHE_REDIS_PORT=6379
+CACHE_REDIS_PASSWORD=        # optional
+CACHE_TTL_SECONDS=3600
+CACHE_KEY_PREFIX=speech_nlp
+```
+
+---
+
 ### 8. Extended Chunk Metadata
 
 Each speech filename encodes the rally location and date. The `extract_speech_metadata()` function in `DocumentLoader` parses this automatically during document loading, enriching every chunk with structured metadata.
@@ -592,7 +644,7 @@ The RAG service automatically initializes all components:
 - Cache entity statistics
 - Pre-compute embeddings
 - Async sentiment analysis
-- Redis for query caching
+- ~~Redis for query caching~~ — implemented (see [Response Caching](#9-response-caching))
 
 ## Technical Details
 
@@ -623,13 +675,12 @@ The RAG service automatically initializes all components:
 
 - Entity extraction uses simple heuristics (capitalization)
 - Sentiment analysis may show neutral for complex political text
-- No query caching (every request recomputes)
 - Synchronous processing (no async optimization)
 
 ### Future Enhancements
 
 - Integrate proper NER (spaCy or Hugging Face)
-- Add query caching layer (Redis)
+- ~~Add query caching layer (Redis)~~ — implemented
 - Implement async processing
 - Add temporal analysis (sentiment over time)
 - Entity relationship graphs
