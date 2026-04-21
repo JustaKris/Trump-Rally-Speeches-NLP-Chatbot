@@ -5,7 +5,7 @@ cache key generation, TTL handling, and cache service integration.
 """
 
 import time
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -289,15 +289,15 @@ class TestRAGServiceCacheIntegration:
         from speech_nlp.services.cache import CacheService, MemoryCache
 
         backend = MemoryCache()
-        cache_service = CacheService(backend=backend, key_prefix="test")
+        CacheService(backend=backend, key_prefix="test")
 
         # This import may fail if models aren't available in test environment
         # In that case, we just test that the parameter is accepted
         try:
-            from speech_nlp.services import RAGService
-
             # Verify the parameter is accepted (don't actually initialize the full service)
             import inspect
+
+            from speech_nlp.services import RAGService
 
             sig = inspect.signature(RAGService.__init__)
             assert "cache_service" in sig.parameters
