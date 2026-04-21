@@ -329,7 +329,7 @@ cache:
   redis_host: "localhost"   # use "redis" inside Docker Compose
   redis_port: 6379
   redis_db: 0
-  ttl_seconds: 3600         # 1 hour TTL (set 0 for no expiry)
+  ttl_seconds: 3600         # 1 hour TTL
   key_prefix: "speech_nlp"  # namespace — change to isolate environments
 ```
 
