@@ -71,9 +71,7 @@ class RAGAnswerResponse(BaseModel):
         description="Guardrails metadata: relevance filtering, grounding score, triggered status",
     )
     llm_powered: bool = Field(..., description="Whether LLM was used to generate the answer")
-    cached: Optional[bool] = Field(
-        None, description="Whether the response was served from cache"
-    )
+    cached: Optional[bool] = Field(None, description="Whether the response was served from cache")
 
 
 class RAGStatsResponse(BaseModel):

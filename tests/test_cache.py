@@ -254,9 +254,7 @@ class TestCacheService:
     def test_custom_ttl(self, cache_service):
         """Test caching with custom TTL."""
         # Cache with very short TTL
-        cache_service.cache_response(
-            "expiring_q", 5, {"answer": "test"}, ttl_seconds=1
-        )
+        cache_service.cache_response("expiring_q", 5, {"answer": "test"}, ttl_seconds=1)
 
         assert cache_service.get_response("expiring_q", 5) is not None
 
