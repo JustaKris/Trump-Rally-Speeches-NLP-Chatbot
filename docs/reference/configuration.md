@@ -319,6 +319,46 @@ Environment variable override:
 RAG_QUERY_REWRITING_ENABLED="true"
 ```
 
+### Cache Settings
+
+Response caching is configured under the `cache` section. Redis is the primary backend; the application falls back to an in-process `MemoryCache` automatically when Redis is unreachable.
+
+```yaml
+cache:
+  enabled: true
+  redis_host: "localhost"   # use "redis" inside Docker Compose
+  redis_port: 6379
+  redis_db: 0
+  ttl_seconds: 3600         # 1 hour TTL
+  key_prefix: "speech_nlp"  # namespace — change to isolate environments
+```
+
+Environment variable overrides (useful for Docker/CI):
+
+```env
+CACHE_ENABLED=true
+CACHE_REDIS_HOST=redis
+CACHE_REDIS_PORT=6379
+CACHE_REDIS_DB=0
+CACHE_REDIS_PASSWORD=          # optional
+CACHE_TTL_SECONDS=3600
+CACHE_KEY_PREFIX=speech_nlp
+```
+
+**Install the Redis dependency:**
+
+```bash
+uv sync --group cache
+```
+
+**Disable caching entirely:**
+
+```env
+CACHE_ENABLED=false
+```
+
+When disabled, every request goes through the full RAG pipeline. See [Response Caching](qa-system.md#9-response-caching) in the Q&A System reference for architecture details.
+
 ### Data Directories
 
 Configured under `paths` in YAML:

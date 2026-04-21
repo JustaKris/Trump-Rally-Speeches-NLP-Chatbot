@@ -7,6 +7,7 @@ including LLM integration, RAG, sentiment analysis, NLP processing, and vector d
 from .analysis.sentiment import EnhancedSentimentAnalyzer, get_sentiment_analyzer
 from .analysis.text import NLPService
 from .analysis.topics import TopicExtractionService
+from .cache import CacheBackend, CacheService, MemoryCache, RedisCache
 from .llm import AnthropicLLM, GeminiLLM, LLMProvider, OpenAILLM, create_llm_provider
 from .rag.service import RAGService
 
@@ -20,6 +21,11 @@ __all__ = [
     "AnthropicLLM",
     # RAG Service
     "RAGService",
+    # Cache Service
+    "CacheService",
+    "CacheBackend",
+    "RedisCache",
+    "MemoryCache",
     # Sentiment Analysis
     "EnhancedSentimentAnalyzer",
     "get_sentiment_analyzer",

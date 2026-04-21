@@ -124,12 +124,12 @@ uv run pytest
 uv run pytest -v --cov=src          # With coverage report
 
 # Lint and format
-uv run ruff check src/
-uv run ruff check src/ --fix        # Auto-fix fixable issues
-uv run ruff format src/
+uv run ruff check src/ tests/
+uv run ruff check src/ tests/ --fix        # Auto-fix fixable issues
+uv run ruff format src/ tests/
 
 # Type checking
-uv run mypy src/
+uv run mypy src/ tests/
 
 # Security scan
 uv run bandit -r src/ -c pyproject.toml

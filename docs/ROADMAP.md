@@ -61,6 +61,27 @@ Nine GitHub Actions workflows: `python-tests.yml`, `python-lint.yml`, `python-ty
 - **Type safety** — Pydantic models for all data structures
 - **Production logging** — JSON output for prod, coloured pretty-print for dev
 
+### Response Caching
+
+Redis-backed caching with automatic fallback to in-memory cache when Redis is unavailable. Eliminates redundant LLM calls for repeated queries.
+
+- **Redis primary** — `redis:7-alpine` container with persistence, 128MB max memory, LRU eviction
+- **MemoryCache fallback** — Thread-safe in-memory cache for development or when Redis is unavailable
+- **Deterministic cache keys** — SHA-256 hash of normalised query (lowercase, stripped whitespace) + top_k
+- **TTL support** — Configurable expiration via `CACHE_TTL_SECONDS` (default: 1 hour)
+- **Cache statistics** — Hit/miss tracking, hit rate, backend info exposed via `get_cache_stats()`
+- **Response metadata** — Cached responses marked with `cached: true` and `cache_key` in API responses
+
+**Configuration:**
+
+```bash
+CACHE_ENABLED=true
+CACHE_REDIS_HOST=redis
+CACHE_TTL_SECONDS=3600
+```
+
+The cache layer sits at the top of the RAG pipeline — before any search, reranking, or LLM calls. Cache invalidation is available via `clear_cache()` on the RAG service. 25 dedicated tests.
+
 ---
 
 ## What's Next
@@ -77,10 +98,6 @@ HyDE: "Trump discussed building a border wall..."  →  30+ tokens, closer to ac
 The final answer is still grounded in *real* retrieved chunks — HyDE only affects the search vector.
 
 **Effort:** Medium — touches `search_engine.py` and needs an LLM call per query.
-
-### Response Caching
-
-Redis-backed caching for repeated queries. LLM calls are expensive and slow; caching common questions would cut both cost and latency significantly.
 
 ### Enhanced NER
 

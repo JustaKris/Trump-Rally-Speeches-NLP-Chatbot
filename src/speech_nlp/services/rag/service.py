@@ -8,7 +8,7 @@ LLM providers for answer generation, and hybrid search for improved retrieval.
 
 import logging
 import os
-from typing import Any, Dict, List, Literal, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional
 
 import chromadb
 from chromadb.config import Settings as ChromaSettings
@@ -21,6 +21,9 @@ from speech_nlp.services.rag.entities import EntityAnalyzer
 from speech_nlp.services.rag.guardrails import RAGGuardrails
 from speech_nlp.services.rag.rewriter import QueryRewriter
 from speech_nlp.services.rag.search import SearchEngine
+
+if TYPE_CHECKING:
+    from speech_nlp.services.cache import CacheService
 
 # Disable ChromaDB telemetry
 os.environ["ANONYMIZED_TELEMETRY"] = "False"
@@ -54,6 +57,7 @@ class RAGService:
         similarity_threshold: float = 0.01,
         grounding_threshold: float = 0.3,
         query_rewriting_enabled: bool = True,
+        cache_service: Optional["CacheService"] = None,
     ):
         """Initialize RAG service with modular components.
 
@@ -75,6 +79,7 @@ class RAGService:
             similarity_threshold: Min normalised relevance score to keep a result (0-1)
             grounding_threshold: Min token-overlap ratio for grounding verification (0-1)
             query_rewriting_enabled: Enable LLM-powered query rewriting for better retrieval
+            cache_service: Optional cache service for response caching
         """
         self.collection_name = collection_name
         self.persist_directory = persist_directory
@@ -157,6 +162,11 @@ class RAGService:
         elif query_rewriting_enabled and not llm_service:
             logger.info("Query rewriting requested but no LLM available — disabled")
 
+        # Initialize response cache (Redis-backed with in-memory fallback)
+        self.cache_service: Optional["CacheService"] = cache_service
+        if cache_service:
+            logger.info("✓ Response caching enabled")
+
         # Check if collection has existing data
         count = self.collection.count()
         if count > 0:
@@ -174,7 +184,9 @@ class RAGService:
                 documents = result["documents"]
                 # Ensure documents is a list of strings
                 if isinstance(documents, list) and all(isinstance(d, str) for d in documents):
-                    self.search_engine.initialize_bm25(documents)
+                    ids = result.get("ids") or []
+                    metadatas = result.get("metadatas") or []
+                    self.search_engine.initialize_bm25(documents, ids=ids, metadatas=metadatas)
                     logger.info(f"✓ BM25 index initialized with {len(documents)} documents")
         except Exception as e:
             logger.warning(f"Could not initialize BM25 from existing collection: {e}")
@@ -291,6 +303,7 @@ class RAGService:
         """Answer a question using RAG (retrieval + generation).
 
         Pipeline:
+        0. (Cache) Check for cached response
         1. (Guardrails) Validate the incoming query
         2. (Query Rewriting) Rewrite query for better retrieval
         3. Extract entities from the question
@@ -299,6 +312,7 @@ class RAGService:
         6. Generate an answer via LLM (or extraction fallback)
         7. (Guardrails) Verify the answer is grounded in context
         8. Calculate confidence and build response
+        9. (Cache) Store response for future queries
 
         Args:
             question: Question to answer
@@ -308,6 +322,13 @@ class RAGService:
             Dictionary with answer, confidence, sources, and metadata
         """
         logger.info(f"Question: {question}")
+
+        # --- Layer 0: Check cache for existing response ---
+        if self.cache_service:
+            cached_response = self.cache_service.get_response(question, top_k)
+            if cached_response is not None:
+                logger.info("Cache HIT - returning cached response")
+                return cached_response
 
         # --- Layer 1: Pre-retrieval query validation ---
         if self.guardrails:
@@ -457,6 +478,11 @@ class RAGService:
         if entity_stats:
             response["entity_statistics"] = entity_stats
 
+        # --- Layer 9: Cache the response for future queries ---
+        if self.cache_service:
+            self.cache_service.cache_response(question, top_k, response)
+            response["cached"] = False  # Mark as fresh (not from cache)
+
         return response
 
     def _generate_llm_answer(self, question: str, context_chunks: List) -> str:
@@ -583,3 +609,23 @@ class RAGService:
     def count(self) -> int:
         """Get total number of chunks in collection."""
         return self.collection.count()
+
+    def get_cache_stats(self) -> Optional[Dict[str, Any]]:
+        """Get cache statistics if caching is enabled.
+
+        Returns:
+            Dictionary with cache statistics, or None if caching is disabled
+        """
+        if self.cache_service:
+            return self.cache_service.get_stats()
+        return None
+
+    def clear_cache(self) -> int:
+        """Clear all cached responses.
+
+        Returns:
+            Number of cached entries cleared, or 0 if caching is disabled
+        """
+        if self.cache_service:
+            return self.cache_service.clear_all()
+        return 0
