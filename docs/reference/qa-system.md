@@ -459,9 +459,11 @@ CACHE_TTL_SECONDS=3600
 CACHE_KEY_PREFIX=speech_nlp
 ```
 
+**Current `/rag/ask` response behavior:** responses indicate cache usage with the `cached` field. The `cache_key` value is not part of the current FastAPI response model, so it should not be expected in API output.
+
 ---
 
-### 8. Extended Chunk Metadata
+### 9. Extended Chunk Metadata
 
 Each speech filename encodes the rally location and date. The `extract_speech_metadata()` function in `DocumentLoader` parses this automatically during document loading, enriching every chunk with structured metadata.
 
