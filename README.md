@@ -23,7 +23,7 @@ This isn't a LangChain tutorial copy-paste. It's a modular pipeline where each c
 - **Query Rewriting** — LLM-powered query cleaning (typos, abbreviations) before search. Conservative by design — no synonym expansion, no scope broadening. Deterministic rewrites at temperature=0.0
 - **Semantic Chunking** — Custom sentence-level embedding similarity chunker (not LangChain's off-the-shelf splitter). NLTK tokenisation + cosine similarity with configurable percentile-based breakpoints and tail-merging. Produces ~2,354 coherent chunks from 35 speeches
 - **Smart Confidence Scoring** — Multi-factor calculation: retrieval quality (40%), consistency (25%), coverage (20%), entity presence (15%)
-- **Entity Analytics** — Extraction with sentiment analysis, co-occurrence tracking, and speech coverage mapping
+- **Entity Analytics** — spaCy `en_core_web_sm` NER with proper entity-type labels (PERSON, ORG, GPE, NORP, EVENT, LAW …). Handles multi-word entities, co-occurrence tracking, sentiment analysis per entity, and speech coverage mapping. Graceful fallback to capitalisation heuristics if spaCy is unavailable
 
 ### Sentiment Analysis
 
@@ -39,7 +39,7 @@ DBSCAN semantic clustering with sentence-transformers, LLM-generated topic label
 - **Pluggable LLM Providers** — Factory pattern with lazy imports. Swap Gemini/OpenAI/Anthropic by changing one env var
 - **FastAPI Backend** — 12+ endpoints, async handling, Pydantic validation, dependency injection
 - **CI/CD** — 9 GitHub Actions workflows: tests, lint, type-check, security, Docker, docs, Azure/Render deployment
-- **Testing** — 191 tests, 66%+ coverage, parametrised test cases
+- **Testing** — 237 tests, 66%+ coverage, parametrised test cases
 - **Modern Python** — uv, Ruff, mypy, structured logging (JSON for prod, pretty for dev), Docker multi-stage builds
 
 ## Try It Live

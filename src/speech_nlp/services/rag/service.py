@@ -58,6 +58,8 @@ class RAGService:
         grounding_threshold: float = 0.3,
         query_rewriting_enabled: bool = True,
         cache_service: Optional["CacheService"] = None,
+        use_ner: bool = True,
+        ner_model: str = "en_core_web_sm",
     ):
         """Initialize RAG service with modular components.
 
@@ -80,6 +82,8 @@ class RAGService:
             grounding_threshold: Min token-overlap ratio for grounding verification (0-1)
             query_rewriting_enabled: Enable LLM-powered query rewriting for better retrieval
             cache_service: Optional cache service for response caching
+            use_ner: Enable spaCy NER for entity extraction (falls back to heuristics if unavailable)
+            ner_model: spaCy model name to use for NER (default ``en_core_web_sm``)
         """
         self.collection_name = collection_name
         self.persist_directory = persist_directory
@@ -142,6 +146,8 @@ class RAGService:
         self.entity_analyzer = EntityAnalyzer(
             collection=self.collection,
             sentiment_analyzer=None,  # Can be set later via property
+            use_ner=use_ner,
+            ner_model=ner_model,
         )
 
         self.confidence_calculator = ConfidenceCalculator()

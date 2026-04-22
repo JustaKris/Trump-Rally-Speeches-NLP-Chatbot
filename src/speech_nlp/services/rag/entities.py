@@ -2,6 +2,11 @@
 
 Handles entity extraction, statistics gathering, sentiment analysis,
 and finding associated terms for named entities in the corpus.
+
+Named entity recognition uses spaCy (``en_core_web_sm`` by default) when the
+``ner`` optional dependency group is installed.  If spaCy or the requested
+model is unavailable the analyzer transparently falls back to the original
+capitalisation-heuristic approach so the rest of the pipeline is unaffected.
 """
 
 import logging
@@ -12,9 +17,44 @@ from typing import Any, Dict, List, Optional
 from chromadb.api.types import IncludeEnum
 
 from speech_nlp.constants import ENTITY_QUESTION_WORDS, ENTITY_STOPWORDS
-from speech_nlp.services.rag.models import EntitySentiment, EntityStatistics
+from speech_nlp.services.rag.models import EntityMatch, EntitySentiment, EntityStatistics
 
 logger = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# NER label configuration
+# ---------------------------------------------------------------------------
+
+# spaCy entity labels that are meaningful for political-speech analysis.
+# Labels not in this set (DATE, TIME, CARDINAL, ORDINAL, PERCENT, QUANTITY,
+# MONEY) are dropped to keep entity lists clean and relevant.
+RELEVANT_NER_LABELS: frozenset[str] = frozenset(
+    {
+        "PERSON",       # Politicians, journalists, named individuals
+        "ORG",          # Companies, media outlets, parties, agencies
+        "GPE",          # Countries, states, cities (geopolitical entities)
+        "NORP",         # Nationalities, political/religious groups
+        "FAC",          # Buildings, airports, bridges, highways
+        "EVENT",        # Named events (elections, summits)
+        "LAW",          # Named laws, amendments, acts
+        "PRODUCT",      # Products, vehicles, software
+        "WORK_OF_ART",  # Titles of books, songs, TV shows
+    }
+)
+
+# Human-readable descriptions for NER labels (used in API responses)
+NER_LABEL_DESCRIPTIONS: Dict[str, str] = {
+    "PERSON": "Person",
+    "ORG": "Organization",
+    "GPE": "Location",
+    "NORP": "Nationality / Group",
+    "FAC": "Facility",
+    "EVENT": "Event",
+    "LAW": "Law / Document",
+    "PRODUCT": "Product",
+    "WORK_OF_ART": "Work of Art",
+    "UNKNOWN": "Unknown",
+}
 
 
 class EntityAnalyzer:
@@ -22,52 +62,193 @@ class EntityAnalyzer:
 
     Provides entity extraction, frequency statistics, sentiment analysis,
     and term association discovery.
+
+    When spaCy is installed (``uv sync --group ner``) the analyzer uses the
+    configured spaCy model (default ``en_core_web_sm``) for proper NER,
+    handling multi-word entities and entity-type classification.  If spaCy
+    is not available it falls back to the original capitalisation heuristics
+    transparently — no configuration change is required.
     """
 
-    def __init__(self, collection=None, sentiment_analyzer=None):
+    def __init__(
+        self,
+        collection=None,
+        sentiment_analyzer=None,
+        use_ner: bool = True,
+        ner_model: str = "en_core_web_sm",
+    ):
         """Initialize entity analyzer.
 
         Args:
             collection: ChromaDB collection for corpus-wide analysis
             sentiment_analyzer: Optional sentiment analyzer for entity sentiment
+            use_ner: Use spaCy NER when available (True by default)
+            ner_model: spaCy model name to load (default ``en_core_web_sm``)
         """
         self.collection = collection
         self.sentiment_analyzer = sentiment_analyzer
+        self._use_ner = use_ner
+        self._ner_model_name = ner_model
+        self._nlp = None  # Lazy-loaded spaCy pipeline
 
         # Use centralized stopwords from constants
         self.stopwords = ENTITY_STOPWORDS
 
-        logger.debug("EntityAnalyzer initialized")
+        if use_ner:
+            logger.debug(f"EntityAnalyzer: NER enabled (model={ner_model})")
+        else:
+            logger.debug("EntityAnalyzer: NER disabled, using heuristics")
+
+    # ------------------------------------------------------------------
+    # spaCy lazy-load
+    # ------------------------------------------------------------------
+
+    def _get_nlp(self):
+        """Lazy-load and cache the spaCy NLP pipeline.
+
+        Returns the spaCy ``Language`` object on success, or ``None`` if
+        spaCy / the requested model is unavailable (triggers fallback).
+        """
+        if not self._use_ner:
+            return None
+
+        # Already loaded successfully
+        if self._nlp is not None:
+            return self._nlp
+
+        try:
+            import spacy  # type: ignore[import-not-found]
+
+            self._nlp = spacy.load(  # type: ignore[assignment]
+                self._ner_model_name,
+                # Only load the NER component — disables parser/tagger for speed
+                exclude=["tok2vec", "tagger", "parser", "attribute_ruler", "lemmatizer"],
+            )
+            logger.info(f"✓ spaCy NER model loaded: {self._ner_model_name}")
+            return self._nlp
+
+        except ImportError:
+            logger.warning(
+                "spaCy not installed — falling back to capitalisation heuristics. "
+                "Install the 'ner' dependency group to enable proper NER: "
+                "uv sync --group ner && python -m spacy download en_core_web_sm"
+            )
+        except OSError:
+            logger.warning(
+                f"spaCy model '{self._ner_model_name}' not found — "
+                "falling back to capitalisation heuristics. "
+                f"Run: python -m spacy download {self._ner_model_name}"
+            )
+        except Exception as e:
+            logger.warning(f"Failed to load spaCy model '{self._ner_model_name}': {e}")
+
+        # Disable NER so we don't retry on every call
+        self._use_ner = False
+        return None
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
 
     def extract_entities(self, text: str) -> List[str]:
-        """Extract potential named entities from text using simple heuristics.
+        """Extract named entity strings from text.
 
-        Uses capitalized words as entity candidates. For production,
-        consider using a proper NER model (spaCy, Hugging Face).
+        Uses spaCy NER when available; falls back to capitalisation heuristics.
+        Returns a deduplicated list of entity text strings (backward-compatible).
 
         Args:
             text: Text to extract entities from
 
         Returns:
-            List of potential entity names
+            Deduplicated list of entity name strings
+        """
+        matches = self.extract_entities_with_types(text)
+        return list({m.text for m in matches})
+
+    def extract_entities_with_types(self, text: str) -> List[EntityMatch]:
+        """Extract named entities with their types from text.
+
+        Uses spaCy NER when available (multi-word entities, type labels);
+        falls back to capitalisation heuristics that emit label ``"UNKNOWN"``.
+
+        Args:
+            text: Text to extract entities from
+
+        Returns:
+            List of :class:`EntityMatch` objects with ``text`` and ``label``
+        """
+        if not text:
+            return []
+
+        nlp = self._get_nlp()
+        if nlp is not None:
+            return self._extract_spacy(text, nlp)
+        return self._extract_heuristic(text)
+
+    # ------------------------------------------------------------------
+    # NER backends
+    # ------------------------------------------------------------------
+
+    def _extract_spacy(self, text: str, nlp) -> List[EntityMatch]:
+        """Extract entities using spaCy NER.
+
+        Args:
+            text: Input text
+            nlp: Loaded spaCy Language pipeline
+
+        Returns:
+            Filtered, deduplicated list of EntityMatch objects
+        """
+        doc = nlp(text)
+        seen: dict[str, str] = {}  # text → label (keeps first occurrence)
+
+        for ent in doc.ents:
+            label = ent.label_
+            if label not in RELEVANT_NER_LABELS:
+                continue
+
+            clean = ent.text.strip()
+            if len(clean) < 2:
+                continue
+            if clean.lower() in ENTITY_QUESTION_WORDS:
+                continue
+
+            # Keep the first label seen for a given entity text
+            if clean not in seen:
+                seen[clean] = label
+
+        entities = [EntityMatch(text=t, label=lbl) for t, lbl in seen.items()]
+        logger.debug(f"spaCy NER: extracted {len(entities)} entities from text")
+        return entities
+
+    def _extract_heuristic(self, text: str) -> List[EntityMatch]:
+        """Extract entity candidates using capitalisation heuristics.
+
+        Fallback when spaCy is unavailable.  All entities receive label
+        ``"UNKNOWN"`` since no type information is available.
+
+        Args:
+            text: Input text
+
+        Returns:
+            List of EntityMatch objects with label ``"UNKNOWN"``
         """
         words = text.split()
-        entities = []
+        seen: set[str] = set()
 
         for word in words:
-            # Remove punctuation
-            clean_word = word.strip(".,!?;:\"'")
+            clean = word.strip(".,!?;:\"'")
+            if clean and clean[0].isupper() and len(clean) > 2:
+                if clean.lower() not in ENTITY_QUESTION_WORDS:
+                    seen.add(clean)
 
-            # Check if capitalized and longer than 2 chars
-            if clean_word and clean_word[0].isupper() and len(clean_word) > 2:
-                # Skip common question words
-                if clean_word.lower() not in ENTITY_QUESTION_WORDS:
-                    entities.append(clean_word)
+        entities = [EntityMatch(text=t, label="UNKNOWN") for t in seen]
+        logger.debug(f"Heuristic NER: extracted {len(entities)} entities from text")
+        return entities
 
-        # Remove duplicates and return
-        unique_entities = list(set(entities))
-        logger.debug(f"Extracted {len(unique_entities)} entities from text")
-        return unique_entities
+    # ------------------------------------------------------------------
+    # Corpus statistics
+    # ------------------------------------------------------------------
 
     def get_statistics(
         self,
@@ -125,7 +306,6 @@ class EntityAnalyzer:
         entity_lower = entity.lower()
         mentions = 0
         speeches_with_entity = set()
-        total_chars = 0
         entity_contexts: List[str] = []
 
         # Count mentions across all documents
@@ -135,7 +315,6 @@ class EntityAnalyzer:
 
             if count > 0:
                 mentions += count
-                total_chars += len(doc)
 
                 # Track which speeches mention this entity
                 if all_docs["metadatas"] and i < len(all_docs["metadatas"]):
@@ -174,6 +353,10 @@ class EntityAnalyzer:
             entity_data["associated_terms"] = associations
 
         return EntityStatistics(**entity_data)
+
+    # ------------------------------------------------------------------
+    # Sentiment & associations
+    # ------------------------------------------------------------------
 
     def analyze_sentiment(self, entity: str, contexts: List[str]) -> EntitySentiment:
         """Analyze sentiment of text chunks mentioning an entity.

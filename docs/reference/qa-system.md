@@ -208,9 +208,17 @@ Every answer includes a human-readable explanation of *why* it has a certain con
 
 #### Entity Detection & Statistics
 
-Automatic entity detection with comprehensive analytics:
+Entity extraction uses spaCy `en_core_web_sm` (proper NER) with automatic fallback to capitalisation heuristics when spaCy is not installed.
 
-**Features:**
+**NER model details:**
+
+- **spaCy `en_core_web_sm`** — ~12 MB, CPU-only, loaded lazily on first use
+- **Relevant labels** — `PERSON`, `ORG`, `GPE`, `NORP`, `FAC`, `EVENT`, `LAW`, `PRODUCT`, `WORK_OF_ART`; temporal and numeric labels (`DATE`, `CARDINAL`, etc.) are dropped
+- **Multi-word entities** — Correctly captures "Joe Biden", "United States", "Republican Party" as single entities
+- **`EntityMatch` model** — Each extraction carries `text` (entity string) and `label` (spaCy type or `"UNKNOWN"` for heuristic fallback)
+- **Heuristic fallback** — Activates automatically if spaCy is not installed or the model is missing; all entities get `label="UNKNOWN"`
+
+**Analytics features:**
 
 - **Mention counts** — How many times entity appears across entire corpus
 - **Speech coverage** — Which specific speeches mention the entity

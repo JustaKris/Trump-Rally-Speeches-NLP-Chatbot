@@ -106,6 +106,12 @@ cache = [
     "redis (>=5.0.0,<6.0.0)"
 ]
 
+# Named Entity Recognition - spaCy model for entity extraction
+# Falls back to capitalisation heuristics if not installed
+ner = [
+    "spacy (>=3.7.0,<4.0.0)"
+]
+
 # Jupyter notebook execution (not needed for API)
 notebooks = [
     "jupyterlab (>=4.4.10,<5.0.0)",

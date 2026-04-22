@@ -24,6 +24,7 @@ RUN uv venv /opt/venv
 RUN uv export --frozen --no-hashes --no-emit-project \
         --no-group dev --no-group docs --no-group notebooks \
         --group cache \
+        --group ner \
         > requirements.txt && \
     # Remove GPU packages and torch (will install CPU-only torch separately)
     sed -i -E '/^(torch==|torchvision|torchaudio|triton|nvidia[-_])/d' requirements.txt && \

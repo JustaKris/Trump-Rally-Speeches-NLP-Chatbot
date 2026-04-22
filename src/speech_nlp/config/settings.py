@@ -84,6 +84,8 @@ class ModelSettings(BaseSettings):
     embedding_model_name: str = "all-mpnet-base-v2"
     reranker_model_name: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
     emotion_model_name: str = "j-hartmann/emotion-english-distilroberta-base"
+    ner_model_name: str = "en_core_web_sm"
+    ner_enabled: bool = True
 
 
 class PathSettings(BaseSettings):

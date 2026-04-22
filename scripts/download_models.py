@@ -18,8 +18,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from sentence_transformers import CrossEncoder, SentenceTransformer
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-from speech_nlp.config.settings import Settings
 from speech_nlp.config.logging import configure_logging, get_logger
+from speech_nlp.config.settings import Settings
 
 # Configure logging
 configure_logging(level="INFO", use_json=False)
@@ -73,6 +73,39 @@ def download_cross_encoder(model_name: str) -> None:
         raise
 
 
+def download_spacy_model(model_name: str) -> None:
+    """Download a spaCy NER model.
+
+    Attempts to load the model first; if not found, downloads it via
+    ``spacy.cli.download``.  Skips gracefully if spaCy is not installed.
+
+    Args:
+        model_name: spaCy model name (e.g. ``en_core_web_sm``)
+    """
+    logger.info(f"Downloading spaCy model: {model_name}")
+    try:
+        import spacy  # type: ignore[import-not-found]
+
+        # Try loading first — might already be installed
+        try:
+            spacy.load(model_name)
+            logger.info(f"✓ spaCy model already available: {model_name}")
+            return
+        except OSError:
+            pass  # Not installed yet — fall through to download
+
+        spacy.cli.download(model_name)
+        logger.info(f"✓ Successfully downloaded spaCy model: {model_name}")
+    except ImportError:
+        logger.warning(
+            "spaCy not installed — skipping NER model download. "
+            "Install the 'ner' optional group to enable NER: uv sync --group ner"
+        )
+    except Exception as e:
+        logger.error(f"✗ Failed to download spaCy model {model_name}: {e}")
+        raise
+
+
 def main():
     """Download all models specified in configuration."""
     parser = argparse.ArgumentParser(
@@ -115,6 +148,12 @@ def main():
     logger.info("Downloading reranker models...")
     download_cross_encoder(settings.models.reranker_model_name)
     logger.info("")
+
+    # Download spaCy NER model (optional — skips if spaCy not installed)
+    if settings.models.ner_enabled:
+        logger.info("Downloading NER models...")
+        download_spacy_model(settings.models.ner_model_name)
+        logger.info("")
 
     logger.info("=" * 70)
     logger.info("✓ All models downloaded successfully!")
