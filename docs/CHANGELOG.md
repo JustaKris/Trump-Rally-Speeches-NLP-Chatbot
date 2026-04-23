@@ -33,6 +33,14 @@ All notable changes to the Trump Speeches NLP Chatbot.
 
 - Stats now auto-load on first tab visit (`statsLoaded` one-shot flag); the manual "Load Dataset Stats" button is removed.
 - Speech list table added below the stat boxes, fetched concurrently with stats via `Promise.all`. Displays location, month/year, and a proportional word-count progress bar for all 35 speeches sorted by year then month. Uses the existing `/analyze/speeches/list` endpoint — no backend changes required.
+- Each row in the speech list is now **clickable** — clicking opens a full-screen modal overlay that fetches and renders the entire speech text. Header shows location/date; subtitle updates with exact word count once loaded. Text is displayed in a proportional serif font for comfortable long-form reading. Modal dismissable via the ✕ button, clicking the backdrop, or the Escape key. Includes loading spinner and error state.
+
+**New API endpoint — `GET /analyze/speeches/{filename}`:**
+
+- Returns `filename`, `location`, `month`, `year`, `word_count`, and the full `content` string for a single speech file.
+- Security: filename validated against `^[A-Za-z0-9_\-]+\.txt$` plus a resolved-path guard to prevent path traversal. Unsafe or missing filenames return HTTP 404.
+- Route placed after `/analyze/speeches/stats` and `/analyze/speeches/list` so fixed routes take priority over the path-parameter route.
+- Implemented in `NLPService.get_speech_text()` (`services/analysis/text.py`).
 
 ---
 
