@@ -73,6 +73,8 @@ The API is deployed on Azure and ready to explore:
 | `/analyze/topics` | POST | AI-powered topic extraction with semantic clustering |
 | `/analyze/words` | POST | Word frequency analysis |
 | `/analyze/ngrams` | POST | N-gram analysis |
+| `/analyze/speeches/stats` | GET | Corpus statistics (speech count, word counts, date range) |
+| `/analyze/speeches/list` | GET | Full corpus index — all 35 speeches with location, date, word count |
 | `/health` | GET | System health and service status |
 | `/config` | GET | Public runtime configuration |
 | `/diagnostics` | GET | Detailed diagnostics for troubleshooting |
