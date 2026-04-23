@@ -190,3 +190,36 @@ async def list_speeches(nlp_service: NLPService = Depends(get_nlp_service)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to load speeches: {str(e)}",
         )
+
+
+@router.get("/speeches/{filename}")
+async def get_speech_text(
+    filename: str,
+    nlp_service: NLPService = Depends(get_nlp_service),
+):
+    """Return the full text and metadata of a single speech.
+
+    Only ``.txt`` files from the speech corpus are accessible.  The filename
+    must consist of alphanumeric characters, hyphens, and underscores —
+    path traversal attempts are rejected with 400.
+
+    Returns ``filename``, ``location``, ``month``, ``year``, ``word_count``,
+    and the full ``content`` string.
+    """
+    try:
+        result = nlp_service.get_speech_text(filename)
+    except Exception as e:
+        logger.error("Speech retrieval error for %r: %s", filename, e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to load speech: {str(e)}",
+        )
+
+    if result is None:
+        # Distinguish "not found" from "bad filename" — both are safe to return as 404
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Speech '{filename}' not found.",
+        )
+
+    return result

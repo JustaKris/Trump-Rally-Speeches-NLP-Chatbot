@@ -848,6 +848,72 @@
                 padding: 14px;
             }
         }
+
+        /* ── Speech Modal ──────────────────────────────────────── */
+        #speechModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(0,0,0,0.82);
+            backdrop-filter: blur(4px);
+            overflow-y: auto;
+        }
+        .speech-modal-inner {
+            max-width: 860px;
+            margin: 40px auto;
+            padding: 0 16px 60px;
+        }
+        .speech-modal-card {
+            background: #161620;
+            border: 1px solid #3a3a4a;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+        .speech-modal-header {
+            padding: 20px 24px 16px;
+            background: linear-gradient(135deg, #1a1a2e, #20202e);
+            border-bottom: 1px solid #3a3a4a;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .speech-modal-close {
+            flex-shrink: 0;
+            background: #2a2a3a;
+            border: 1px solid #3a3a4a;
+            border-radius: 8px;
+            color: #aaa;
+            cursor: pointer;
+            padding: 8px 16px;
+            font-size: 14px;
+            transition: background 0.15s, color 0.15s;
+        }
+        .speech-modal-close:hover { background: #3a3a4a; color: #e0e0e0; }
+        .speech-modal-body {
+            padding: 28px 28px 32px;
+        }
+        .speech-modal-text {
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 15px;
+            line-height: 1.95;
+            color: #d0d0d0;
+            margin: 0;
+        }
+        /* Make speech list rows look clickable */
+        .speech-row { cursor: pointer; transition: background 0.15s; }
+        .speech-row:hover { background: #1e1e2e !important; }
+        .speech-row td:first-child::after {
+            content: ' ↗';
+            font-size: 11px;
+            color: #667eea;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .speech-row:hover td:first-child::after { opacity: 1; }
     </style>
 </head>
 <body>
@@ -1524,8 +1590,11 @@
                 const pct = maxWords > 0 ? Math.round((s.word_count / maxWords) * 100) : 0;
                 const location = escapeHtml(s.location || s.filename || '—');
                 const date = `${s.month || ''} ${s.year || ''}`.trim() || '—';
+                const fn = escapeHtml(s.filename || '');
+                const mo = escapeHtml(s.month || '');
+                const yr = escapeHtml(s.year || '');
                 return `
-                    <tr style="border-bottom: 1px solid #2a2a3a; transition: background 0.15s;" onmouseover="this.style.background='#1e1e2e'" onmouseout="this.style.background='transparent'">
+                    <tr class="speech-row" style="border-bottom: 1px solid #2a2a3a;" onclick="openSpeechModal('${fn}','${location}','${mo}','${yr}')" title="Click to read full speech">
                         <td style="padding: 10px 14px; color: #e0e0e0; font-weight: 500;">${location}</td>
                         <td style="padding: 10px 14px; color: #aaa; white-space: nowrap;">${date}</td>
                         <td style="padding: 10px 14px; min-width: 140px;">
@@ -1776,6 +1845,79 @@
         function hideError(id) {
             document.getElementById(id).classList.remove('show');
         }
+
+        // ── Speech Modal ─────────────────────────────────────────
+        async function openSpeechModal(filename, location, month, year) {
+            const modal     = document.getElementById('speechModal');
+            const loading   = document.getElementById('speechModalLoading');
+            const errorEl   = document.getElementById('speechModalError');
+            const content   = document.getElementById('speechModalContent');
+            const titleEl   = document.getElementById('speechModalTitle');
+            const metaEl    = document.getElementById('speechModalMeta');
+            const textEl    = document.getElementById('speechModalText');
+
+            titleEl.textContent = location ? `${location} Rally` : filename;
+            metaEl.textContent  = [month, year].filter(Boolean).join(' ') + ' · ' + filename;
+            loading.style.display  = 'block';
+            errorEl.style.display  = 'none';
+            content.style.display  = 'none';
+            modal.style.display    = 'block';
+            document.body.style.overflow = 'hidden';
+            // Scroll the modal back to top on each open
+            modal.scrollTop = 0;
+
+            try {
+                const resp = await fetch('/analyze/speeches/' + encodeURIComponent(filename));
+                if (!resp.ok) {
+                    const err = await resp.json().catch(() => ({}));
+                    throw new Error(err.detail || `HTTP ${resp.status}`);
+                }
+                const data = await resp.json();
+                textEl.textContent = data.content || '';
+                metaEl.textContent = [month, year].filter(Boolean).join(' ') +
+                    ' · ' + (data.word_count || 0).toLocaleString() + ' words · ' + filename;
+                content.style.display = 'block';
+            } catch (e) {
+                errorEl.textContent   = '⚠️ Could not load speech: ' + e.message;
+                errorEl.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function closeSpeechModal() {
+            document.getElementById('speechModal').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeSpeechModal();
+        });
     </script>
+
+    <!-- Speech full-text modal -->
+    <div id="speechModal" onclick="if(event.target===this)closeSpeechModal()" role="dialog" aria-modal="true" aria-labelledby="speechModalTitle">
+        <div class="speech-modal-inner">
+            <div class="speech-modal-card">
+                <div class="speech-modal-header">
+                    <div>
+                        <div style="font-size:11px; color:#888; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Full Speech Text</div>
+                        <h3 id="speechModalTitle" style="margin:0; font-size:20px; color:#e0e0e0; font-weight:700;"></h3>
+                        <div id="speechModalMeta" style="margin-top:6px; font-size:13px; color:#888;"></div>
+                    </div>
+                    <button class="speech-modal-close" onclick="closeSpeechModal()" aria-label="Close">✕ Close</button>
+                </div>
+                <div id="speechModalLoading" style="display:none; text-align:center; padding:48px 24px;">
+                    <div class="spinner" style="margin:0 auto 16px;"></div>
+                    <p style="color:#888; margin:0;">Loading speech...</p>
+                </div>
+                <div id="speechModalError" style="display:none; padding:20px 24px; color:#e06060; background:rgba(224,96,96,0.08); border-top:1px solid rgba(224,96,96,0.2);"></div>
+                <div id="speechModalContent" style="display:none;" class="speech-modal-body">
+                    <pre id="speechModalText" class="speech-modal-text"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

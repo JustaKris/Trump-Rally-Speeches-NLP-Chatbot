@@ -5,9 +5,10 @@ This service aggregates functionality from utils for cleaner API separation.
 """
 
 import logging
-from typing import Any, Dict
+import re
+from typing import Any, Dict, Optional
 
-from speech_nlp.utils.io import get_dataset_statistics, load_speeches_from_directory
+from speech_nlp.utils.io import get_dataset_statistics, get_project_root, load_speeches_from_directory
 from speech_nlp.utils.text import extract_ngrams, get_stopwords, tokenize_text
 
 logger = logging.getLogger(__name__)
@@ -71,3 +72,60 @@ class NLPService:
         df = load_speeches_from_directory()
         speeches = df[["filename", "location", "month", "year", "word_count"]].to_dict("records")
         return {"total": len(speeches), "speeches": speeches}
+
+    def get_speech_text(self, filename: str) -> Optional[Dict[str, Any]]:
+        """Return the full text and metadata for a single speech file.
+
+        Security: only filenames composed of alphanumeric characters, hyphens,
+        and underscores followed by ``.txt`` are accepted.  The resolved path
+        is also checked to be inside the speeches directory, guarding against
+        any edge-case bypass.
+
+        Args:
+            filename: Bare filename of the speech (e.g. ``CincinnatiAug1_2019.txt``).
+
+        Returns:
+            Dict with ``filename``, ``location``, ``month``, ``year``,
+            ``word_count``, and ``content``, or ``None`` if the file is not
+            found or the filename fails validation.
+        """
+        # Allow only safe filenames: word-chars / hyphens + .txt
+        if not re.match(r"^[A-Za-z0-9_\-]+\.txt$", filename):
+            logger.warning("Speech request rejected — unsafe filename: %r", filename)
+            return None
+
+        speeches_dir = get_project_root() / "data" / "Donald Trump Rally Speeches"
+        file_path = (speeches_dir / filename).resolve()
+
+        # Confirm resolved path is still inside the speeches directory
+        if not str(file_path).startswith(str(speeches_dir.resolve())):
+            logger.warning("Speech request rejected — path traversal attempt: %r", filename)
+            return None
+
+        if not file_path.exists():
+            return None
+
+        with open(file_path, "r", encoding="utf-8") as fh:
+            content = fh.read()
+
+        # Parse metadata from filename (same logic as load_speeches_from_directory)
+        name_parts = filename.replace(".txt", "").split("_")
+        location, month, year = filename, "", ""
+        if len(name_parts) == 2:
+            location_date, year = name_parts[0], name_parts[1]
+            match = re.search(r"([A-Z][a-z]+)(\d+)", location_date)
+            if match:
+                location_month = location_date[: match.start(2)]
+                location = location_month[:-3] if len(location_month) > 3 else location_month
+                month = location_month[-3:] if len(location_month) > 3 else ""
+            else:
+                location = location_date
+
+        return {
+            "filename": filename,
+            "location": location,
+            "month": month,
+            "year": year,
+            "word_count": len(content.split()),
+            "content": content,
+        }
