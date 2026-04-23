@@ -23,7 +23,7 @@ This isn't a LangChain tutorial copy-paste. It's a modular pipeline where each c
 - **Query Rewriting** — LLM-powered query cleaning (typos, abbreviations) before search. Conservative by design — no synonym expansion, no scope broadening. Deterministic rewrites at temperature=0.0
 - **Semantic Chunking** — Custom sentence-level embedding similarity chunker (not LangChain's off-the-shelf splitter). NLTK tokenisation + cosine similarity with configurable percentile-based breakpoints and tail-merging. Produces ~2,354 coherent chunks from 35 speeches
 - **Smart Confidence Scoring** — Multi-factor calculation: retrieval quality (40%), consistency (25%), coverage (20%), entity presence (15%)
-- **Entity Analytics** — spaCy `en_core_web_sm` NER with proper entity-type labels (PERSON, ORG, GPE, NORP, EVENT, LAW …). Handles multi-word entities, co-occurrence tracking, sentiment analysis per entity, and speech coverage mapping. Graceful fallback to capitalisation heuristics if spaCy is unavailable
+- **Entity Analytics** — spaCy `en_core_web_sm` NER with typed entity labels (PERSON, ORG, GPE, NORP, EVENT, LAW …). Handles multi-word entities, corpus-wide mention counts, co-occurrence term mapping, and speech coverage tracking. Entity type informs confidence scoring — domain-specific entities (LAW, EVENT) carry more weight than ubiquitous ones (PERSON). Graceful fallback to capitalisation heuristics if spaCy is unavailable
 
 ### Sentiment Analysis
 
@@ -328,7 +328,7 @@ src/speech_nlp/
 ├── templates/index.html         # Web UI
 └── static/                      # CSS + images
 
-tests/                           # 191 tests, 66%+ coverage
+tests/                           # 237 tests, 66%+ coverage
 data/                            # Speech transcripts + ChromaDB
 configs/                         # YAML env configs (dev/staging/prod)
 docs/                            # MkDocs documentation site
