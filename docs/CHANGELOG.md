@@ -2,6 +2,48 @@
 
 All notable changes to the Trump Speeches NLP Chatbot.
 
+## [0.6.0] — Unreleased
+
+### Added — Enhanced NER Integration
+
+**Label-aware entity confidence scoring (`confidence.py`):**
+
+- Added `LABEL_SPECIFICITY` dict mapping each spaCy entity type to a 0.45–0.95 weight. `PERSON` / `NORP` entities (e.g. "Trump", "Democrats") appear in virtually every political-speech chunk and carry a lower weight; rarer, query-specific labels (`LAW`, `EVENT`, `FAC`) carry a higher weight.
+- Added `_calculate_entity_coverage_typed()` — per-entity chunk coverage scaled by label specificity. Prevents generic queries from inflating the entity-coverage component of the confidence score.
+- `ConfidenceCalculator.calculate()` now accepts an optional `entity_matches: List[EntityMatch]` parameter; typed scoring is used when provided, with graceful fallback to the existing heuristic path.
+
+**Typed `EntityMatch` through the RAG pipeline (`service.py`, `responses.py`):**
+
+- `RAGService.ask()` now calls `extract_entities_with_types()` instead of `extract_entities()`, threading `List[EntityMatch]` through the pipeline end-to-end.
+- `_no_relevant_info_response()` serialises each match as `{"text": ..., "label": ...}` in the response body.
+- `RAGAnswerResponse` gains an optional `entities` field (`List[Dict[str, str]]`) so callers can inspect which named entities were detected in the question alongside their spaCy type labels.
+- Entity statistics are now always fetched (without sentiment) for faster pipeline execution; sentiment can still be requested separately via `include_sentiment=True`.
+
+### Enhanced — Web UI Tab Improvements
+
+**Sentiment tab:**
+
+- Added four quick-load sample buttons (Economy & Trade, Immigration, Military & Veterans, Media & Democrats) pre-populated with real excerpts from the Cincinnati Aug 2019 speech, removing the blank-slate friction that caused most visitors to skip the tab.
+
+**Topics tab:**
+
+- Added three quick-load speech buttons (Cincinnati Aug 2019, Minneapolis Oct 2019, Dallas Oct 2019) pre-populated with full-length excerpts. Topics extraction needs substantial text for DBSCAN to produce meaningful clusters; the buttons provide that with one click.
+
+**Dataset tab:**
+
+- Stats now auto-load on first tab visit (`statsLoaded` one-shot flag); the manual "Load Dataset Stats" button is removed.
+- Speech list table added below the stat boxes, fetched concurrently with stats via `Promise.all`. Displays location, month/year, and a proportional word-count progress bar for all 35 speeches sorted by year then month. Uses the existing `/analyze/speeches/list` endpoint — no backend changes required.
+- Each row in the speech list is now **clickable** — clicking opens a full-screen modal overlay that fetches and renders the entire speech text. Header shows location/date; subtitle updates with exact word count once loaded. Text is displayed in a proportional serif font for comfortable long-form reading. Modal dismissable via the ✕ button, clicking the backdrop, or the Escape key. Includes loading spinner and error state.
+
+**New API endpoint — `GET /analyze/speeches/{filename}`:**
+
+- Returns `filename`, `location`, `month`, `year`, `word_count`, and the full `content` string for a single speech file.
+- Security: filename validated against `^[A-Za-z0-9_\-]+\.txt$` plus a resolved-path guard to prevent path traversal. Unsafe or missing filenames return HTTP 404.
+- Route placed after `/analyze/speeches/stats` and `/analyze/speeches/list` so fixed routes take priority over the path-parameter route.
+- Implemented in `NLPService.get_speech_text()` (`services/analysis/text.py`).
+
+---
+
 ## [0.5.0] — Unreleased
 
 ### Added — Response Caching

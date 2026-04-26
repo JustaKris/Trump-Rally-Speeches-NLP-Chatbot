@@ -5,12 +5,13 @@ for RAG answer quality based on multiple factors.
 """
 
 import logging
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from speech_nlp.services.rag.models import (
     ConfidenceFactors,
     ConfidenceResult,
     ContextChunk,
+    EntityMatch,
     SearchResult,
 )
 
@@ -30,6 +31,23 @@ class ConfidenceCalculator:
     CHUNK_COVERAGE_WEIGHT = 0.2  # 20% - Number of supporting chunks
     ENTITY_COVERAGE_WEIGHT = 0.15  # 15% - Entity mention frequency
 
+    # Specificity weights per spaCy entity label.
+    # Higher = rarer / more query-specific → stronger confidence signal.
+    # PERSON/NORP appear in almost every political-speech chunk (e.g. "Trump",
+    # "Democrats") so they carry a weaker signal than a named law or event.
+    LABEL_SPECIFICITY: Dict[str, float] = {
+        "LAW": 0.95,  # "Tax Cuts and Jobs Act" — very specific
+        "EVENT": 0.90,  # "Election Day" — specific
+        "FAC": 0.90,  # Named facilities — specific
+        "PRODUCT": 0.85,  # Named products — specific
+        "WORK_OF_ART": 0.85,  # Named titles — specific
+        "ORG": 0.75,  # Organizations — moderately specific
+        "GPE": 0.65,  # Countries/cities — moderately specific
+        "NORP": 0.55,  # "Democrats", "Chinese" — frequent in political speech
+        "PERSON": 0.45,  # "Trump", "Biden" — appear in virtually every chunk
+        "UNKNOWN": 0.50,  # Heuristic fallback — no type info
+    }
+
     # Thresholds for confidence levels
     HIGH_THRESHOLD = 0.7
     MEDIUM_THRESHOLD = 0.4
@@ -43,6 +61,7 @@ class ConfidenceCalculator:
         question: str,
         context_chunks: List[ContextChunk],
         search_results: List[SearchResult],
+        entity_matches: Optional[List[EntityMatch]] = None,
     ) -> ConfidenceResult:
         """Calculate confidence using multiple factors for accurate assessment.
 
@@ -50,12 +69,16 @@ class ConfidenceCalculator:
         1. Average retrieval score (semantic similarity) - 40%
         2. Score consistency (low variance = more confident) - 25%
         3. Number of supporting chunks - 20%
-        4. Entity mention frequency (if applicable) - 15%
+        4. Entity mention frequency, weighted by label specificity - 15%
 
         Args:
             question: Original question
             context_chunks: Retrieved context with scores
             search_results: Raw search results
+            entity_matches: Typed entities from spaCy NER (optional).  When
+                provided, entity coverage is weighted by label specificity so
+                ubiquitous entities (PERSON) inflate the score less than
+                query-specific ones (LAW, EVENT).
 
         Returns:
             ConfidenceResult with score, level, and explanation
@@ -103,12 +126,20 @@ class ConfidenceCalculator:
         chunk_count_score = min(len(context_chunks) / 10.0, 1.0)  # Normalize to max 10
         chunk_factor = chunk_count_score * self.CHUNK_COVERAGE_WEIGHT
 
-        # Factor 4: Entity mention frequency (15% weight)
-        entities = self._extract_entities(question)
-        if entities:
-            entity_coverage = self._calculate_entity_coverage(entities, context_chunks)
+        # Factor 4: Entity mention frequency, weighted by label specificity (15% weight)
+        # Use pre-extracted typed entities when available; fall back to heuristics.
+        if entity_matches is not None:
+            entities = [m.text for m in entity_matches]
+            entity_coverage = (
+                self._calculate_entity_coverage_typed(entity_matches, context_chunks)
+                if entity_matches
+                else None
+            )
         else:
-            entity_coverage = None  # No entities detected
+            entities = self._extract_entities(question)
+            entity_coverage = (
+                self._calculate_entity_coverage(entities, context_chunks) if entities else None
+            )
 
         # Use neutral score if no entities
         entity_factor = (
@@ -196,6 +227,46 @@ class ConfidenceCalculator:
                 entity_mentions += 1
 
         return entity_mentions / len(context_chunks) if context_chunks else 0.0
+
+    def _calculate_entity_coverage_typed(
+        self,
+        entity_matches: List[EntityMatch],
+        context_chunks: List[ContextChunk],
+    ) -> float:
+        """Calculate entity coverage weighted by label specificity.
+
+        Entities that appear in virtually every political-speech chunk (e.g.
+        "Trump" with label PERSON) carry a lower specificity weight than rare,
+        query-specific entities such as named laws (LAW) or events (EVENT).
+        This prevents generic queries from receiving an artificially inflated
+        entity-coverage score.
+
+        Per-entity score = chunk_coverage × label_specificity_weight.
+        Final score = mean of per-entity scores (0.0 – 1.0).
+
+        Args:
+            entity_matches: Typed entities extracted by spaCy NER.
+            context_chunks: Retrieved context chunks.
+
+        Returns:
+            Weighted coverage ratio (0.0 to 1.0).
+        """
+        if not context_chunks or not entity_matches:
+            return 0.0
+
+        per_entity_scores: List[float] = []
+        for match in entity_matches:
+            # Raw per-chunk coverage for this entity
+            mentions = sum(
+                1 for chunk in context_chunks if match.text.lower() in chunk.text.lower()
+            )
+            raw_coverage = mentions / len(context_chunks)
+
+            # Scale by label specificity (defaults to 0.5 for unknown labels)
+            specificity = self.LABEL_SPECIFICITY.get(match.label, 0.50)
+            per_entity_scores.append(raw_coverage * specificity)
+
+        return sum(per_entity_scores) / len(per_entity_scores)
 
     def _generate_explanation(
         self,

@@ -83,6 +83,17 @@ class EntitySentiment(BaseModel):
     sample_size: int = Field(..., ge=0)
 
 
+class EntityMatch(BaseModel):
+    """A named entity extracted from text, with its spaCy label.
+
+    ``label`` follows spaCy's NER tag scheme:
+    PERSON, ORG, GPE, NORP, FAC, EVENT, LAW, PRODUCT, WORK_OF_ART, UNKNOWN.
+    """
+
+    text: str
+    label: str  # spaCy entity type or "UNKNOWN" for heuristic fallback
+
+
 class EntityStatistics(BaseModel):
     """Statistics about an entity's mentions across the corpus."""
 

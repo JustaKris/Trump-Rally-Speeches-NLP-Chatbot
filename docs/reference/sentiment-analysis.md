@@ -141,6 +141,23 @@ The system uses **three specialized AI models** working together:
 
 ---
 
+## Web Interface
+
+The **Sentiment** tab in the web UI ([live app](https://trump-speeches-nlp-chatbot.azurewebsites.net) · [local](http://localhost:8000)) lets you run a full three-model analysis without any API calls.
+
+**Quick-load sample buttons** — four real excerpts from the Cincinnati Aug 2019 speech are available as one-click starters:
+
+| Button | Theme |
+| ------ | ----- |
+| 💰 Economy & Trade | Economic policy, jobs, trade deals |
+| 🌎 Immigration | Border security, immigration enforcement |
+| 🪖 Military & Veterans | Military funding, veterans' care |
+| 📺 Media & Democrats | Media criticism, political opposition |
+
+Click any button to load the excerpt into the text area, then press **Analyze Sentiment**. You can also paste any text — news articles, tweets, speech excerpts — the input is not restricted to the speech corpus.
+
+---
+
 ## API Reference
 
 ### Endpoint

@@ -19,6 +19,7 @@ from speech_nlp.services.rag.chunking import DocumentLoader
 from speech_nlp.services.rag.confidence import ConfidenceCalculator
 from speech_nlp.services.rag.entities import EntityAnalyzer
 from speech_nlp.services.rag.guardrails import RAGGuardrails
+from speech_nlp.services.rag.models import EntityMatch
 from speech_nlp.services.rag.rewriter import QueryRewriter
 from speech_nlp.services.rag.search import SearchEngine
 
@@ -58,6 +59,8 @@ class RAGService:
         grounding_threshold: float = 0.3,
         query_rewriting_enabled: bool = True,
         cache_service: Optional["CacheService"] = None,
+        use_ner: bool = True,
+        ner_model: str = "en_core_web_sm",
     ):
         """Initialize RAG service with modular components.
 
@@ -80,6 +83,8 @@ class RAGService:
             grounding_threshold: Min token-overlap ratio for grounding verification (0-1)
             query_rewriting_enabled: Enable LLM-powered query rewriting for better retrieval
             cache_service: Optional cache service for response caching
+            use_ner: Enable spaCy NER for entity extraction (falls back to heuristics if unavailable)
+            ner_model: spaCy model name to use for NER (default ``en_core_web_sm``)
         """
         self.collection_name = collection_name
         self.persist_directory = persist_directory
@@ -142,6 +147,8 @@ class RAGService:
         self.entity_analyzer = EntityAnalyzer(
             collection=self.collection,
             sentiment_analyzer=None,  # Can be set later via property
+            use_ner=use_ner,
+            ner_model=ner_model,
         )
 
         self.confidence_calculator = ConfidenceCalculator()
@@ -184,8 +191,10 @@ class RAGService:
                 documents = result["documents"]
                 # Ensure documents is a list of strings
                 if isinstance(documents, list) and all(isinstance(d, str) for d in documents):
-                    ids = result.get("ids") or []
-                    metadatas = result.get("metadatas") or []
+                    ids: List[str] = result.get("ids") or []
+                    # Explicit cast: ChromaDB Metadata is Dict[str, str|int|float|bool]
+                    # which satisfies Dict[str, Any] — annotate to satisfy the type checker.
+                    metadatas: List[Dict[str, Any]] = result.get("metadatas") or []  # type: ignore[assignment]
                     self.search_engine.initialize_bm25(documents, ids=ids, metadatas=metadatas)
                     logger.info(f"✓ BM25 index initialized with {len(documents)} documents")
         except Exception as e:
@@ -278,9 +287,11 @@ class RAGService:
             logger.error(f"Search error: {e}")
             return []
 
-    def _no_relevant_info_response(self, entities: List[str], reason: str) -> Dict[str, Any]:
+    def _no_relevant_info_response(
+        self, entity_matches: List[EntityMatch], reason: str
+    ) -> Dict[str, Any]:
         """Standard response when no relevant information is found."""
-        logger.info("No relevant info: %s (entities=%s)", reason, entities)
+        logger.info("No relevant info: %s (entities=%s)", reason, [m.text for m in entity_matches])
         return {
             "answer": "I don't have enough information to answer that question.",
             "context": [],
@@ -294,7 +305,7 @@ class RAGService:
                 "entity_coverage": 0.0,
             },
             "sources": [],
-            "entities": entities,
+            "entities": [{"text": m.text, "label": m.label} for m in entity_matches],
             "llm_powered": self.llm is not None,
             "guardrails": {"enabled": self.guardrails_enabled, "triggered": True, "reason": reason},
         }
@@ -335,7 +346,7 @@ class RAGService:
             is_valid, rejection_reason = self.guardrails.validate_query(question)
             if not is_valid:
                 return self._no_relevant_info_response(
-                    entities=[], reason=rejection_reason or "Invalid query"
+                    entity_matches=[], reason=rejection_reason or "Invalid query"
                 )
 
         # --- Query rewriting for better retrieval ---
@@ -345,8 +356,11 @@ class RAGService:
             search_query = self.query_rewriter.rewrite(question)
 
         # Extract entities from original question (user intent, not rewritten)
-        entities = self.entity_analyzer.extract_entities(question)
-        logger.debug(f"Extracted entities: {entities}")
+        entity_matches: List[EntityMatch] = self.entity_analyzer.extract_entities_with_types(
+            question
+        )
+        entities = [m.text for m in entity_matches]  # plain strings for backward-compat internals
+        logger.debug(f"Extracted entities: {[(m.text, m.label) for m in entity_matches]}")
 
         # Fetch extra candidates when guardrails will filter
         fetch_k = top_k * 2 if self.guardrails else top_k
@@ -354,7 +368,7 @@ class RAGService:
 
         if not results:
             return self._no_relevant_info_response(
-                entities=entities, reason="No relevant documents found"
+                entity_matches=entity_matches, reason="No relevant documents found"
             )
 
         # --- Layer 2: Post-retrieval relevance filtering ---
@@ -363,7 +377,7 @@ class RAGService:
             results = self.guardrails.filter_by_relevance(results)
             if not results:
                 return self._no_relevant_info_response(
-                    entities=entities,
+                    entity_matches=entity_matches,
                     reason=(
                         f"None of the {pre_filter_count} retrieved chunks met the "
                         f"relevance threshold — the documents may not cover this topic"
@@ -403,17 +417,20 @@ class RAGService:
                     "found in the available speech transcripts."
                 )
 
-        # Calculate confidence (note: ConfidenceCalculator doesn't use answer text)
+        # Calculate confidence — pass typed entity matches for label-aware scoring
         confidence_result = self.confidence_calculator.calculate(
-            question=question, search_results=results, context_chunks=context_chunks
+            question=question,
+            search_results=results,
+            context_chunks=context_chunks,
+            entity_matches=entity_matches,
         )
 
-        # Get entity statistics if entities were found
+        # Get entity statistics — always run without sentiment (fast corpus scan)
         entity_stats = None
-        if entities and self.entity_analyzer.sentiment_analyzer:
+        if entities:
             try:
                 entity_stats = self.entity_analyzer.get_statistics(
-                    entities, include_sentiment=True, include_associations=True
+                    entities, include_sentiment=False, include_associations=True
                 )
             except Exception as e:
                 logger.warning(f"Could not get entity statistics: {e}")
@@ -460,7 +477,7 @@ class RAGService:
             "confidence_explanation": confidence_result.explanation,
             "confidence_factors": confidence_factors_dict,
             "sources": sorted({c.source for c in context_chunks}),  # Deduplicate and sort
-            "entities": entities,
+            "entities": [{"text": m.text, "label": m.label} for m in entity_matches],
             "llm_powered": self.llm is not None,
             "guardrails": guardrails_meta,
         }
@@ -476,7 +493,17 @@ class RAGService:
             response["query_rewriting"] = {"enabled": True, "rewritten": False}
 
         if entity_stats:
-            response["entity_statistics"] = entity_stats
+            # Serialize EntityStatistics to plain dicts and inject the NER label.
+            # This makes each entry self-contained — the UI doesn't need to
+            # cross-reference data.entities to find the entity type colour.
+            label_map = {m.text: m.label for m in entity_matches}
+            response["entity_statistics"] = {
+                name: {
+                    **stats.model_dump(exclude_none=False),
+                    "label": label_map.get(name, "UNKNOWN"),
+                }
+                for name, stats in entity_stats.items()
+            }
 
         # --- Layer 9: Cache the response for future queries ---
         if self.cache_service:

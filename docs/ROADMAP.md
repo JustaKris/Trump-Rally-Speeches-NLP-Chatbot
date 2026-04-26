@@ -57,7 +57,7 @@ Nine GitHub Actions workflows: `python-tests.yml`, `python-lint.yml`, `python-ty
 
 - **Modular RAG architecture** — Dedicated components for search, confidence, entity analysis, and document loading
 - **Multi-factor confidence scoring** — Weighted combination of retrieval quality, consistency, coverage, and entity presence
-- **Component testing** — 66%+ coverage, 191 tests
+- **Component testing** — 66%+ coverage, 237 tests
 - **Type safety** — Pydantic models for all data structures
 - **Production logging** — JSON output for prod, coloured pretty-print for dev
 
@@ -82,6 +82,33 @@ CACHE_TTL_SECONDS=3600
 
 The cache layer sits at the top of the RAG pipeline — before any search, reranking, or LLM calls. Cache invalidation is available via `clear_cache()` on the RAG service. 25 dedicated tests.
 
+### Enhanced Named Entity Recognition (NER)
+
+Replaced the original capitalisation-heuristic entity extraction with proper NER using spaCy `en_core_web_sm`.
+
+- **spaCy `en_core_web_sm`** (~12 MB, CPU-only) — handles multi-word entities, entity-type classification, and edge cases the old word-split approach could not
+- **Relevant labels** — filters to politically meaningful entity types: `PERSON`, `ORG`, `GPE`, `NORP`, `FAC`, `EVENT`, `LAW`, `PRODUCT`, `WORK_OF_ART`; drops noise like `DATE`, `CARDINAL`, `MONEY`
+- **`EntityMatch` model** — new Pydantic model carrying `text` and `label` fields so callers can distinguish "Donald Trump (PERSON)" from "Washington (GPE)"
+- **`extract_entities_with_types()`** — primary new method returning `List[EntityMatch]`; `extract_entities()` delegates to it and strips labels for backward compatibility
+- **Graceful fallback** — if spaCy is not installed or the model is missing the analyzer automatically falls back to the original capitalisation heuristics, emitting `label="UNKNOWN"`. No configuration change required; the rest of the pipeline is unaffected
+- **Lazy model loading** — spaCy pipeline loaded on first use; subsequent calls reuse the cached object
+- **Optional dependency group** — `uv sync --group ner` installs spaCy. Production Docker image includes it via `--group ner` in `uv export`
+- **17 new tests** covering the spaCy path, fallback path, `EntityMatch`, label filtering, and lazy-load mechanics (42 entity-analyzer tests total)
+
+**Configuration:**
+
+```yaml
+# configs/production.yaml
+models:
+  ner_model_name: "en_core_web_sm"
+  ner_enabled: true
+```
+
+```bash
+# Environment override
+NER_ENABLED=false  # disable NER, use heuristics only
+```
+
 ---
 
 ## What's Next
@@ -101,7 +128,9 @@ The final answer is still grounded in *real* retrieved chunks — HyDE only affe
 
 ### Enhanced NER
 
-Current entity extraction uses capitalisation heuristics. Proper NER with spaCy or a HuggingFace model would catch multi-word entities, disambiguate, and handle edge cases.
+~~Current entity extraction uses capitalisation heuristics. Proper NER with spaCy or a HuggingFace model would catch multi-word entities, disambiguate, and handle edge cases.~~
+
+**Done** — see the Enhanced NER section in *What's Been Done* above.
 
 ### Topic Modelling
 

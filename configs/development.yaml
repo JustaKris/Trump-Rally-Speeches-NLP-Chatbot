@@ -73,6 +73,10 @@ models:
   embedding_model_name: "all-mpnet-base-v2"
   reranker_model_name: "cross-encoder/ms-marco-MiniLM-L-6-v2"
 
+  # Named Entity Recognition (spaCy)
+  ner_model_name: "en_core_web_sm"   # spaCy model used for entity extraction
+  ner_enabled: true                   # Disable to fall back to capitalisation heuristics
+
 # ---------------------------------------------------------------------------
 # Data paths
 # ---------------------------------------------------------------------------

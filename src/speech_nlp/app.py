@@ -145,6 +145,8 @@ async def lifespan(app: FastAPI):
             grounding_threshold=settings.rag.grounding_threshold,
             query_rewriting_enabled=settings.rag.query_rewriting_enabled,
             cache_service=cache_service,
+            use_ner=settings.models.ner_enabled,
+            ner_model=settings.models.ner_model_name,
         )
 
         # Check if collection is empty and load documents if needed

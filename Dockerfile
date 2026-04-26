@@ -18,12 +18,13 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 COPY pyproject.toml uv.lock /app/
 
 # Create a venv for the app dependencies
-RUN uv venv /opt/venv
+RUN uv venv --seed /opt/venv
 
 # Export production deps, strip GPU packages, install CPU-only alternatives
 RUN uv export --frozen --no-hashes --no-emit-project \
         --no-group dev --no-group docs --no-group notebooks \
         --group cache \
+        --group ner \
         > requirements.txt && \
     # Remove GPU packages and torch (will install CPU-only torch separately)
     sed -i -E '/^(torch==|torchvision|torchaudio|triton|nvidia[-_])/d' requirements.txt && \
@@ -51,20 +52,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy the venv from builder
-COPY --from=builder /opt/venv /opt/venv
+# Non-root user — create early so --chown on COPY instructions works,
+# avoiding a slow recursive chown pass over the entire venv later.
+RUN useradd -m -u 1000 appuser
+
+# Copy the venv from builder with correct ownership from the start
+COPY --from=builder --chown=appuser:appuser /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 # Allow Python to find the speech_nlp package
 ENV PYTHONPATH="/app/src"
 
 # Copy app code
-COPY src/ ./src/
-COPY data/ ./data/
-COPY configs/ ./configs/
-COPY scripts/ ./scripts/
+COPY --chown=appuser:appuser src/ ./src/
+COPY --chown=appuser:appuser data/ ./data/
+COPY --chown=appuser:appuser configs/ ./configs/
+COPY --chown=appuser:appuser scripts/ ./scripts/
 
-# Non-root user
-RUN useradd -m -u 1000 appuser && chown -R appuser /app
 USER appuser
 
 # Pre-download all HuggingFace models based on configuration

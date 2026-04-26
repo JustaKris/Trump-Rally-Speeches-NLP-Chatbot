@@ -100,7 +100,7 @@
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
-            color: #999;
+            color: #aaa;
             transition: all 0.3s;
             white-space: nowrap;
         }
@@ -183,7 +183,7 @@
         }
         
         textarea::placeholder {
-            color: #666;
+            color: #777;
         }
         
         button.analyze {
@@ -575,7 +575,7 @@
         }
 
         .qa-input-row textarea::placeholder {
-            color: #666;
+            color: #777;
         }
 
         .qa-submit {
@@ -649,7 +649,7 @@
         .sources-label {
             font-size: 13px;
             font-weight: 700;
-            color: #888;
+            color: #999;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             display: block;
@@ -730,7 +730,7 @@
         }
 
         .lab-divider-subtitle {
-            color: #666;
+            color: #777;
             font-size: 14px;
             margin-top: 6px;
             font-style: italic;
@@ -784,7 +784,7 @@
             margin-top: 8px;
             padding: 6px;
             font-size: 12px;
-            color: #555;
+            color: #666;
             font-style: italic;
         }
 
@@ -848,6 +848,72 @@
                 padding: 14px;
             }
         }
+
+        /* ── Speech Modal ──────────────────────────────────────── */
+        #speechModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(0,0,0,0.82);
+            backdrop-filter: blur(4px);
+            overflow-y: auto;
+        }
+        .speech-modal-inner {
+            max-width: 860px;
+            margin: 40px auto;
+            padding: 0 16px 60px;
+        }
+        .speech-modal-card {
+            background: #161620;
+            border: 1px solid #3a3a4a;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+        .speech-modal-header {
+            padding: 20px 24px 16px;
+            background: linear-gradient(135deg, #1a1a2e, #20202e);
+            border-bottom: 1px solid #3a3a4a;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .speech-modal-close {
+            flex-shrink: 0;
+            background: #2a2a3a;
+            border: 1px solid #3a3a4a;
+            border-radius: 8px;
+            color: #aaa;
+            cursor: pointer;
+            padding: 8px 16px;
+            font-size: 14px;
+            transition: background 0.15s, color 0.15s;
+        }
+        .speech-modal-close:hover { background: #3a3a4a; color: #e0e0e0; }
+        .speech-modal-body {
+            padding: 28px 28px 32px;
+        }
+        .speech-modal-text {
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 15px;
+            line-height: 1.95;
+            color: #d0d0d0;
+            margin: 0;
+        }
+        /* Make speech list rows look clickable */
+        .speech-row { cursor: pointer; transition: background 0.15s; }
+        .speech-row:hover { background: #1e1e2e !important; }
+        .speech-row td:first-child::after {
+            content: ' ↗';
+            font-size: 11px;
+            color: #667eea;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .speech-row:hover td:first-child::after { opacity: 1; }
     </style>
 </head>
 <body>
@@ -874,13 +940,14 @@
                     query rewriting, hybrid semantic search, cross-encoder re-ranking, grounded answer generation, and multi-factor confidence scoring.
                     Three ML models under the hood. Zero LangChain.
                 </p>
-                <p style="margin: 0 0 8px; font-size: 13px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Quick test on these topics:</p>
+                <p style="margin: 0 0 8px; font-size: 13px; color: #777; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Quick test on these topics:</p>
                 <div class="sample-questions">
                     <span class="sample-q" onclick="setSampleQuestion('What does Trump say about Joe Biden?')">🗣️ On Joe Biden</span>
                     <span class="sample-q" onclick="setSampleQuestion('What does Trump say about the media and fake news?')">📺 Views on the media</span>
                     <span class="sample-q" onclick="setSampleQuestion('How does Trump talk about the economy and jobs?')">💰 Economy &amp; jobs</span>
                     <span class="sample-q" onclick="setSampleQuestion('What does Trump say about immigration?')">🌎 Immigration stance</span>
                 </div>
+                <p style="margin: 8px 0 18px; font-size: 12px; color: #777; font-style: italic;">Not sure what to ask? You can browse all 35 source speeches — and read any one in full — on the <span style="color: #667eea; cursor: pointer; text-decoration: underline;" onclick="document.querySelector('[data-tab=stats]').click()">Dataset tab</span>.</p>
                 <div class="qa-input-row">
                     <textarea id="ragQuestion" placeholder="Ask a question about the speeches..." rows="2"></textarea>
                     <button class="qa-submit" onclick="askRAG()">🚀 Ask AI</button>
@@ -906,6 +973,12 @@
                         <div id="ragSources"></div>
                     </div>
                     
+                    <div id="ragEntitiesCard" style="display:none; margin-bottom: 16px; padding: 16px 20px; background: linear-gradient(135deg, #1a1a2e 0%, #20202e 100%); border: 1px solid #3a3a4a; border-radius: 10px;">
+                        <div style="font-size: 12px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px;">🔍 Entities Detected in Your Question</div>
+                        <div id="ragEntities" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+                        <div id="ragEntityStats" style="margin-top: 14px;"></div>
+                    </div>
+                    
                     <details class="context-panel">
                         <summary>📚 Supporting Context — click to expand retrieved passages</summary>
                         <div id="ragContext" style="padding-top: 15px;"></div>
@@ -917,6 +990,13 @@
             <div class="tab-content" id="sentiment">
                 <h2>🎭 Sentiment Analysis</h2>
                 <p class="qa-description">Drop in any text and get a three-model breakdown — <strong>FinBERT</strong> scores the sentiment, <strong>RoBERTa</strong> maps the emotions, and an <strong>LLM</strong> ties it together with a plain-English interpretation. Speeches, news articles, tweets, whatever.</p>
+                <p style="margin: 0 0 8px; font-size: 13px; color: #777; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Quick-load a speech excerpt:</p>
+                <div class="sample-questions">
+                    <span class="sample-q" onclick="setSentimentSample('economy')">💰 Economy &amp; Trade (Cincinnati, 2019)</span>
+                    <span class="sample-q" onclick="setSentimentSample('immigration')">🌎 Immigration (Cincinnati, 2019)</span>
+                    <span class="sample-q" onclick="setSentimentSample('military')">🪖 Military &amp; Veterans (Cincinnati, 2019)</span>
+                    <span class="sample-q" onclick="setSentimentSample('media')">📺 Media &amp; Democrats (Cincinnati, 2019)</span>
+                </div>
                 <textarea id="sentimentText" placeholder="Paste any text to analyze — news articles, tweets, your boss's passive-aggressive emails..."></textarea>
                 <button class="analyze" onclick="analyzeSentiment()">🎭 Analyze Sentiment</button>
                 
@@ -957,6 +1037,12 @@
             <div class="tab-content" id="topics">
                 <h2>🏷️ Topic Extraction</h2>
                 <p class="qa-description">Drop in any substantial text and get it broken down into meaningful themes — keywords grouped by semantic similarity, real examples pulled from the source with highlighting, and an LLM summary tying it all together. Under the hood: DBSCAN clustering with sentence-transformers.</p>
+                <p style="margin: 0 0 8px; font-size: 13px; color: #777; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Quick-load a full speech:</p>
+                <div class="sample-questions">
+                    <span class="sample-q" onclick="setTopicsSample('cincinnati')">🏙️ Cincinnati, Aug 2019</span>
+                    <span class="sample-q" onclick="setTopicsSample('minneapolis')">🏙️ Minneapolis, Oct 2019</span>
+                    <span class="sample-q" onclick="setTopicsSample('dallas')">🏙️ Dallas, Oct 2019</span>
+                </div>
                 <textarea id="topicsText" placeholder="Paste a speech, article, or any substantial text..."></textarea>
                 <button class="analyze" onclick="analyzeTopics()">🏷️ Extract Topics</button>
                 
@@ -985,8 +1071,7 @@
             <!-- Stats Tab -->
             <div class="tab-content" id="stats">
                 <h2>📊 The Dataset</h2>
-                <p class="qa-description"><strong>35 Trump rally speeches (2019–2020)</strong> chunked into ~2,354 semantic segments, embedded as 768-dimensional MPNet vectors, and indexed in ChromaDB — the knowledge base the RAG chatbot searches. Load the stats to see speech lengths, word counts, and corpus-wide breakdowns.</p>
-                <button class="analyze" onclick="loadStats()">📊 Load Dataset Stats</button>
+                <p class="qa-description"><strong>35 Trump rally speeches (2019–2020)</strong> chunked into ~2,354 semantic segments, embedded as 768-dimensional MPNet vectors, and indexed in ChromaDB — the knowledge base the RAG chatbot searches. Corpus stats and a browsable index of all speeches load automatically below.</p>
                 
                 <div class="loading" id="statsLoading">
                     <div class="spinner"></div>
@@ -997,6 +1082,17 @@
                 
                 <div class="results" id="statsResults">
                     <div class="stats-grid" id="statsGrid"></div>
+                    
+                    <!-- Speech List -->
+                    <div style="margin-top: 28px;">
+                        <div style="display:flex; align-items:baseline; flex-wrap:wrap; gap:10px; margin-bottom: 14px;">
+                            <div style="font-weight: 700; font-size: 16px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px;">📄 All Speeches in the Corpus</div>
+                            <div style="font-size: 12px; color: #777; font-style: italic;">— click any row to read the full speech text</div>
+                        </div>
+                        <div id="speechListLoading" style="display:none; text-align:center; padding: 16px; color: #999;"><div class="spinner" style="width:30px;height:30px;border-width:3px;margin:0 auto 8px;"></div>Loading speech list...</div>
+                        <div id="speechListError" style="display:none;" class="error"></div>
+                        <div id="speechList"></div>
+                    </div>
                 </div>
             </div>
             
@@ -1094,7 +1190,32 @@
             document.getElementById('ragQuestion').focus();
         }
 
+        // ── Speech sample excerpts ───────────────────────────────
+        const SENTIMENT_SAMPLES = {
+            economy: `We've created six million new jobs since election day. Nobody would've thought that was possible. More than seven million Americans have been lifted off of food stamps. Unemployment has reached the lowest rate in over half a century and unemployment for African-Americans, Hispanic-Americans and Asian-Americans have all reached the lowest rates ever recorded. We're now the largest energy producer in the entire world. We've eliminated a record number of job-killing regulations, giving the average American household $3,000 more to spend every single year. Our nation is stronger today than ever before. The number one economy on earth. No economy is so strong. We've created more than 110,000 new mining jobs. Thanks to states like Ohio the United States is now the number one producer of oil, the number one producer of natural gas, the number one everything having to do with energy.`,
+            immigration: `The radical Democrats even support deadly sanctuary cities which release dangerous criminals onto our streets. In San Francisco, an illegal alien was arrested no fewer than 10 times in the span of less than one year for numerous counts of burglary and theft. Yet each time San Francisco defied federal authorities and set him free. After a sanctuary city in New Jersey released an alien charged with domestic violence, he was arrested in Missouri for the murders of three people. Democrats have never been farther outside the mainstream. The Democrat record is one of neglect and corruption and decay. Republicans believe our cities should be a sanctuary for law-abiding Americans, not criminal aliens. We will always put America first.`,
+            military: `We're rebuilding the awesome might of the United States military, and soon it will be stronger than at any time in our history. When we took over, it was depleted. It's not depleted anymore. We passed VA Choice and VA Accountability on behalf of our great veterans. They've been trying to pass VA Choice for four decades. They couldn't get it done. We got it done. This is where a veteran would stand in line for three, four, five, six weeks. Sometimes they're okay. By the time they see a doctor, they're terminally ill. We said go to a private doctor, we'll pay the bill. We're also winning the race to great strategic defense and offense. Mike Pence is doing a great job on that.`,
+            media: `I was watching the so-called debate last night. The Democrats spent more time attacking Barack Obama than they did attacking me practically. This morning, that's all the fake news was talking about. It's all they were talking about. While Republicans are working every day to build up our country, the rage-filled Democrat Party is trying to tear America apart. The Democrat Party is now being led by four left-wing extremists who reject everything that we hold dear. Virtually every top Democrat also now supports late-term abortion. Democrats are now the party of high taxes, high crime, open borders, late-term abortion, and they're the party of socialism. The Republican Party is the party of freedom.`
+        };
+
+        const TOPICS_SAMPLES = {
+            cincinnati: `We've created six million new jobs since election day. Nobody would've thought that was possible. More than seven million Americans have been lifted off of food stamps, and they're happy. 123,000 more Ohio workers are employed today than when I was elected. Unemployment has reached the lowest rate in over half a century and unemployment for African-Americans, Hispanic-Americans and Asian-Americans have all reached the lowest rates ever recorded. While Republicans are working every day to build up our country, the rage-filled Democrat Party is trying to tear America apart. The Democrat Party is now being led by four left wing extremists who reject everything that we hold dear. No one has paid a higher price for the far left's destructive agenda than Americans living in our nation's inner cities. We've taken the toughest ever action to stand up to China's trade abuse. We're reversing decades of calamitous trade policies that led other countries to pillage our jobs, plunder our factories, and devastate Ohio communities. The era of economic surrender is over. We're rebuilding the awesome might of the United States military. We're investing in the future of human space flight. Americans won the race to the moon and we will now win the race to Mars. To protect America's security, I withdrew the United States from the horrible Iran nuclear deal. I recognized Israel's true capital and opened the American embassy in Jerusalem. Republicans believe that every parent has the right to send their children to the school of their choice. Democrats deliver poverty for their constituents and privilege for themselves. Republicans deliver jobs, safety and opportunity for all Americans. We passed VA Choice and VA Accountability on behalf of our great veterans. We established more than 300 opportunity zones in Ohio alone. We've launched a historic initiative to reduce the price of prescription drugs. With the help of your great Senator, Rob Portman, we've taken bold action to confront the opioid epidemic and in Ohio, drug overdose deaths went down 22% last year. Together we will continue unleashing the power of American enterprise so every American can reach their fullest and highest potential. We are finally putting America first.`,
+            minneapolis: `We're here tonight in the great state of Minnesota, and this is a great state. I love the people of Minnesota. We are building the most extraordinary economy in the history of our country. Unemployment is at record lows. The stock market is at record highs. Wages are rising. Poverty is falling. And in two and a half short years we've created over six million new jobs. Because of our tariffs, hundreds of thousands of tons of aluminum were saved. We passed the biggest tax cuts and reforms in American history. Our economy is the envy of the world. The farmers of Minnesota know that I've been fighting every single day to open up markets. We're working on a deal with China. They desperately want to make a deal and we'll make a great deal, a deal that's good for both countries. The Democrats want to destroy your Second Amendment. Republicans will always protect your right to keep and bear arms. We believe in law and order. We're building the wall and we're building it fast. I will never allow the United States of America to become a socialist country. We also believe in free speech, freedom of religion, and freedom of the press. The media is the enemy of the people. The fake news media is corrupt. They're doing everything they can to hurt us. But we will prevail because truth will always win. We will keep America great, safe, and free.`,
+            dallas: `Texas is doing incredible. The economy is booming. The unemployment rate is at a record low. We've created millions of jobs. Oil and gas, we're now the number one energy producer in the world. We've lifted the ban on beautiful, clean coal. Regulations have been cut more than any administration in history. We've given the biggest tax cut in the history of our country. We're fighting for the American worker every single day. We rebuilt the military with $700 billion and then $716 billion. Our military is now the most powerful it has ever been. We passed VA Choice — veterans can now see private doctors. We're protecting your Second Amendment and it will never be taken away. We're building the wall and it's going up fast. We have the best economy in the history of the United States. The Democrats want open borders, they want crime, they want high taxes, and they want to destroy everything we have built. But we're not going to let that happen. We will keep America great. We will always put America first. We will never surrender our country to the globalists, the special interests, or the radical left. America will always be free.`
+        };
+
+        function setSentimentSample(key) {
+            document.getElementById('sentimentText').value = SENTIMENT_SAMPLES[key] || '';
+            document.getElementById('sentimentText').focus();
+        }
+
+        function setTopicsSample(key) {
+            document.getElementById('topicsText').value = TOPICS_SAMPLES[key] || '';
+            document.getElementById('topicsText').focus();
+        }
+
         // Tab switching
+        let statsLoaded = false;
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 // Remove active class from all tabs and contents
@@ -1104,6 +1225,12 @@
                 // Add active class to clicked tab and corresponding content
                 tab.classList.add('active');
                 document.getElementById(tab.dataset.tab).classList.add('active');
+
+                // Auto-load Dataset stats on first visit
+                if (tab.dataset.tab === 'stats' && !statsLoaded) {
+                    statsLoaded = true;
+                    loadStats();
+                }
             });
         });
         
@@ -1245,7 +1372,7 @@
             }).join('');
             
             emotions.innerHTML = emotionScoresHtml + `
-                <p style="font-size: 12px; color: #888; margin-top: 10px; font-style: italic;">
+                <p style="font-size: 12px; color: #999; margin-top: 10px; font-style: italic;">
                     Analyzed in ${data.num_chunks} chunk(s)
                 </p>
             `;
@@ -1396,14 +1523,20 @@
             showLoading('statsLoading');
             
             try {
-                const response = await fetch('/analyze/speeches/stats');
+                const [statsResp, listResp] = await Promise.all([
+                    fetch('/analyze/speeches/stats'),
+                    fetch('/analyze/speeches/list')
+                ]);
                 
-                if (!response.ok) {
-                    throw new Error(`API error: ${response.statusText}`);
-                }
+                if (!statsResp.ok) throw new Error(`API error: ${statsResp.statusText}`);
                 
-                const data = await response.json();
+                const data = await statsResp.json();
                 displayStats(data);
+
+                if (listResp.ok) {
+                    const listData = await listResp.json();
+                    displaySpeechList(listData.speeches || []);
+                }
             } catch (error) {
                 showError('statsError', error.message);
             } finally {
@@ -1439,6 +1572,60 @@
             `;
             
             showResults('statsResults');
+        }
+
+        function displaySpeechList(speeches) {
+            const container = document.getElementById('speechList');
+            if (!speeches.length) {
+                container.innerHTML = '<p style="color: #aaa;">No speeches found.</p>';
+                return;
+            }
+
+            // Sort by year then month
+            speeches.sort((a, b) => {
+                if (a.year !== b.year) return a.year - b.year;
+                const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                return months.indexOf(a.month) - months.indexOf(b.month);
+            });
+
+            const maxWords = Math.max(...speeches.map(s => s.word_count || 0));
+
+            const rows = speeches.map(s => {
+                const pct = maxWords > 0 ? Math.round((s.word_count / maxWords) * 100) : 0;
+                const location = escapeHtml(s.location || s.filename || '—');
+                const date = `${s.month || ''} ${s.year || ''}`.trim() || '—';
+                const fn = escapeHtml(s.filename || '');
+                const mo = escapeHtml(s.month || '');
+                const yr = escapeHtml(s.year || '');
+                return `
+                    <tr class="speech-row" style="border-bottom: 1px solid #2a2a3a;" onclick="openSpeechModal('${fn}','${location}','${mo}','${yr}')" title="Click to read full speech">
+                        <td style="padding: 10px 14px; color: #e0e0e0; font-weight: 500;">${location}</td>
+                        <td style="padding: 10px 14px; color: #aaa; white-space: nowrap;">${date}</td>
+                        <td style="padding: 10px 14px; min-width: 140px;">
+                            <div style="display:flex; align-items:center; gap: 8px;">
+                                <div style="flex:1; background:#1a1a25; border-radius:6px; height:10px; overflow:hidden;">
+                                    <div style="width:${pct}%; background: linear-gradient(90deg,#667eea,#764ba2); height:100%; border-radius:6px;"></div>
+                                </div>
+                                <span style="font-size:12px; color:#999; min-width:46px; text-align:right;">${(s.word_count || 0).toLocaleString()}</span>
+                            </div>
+                        </td>
+                    </tr>`;
+            }).join('');
+
+            container.innerHTML = `
+                <div style="overflow-x: auto; border-radius: 10px; border: 1px solid #3a3a4a;">
+                    <table style="width:100%; border-collapse: collapse; font-size: 14px;">
+                        <thead>
+                            <tr style="background: #1e1e2e; border-bottom: 2px solid #3a3a4a;">
+                                <th style="padding: 12px 14px; text-align:left; color:#999; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; font-size:12px;">Location</th>
+                                <th style="padding: 12px 14px; text-align:left; color:#999; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; font-size:12px;">Date</th>
+                                <th style="padding: 12px 14px; text-align:left; color:#999; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; font-size:12px;">Word Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
         }
         
         // RAG - Ask Questions
@@ -1558,40 +1745,80 @@
                 </span>
             `).join('');
             
-            /* Entity Analytics Display - Commented out for performance reasons
-               (Sentiment analysis on entities takes too long for good UX)
-            
-            const entitiesCard = document.getElementById('ragEntitiesCard');
-            const entitiesEl = document.getElementById('ragEntities');
-            if (data.entity_statistics && Object.keys(data.entity_statistics).length > 0) {
-                let entityHTML = '';
-                for (const [entity, stats] of Object.entries(data.entity_statistics)) {
-                    let sentiment = 'neutral';
-                    if (stats.sentiment) {
-                        if (typeof stats.sentiment === 'object' && stats.sentiment.classification) {
-                            sentiment = stats.sentiment.classification.toLowerCase();
-                        } else if (typeof stats.sentiment === 'string') {
-                            sentiment = stats.sentiment.toLowerCase();
-                        }
-                    }
-                    const sentimentColor = sentiment === 'positive' ? '#28a745' : sentiment === 'negative' ? '#dc3545' : '#17a2b8';
-                    entityHTML += `
-                        <div style="padding: 12px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px;">
-                            <strong style="font-size: 1.1em; color: #333;">${entity}</strong>
-                            <div style="margin-top: 8px; display: flex; gap: 15px; flex-wrap: wrap;">
-                                <span style="color: #666;"><strong>Mentions:</strong> ${stats.mentions || 0}</span>
-                                <span style="color: ${sentimentColor}; font-weight: bold;"><strong>Sentiment:</strong> ${sentiment.toUpperCase()}</span>
-                                ${stats.associated_terms && stats.associated_terms.length > 0 ? `<span style="color: #666;"><strong>Associated with:</strong> ${stats.associated_terms.join(', ')}</span>` : ''}
+            /* --- Entity Analytics --- */
+            const entitiesCard  = document.getElementById('ragEntitiesCard');
+            const entitiesEl    = document.getElementById('ragEntities');
+            const entityStatsEl = document.getElementById('ragEntityStats');
+
+            // Label → display name + colour (matches NER_LABEL_DESCRIPTIONS in entities.py)
+            const ENTITY_LABEL_META = {
+                PERSON:      { name: 'Person',       color: '#5b9bd5' },
+                ORG:         { name: 'Organisation',  color: '#9b59b6' },
+                GPE:         { name: 'Place',         color: '#27ae60' },
+                NORP:        { name: 'Group',         color: '#e67e22' },
+                EVENT:       { name: 'Event',         color: '#f39c12' },
+                LAW:         { name: 'Law',           color: '#e74c3c' },
+                FAC:         { name: 'Facility',      color: '#16a085' },
+                PRODUCT:     { name: 'Product',       color: '#2980b9' },
+                WORK_OF_ART: { name: 'Title',         color: '#8e44ad' },
+                UNKNOWN:     { name: 'Unknown',       color: '#7f8c8d' },
+            };
+
+            if (data.entities && data.entities.length > 0) {
+                // Render entity type badges
+                entitiesEl.innerHTML = data.entities.map(e => {
+                    const meta = ENTITY_LABEL_META[e.label] || ENTITY_LABEL_META.UNKNOWN;
+                    return `<span title="${meta.name}" style="
+                        display: inline-flex; align-items: center; gap: 5px;
+                        padding: 5px 11px; border-radius: 20px; font-size: 13px;
+                        background: ${meta.color}22; border: 1px solid ${meta.color}66;
+                        color: #e0e0e0; font-weight: 500;">
+                        <span style="width: 8px; height: 8px; border-radius: 50%; background: ${meta.color}; flex-shrink: 0;"></span>
+                        ${escapeHtml(e.text)}
+                        <span style="font-size: 10px; color: ${meta.color}; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">${meta.name}</span>
+                    </span>`;
+                }).join('');
+
+                // Render per-entity corpus statistics
+                // entity_statistics entries are enriched with a "label" field by the backend
+                // so each entry is fully self-contained — no cross-referencing needed.
+                if (data.entity_statistics && Object.keys(data.entity_statistics).length > 0) {
+                    let statsHTML = '<div style="display: flex; flex-direction: column; gap: 8px;">';
+                    for (const [entity, stats] of Object.entries(data.entity_statistics)) {
+                        const meta = ENTITY_LABEL_META[stats.label] || ENTITY_LABEL_META.UNKNOWN;
+                        const mentions   = stats.mention_count ?? 0;
+                        const speeches   = stats.speech_count  ?? 0;
+                        const assocTerms = stats.associated_terms ?? [];
+
+                        statsHTML += `
+                        <div style="padding: 10px 14px; background: rgba(255,255,255,0.04); border-radius: 8px; border-left: 3px solid ${meta.color};">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap;">
+                                <span style="font-weight: 700; color: #e0e0e0; font-size: 14px;">${escapeHtml(entity)}</span>
+                                <span style="font-size: 11px; padding: 2px 8px; border-radius: 10px; background: ${meta.color}33; color: ${meta.color}; font-weight: 600; text-transform: uppercase;">${meta.name}</span>
+                                <span style="margin-left: auto; font-size: 12px; color: #aaa;">
+                                    <strong style="color: #e0e0e0;">${mentions}</strong> mention${mentions !== 1 ? 's' : ''}
+                                    ${speeches ? ` · <strong style="color: #e0e0e0;">${speeches}</strong> speech${speeches !== 1 ? 'es' : ''}` : ''}
+                                </span>
                             </div>
-                        </div>
-                    `;
+                            ${assocTerms.length > 0 ? `
+                            <div style="display: flex; flex-wrap: wrap; gap: 5px; align-items: center;">
+                                <span style="font-size: 11px; color: #999; margin-right: 2px;">Often with:</span>
+                                ${assocTerms.slice(0, 6).map(t =>
+                                    `<span style="padding: 2px 8px; background: rgba(255,255,255,0.06); border: 1px solid #3a3a4a; border-radius: 10px; font-size: 11px; color: #bbb;">${escapeHtml(t)}</span>`
+                                ).join('')}
+                            </div>` : ''}
+                        </div>`;
+                    }
+                    statsHTML += '</div>';
+                    entityStatsEl.innerHTML = statsHTML;
+                } else {
+                    entityStatsEl.innerHTML = '';
                 }
-                entitiesEl.innerHTML = entityHTML;
                 entitiesCard.style.display = 'block';
             } else {
                 entitiesCard.style.display = 'none';
             }
-            */
+            /* --- end Entity Analytics --- */
             
             showResults('ragResults');
         }
@@ -1622,6 +1849,79 @@
         function hideError(id) {
             document.getElementById(id).classList.remove('show');
         }
+
+        // ── Speech Modal ─────────────────────────────────────────
+        async function openSpeechModal(filename, location, month, year) {
+            const modal     = document.getElementById('speechModal');
+            const loading   = document.getElementById('speechModalLoading');
+            const errorEl   = document.getElementById('speechModalError');
+            const content   = document.getElementById('speechModalContent');
+            const titleEl   = document.getElementById('speechModalTitle');
+            const metaEl    = document.getElementById('speechModalMeta');
+            const textEl    = document.getElementById('speechModalText');
+
+            titleEl.textContent = location ? `${location} Rally` : filename;
+            metaEl.textContent  = [month, year].filter(Boolean).join(' ') + ' · ' + filename;
+            loading.style.display  = 'block';
+            errorEl.style.display  = 'none';
+            content.style.display  = 'none';
+            modal.style.display    = 'block';
+            document.body.style.overflow = 'hidden';
+            // Scroll the modal back to top on each open
+            modal.scrollTop = 0;
+
+            try {
+                const resp = await fetch('/analyze/speeches/' + encodeURIComponent(filename));
+                if (!resp.ok) {
+                    const err = await resp.json().catch(() => ({}));
+                    throw new Error(err.detail || `HTTP ${resp.status}`);
+                }
+                const data = await resp.json();
+                textEl.textContent = data.content || '';
+                metaEl.textContent = [month, year].filter(Boolean).join(' ') +
+                    ' · ' + (data.word_count || 0).toLocaleString() + ' words · ' + filename;
+                content.style.display = 'block';
+            } catch (e) {
+                errorEl.textContent   = '⚠️ Could not load speech: ' + e.message;
+                errorEl.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function closeSpeechModal() {
+            document.getElementById('speechModal').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeSpeechModal();
+        });
     </script>
+
+    <!-- Speech full-text modal -->
+    <div id="speechModal" onclick="if(event.target===this)closeSpeechModal()" role="dialog" aria-modal="true" aria-labelledby="speechModalTitle">
+        <div class="speech-modal-inner">
+            <div class="speech-modal-card">
+                <div class="speech-modal-header">
+                    <div>
+                        <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Full Speech Text</div>
+                        <h3 id="speechModalTitle" style="margin:0; font-size:20px; color:#e0e0e0; font-weight:700;"></h3>
+                        <div id="speechModalMeta" style="margin-top:6px; font-size:13px; color:#999;"></div>
+                    </div>
+                    <button class="speech-modal-close" onclick="closeSpeechModal()" aria-label="Close">✕ Close</button>
+                </div>
+                <div id="speechModalLoading" style="display:none; text-align:center; padding:48px 24px;">
+                    <div class="spinner" style="margin:0 auto 16px;"></div>
+                    <p style="color:#999; margin:0;">Loading speech...</p>
+                </div>
+                <div id="speechModalError" style="display:none; padding:20px 24px; color:#e06060; background:rgba(224,96,96,0.08); border-top:1px solid rgba(224,96,96,0.2);"></div>
+                <div id="speechModalContent" style="display:none;" class="speech-modal-body">
+                    <pre id="speechModalText" class="speech-modal-text"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

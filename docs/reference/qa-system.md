@@ -96,9 +96,9 @@ Set `LLM_PROVIDER=openai` or `LLM_PROVIDER=anthropic` in `.env` after installing
 - **`SearchEngine`** (`search_engine.py`) - Hybrid search with semantic, BM25, and cross-encoder reranking
 - **`RAGGuardrails`** (`guardrails.py`) - Three-layer pipeline protection: query validation, relevance filtering, grounding verification
 - **`ConfidenceCalculator`** (`confidence.py`) - Multi-factor confidence scoring
-- **`EntityAnalyzer`** (`entity_analyzer.py`) - Entity extraction, sentiment, co-occurrence analysis
-- **`QueryRewriter`** (`query_rewriter.py`) - LLM-powered query optimisation for improved search retrieval
-- **`DocumentLoader`** (`document_loader.py`) - Semantic chunking with embedding-based topic boundary detection; extracts structured metadata (location, date, year) from speech filenames
+- **`EntityAnalyzer`** (`entities.py`) - Entity extraction (spaCy NER + heuristic fallback), co-occurrence analysis, corpus statistics
+- **`QueryRewriter`** (`rewriter.py`) - LLM-powered query optimisation for improved search retrieval
+- **`DocumentLoader`** (`chunking.py`) - Semantic chunking with embedding-based topic boundary detection; extracts structured metadata (location, date, year) from speech filenames
 
 **Supporting Services:**
 
@@ -164,7 +164,7 @@ Sophisticated confidence assessment handled by `ConfidenceCalculator` component.
 - **Retrieval Quality (40%)** — Semantic similarity of retrieved chunks
 - **Consistency (25%)** — Low variance in scores = higher confidence
 - **Coverage (20%)** — Number of supporting chunks (normalized 0-1)
-- **Entity Coverage (15%)** — For entity queries, mention frequency
+- **Entity Coverage (15%)** — Weighted by NER label specificity: domain-specific entities (LAW, EVENT, ORG) contribute more signal than high-frequency ones (PERSON like "Trump" or "Biden" that appear in virtually every chunk). This prevents generic queries from inflating the entity-coverage score.
 
 **Confidence Levels:**
 
@@ -182,8 +182,8 @@ Sophisticated confidence assessment handled by `ConfidenceCalculator` component.
   "confidence_factors": {
     "retrieval_score": 0.91,
     "consistency": 0.93,
-    "chunk_coverage": 5,
-    "entity_coverage": 0.84
+    "chunk_coverage": 0.5,
+    "entity_coverage": 0.43
   }
 }
 ```
@@ -208,23 +208,40 @@ Every answer includes a human-readable explanation of *why* it has a certain con
 
 #### Entity Detection & Statistics
 
-Automatic entity detection with comprehensive analytics:
+Entity extraction uses spaCy `en_core_web_sm` (proper NER) with automatic fallback to capitalisation heuristics when spaCy is not installed.
 
-**Features:**
+**NER model details:**
+
+- **spaCy `en_core_web_sm`** — ~12 MB, CPU-only, loaded lazily on first use with non-essential pipeline components (`tok2vec`, `tagger`, `parser`, `lemmatizer`) excluded for speed
+- **Relevant labels** — `PERSON`, `ORG`, `GPE`, `NORP`, `FAC`, `EVENT`, `LAW`, `PRODUCT`, `WORK_OF_ART`; temporal and numeric labels (`DATE`, `CARDINAL`, etc.) are dropped
+- **Multi-word entities** — Correctly captures "Joe Biden", "United States", "Republican Party" as single entities
+- **`EntityMatch` model** — Each extraction carries `text` (entity string) and `label` (spaCy type or `"UNKNOWN"` for heuristic fallback)
+- **Heuristic fallback** — Activates automatically if spaCy is not installed or the model is missing; all entities get `label="UNKNOWN"`
+
+**API response — `entities` field:**
+
+Entities detected in the question are returned as a typed list:
+
+```json
+{
+  "entities": [
+    {"text": "Biden", "label": "PERSON"},
+    {"text": "United States", "label": "GPE"},
+    {"text": "Tax Cuts and Jobs Act", "label": "LAW"}
+  ]
+}
+```
+
+**Analytics features:**
 
 - **Mention counts** — How many times entity appears across entire corpus
 - **Speech coverage** — Which specific speeches mention the entity
 - **Corpus percentage** — Percentage of documents containing entity
-- **Sentiment analysis** — Average sentiment toward entity using FinBERT
-  - Analyzes up to 50 chunks containing the entity
-  - Converts scores to -1 (negative) to +1 (positive)
-  - Classifies as Positive, Neutral, or Negative
-- **Co-occurrence analysis** — Most common terms appearing near entity
-  - Extracts words from contexts containing entity
-  - Filters stopwords
-  - Returns top 5 associated terms
+- **Co-occurrence analysis** — Most common terms appearing near entity (window-based, stopword-filtered, top 5)
 
-**Example output:**
+**API response — `entity_statistics` field:**
+
+Each entry is enriched with the NER label so the structure is self-contained:
 
 ```json
 {
@@ -233,17 +250,18 @@ Automatic entity detection with comprehensive analytics:
       "mention_count": 524,
       "speech_count": 30,
       "corpus_percentage": 25.03,
-      "speeches": ["OhioSep21_2020.txt", "BemidjiSep18_2020.txt", ...],
-      "sentiment": {
-        "average_score": -0.61,
-        "classification": "Negative",
-        "sample_size": 50
-      },
-      "associations": ["socialism", "weakness", "failure", "china", "corrupt"]
+      "speeches": ["OhioSep21_2020.txt", "BemidjiSep18_2020.txt", "..."],
+      "label": "PERSON",
+      "associated_terms": ["socialism", "weakness", "china", "corrupt", "radical"]
     }
   }
 }
 ```
+
+!!! note "Sentiment analysis"
+    Sentiment per entity is supported by the `EntityAnalyzer` but is not computed during the real-time
+    `/rag/ask` pipeline to keep response times fast. It can be requested separately via
+    `get_entity_statistics(entities, include_sentiment=True)`.
 
 **Use Cases:**
 

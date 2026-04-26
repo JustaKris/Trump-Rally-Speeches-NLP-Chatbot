@@ -63,6 +63,9 @@ class RAGAnswerResponse(BaseModel):
     confidence_explanation: str = Field(..., description="Human-readable explanation of confidence")
     confidence_factors: Dict[str, Any] = Field(..., description="Breakdown of confidence factors")
     sources: List[str] = Field(..., description="Source documents")
+    entities: Optional[List[Dict[str, str]]] = Field(
+        None, description="Entities detected in the question with their spaCy type labels"
+    )
     entity_statistics: Optional[Dict[str, Any]] = Field(
         None, description="Enhanced statistics about entities: mentions, sentiment, associations"
     )

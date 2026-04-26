@@ -122,6 +122,25 @@ uv sync --group llm-anthropic
 
 Set `LLM_PROVIDER=openai` or `LLM_PROVIDER=anthropic` in `.env` after installing.
 
+## Web Interface
+
+The **Topics** tab in the web UI ([live app](https://trump-speeches-nlp-chatbot.azurewebsites.net) · [local](http://localhost:8000)) runs the full clustering pipeline interactively.
+
+**Quick-load speech buttons** — three full-length rally speech excerpts are available as one-click starters:
+
+| Button | Speech |
+| ------ | ------ |
+| 🏙️ Cincinnati, Aug 2019 | Cincinnati, OH — August 1, 2019 |
+| 🏙️ Minneapolis, Oct 2019 | Minneapolis, MN — October 10, 2019 |
+| 🏙️ Dallas, Oct 2019 | Dallas, TX — October 17, 2019 |
+
+Click any button to pre-populate the text area with a full speech excerpt, then press **Extract Topics**. Topic extraction works best with substantial text (400+ words) — the sample speeches are long enough for DBSCAN to produce 5–8 distinct semantic clusters with contextual snippets and an AI summary.
+
+You can also paste any text — the input is not limited to these speeches.
+
+!!! tip "Minimum text length"
+    Very short inputs (under ~100 words) may produce only one or two clusters, or none at all, because there isn't enough semantic diversity for the embedding model to separate topics.
+
 ## API Usage
 
 ### cURL Example

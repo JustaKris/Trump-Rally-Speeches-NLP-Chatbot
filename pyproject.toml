@@ -1,6 +1,6 @@
 [project]
 name = "trump-speeches-nlp-chatbot"
-version = "0.4.0"
+version = "0.6.0"
 description = "Production-ready NLP Chatbot API with RAG for sentiment analysis, Q&A, topic extraction, and text analysis. Includes demo dataset of political speeches."
 license = { text = "MIT" }
 readme = "README.md"
@@ -104,6 +104,12 @@ llm-anthropic = [
 # Redis caching (optional - falls back to in-memory if not installed)
 cache = [
     "redis (>=5.0.0,<6.0.0)"
+]
+
+# Named Entity Recognition - spaCy model for entity extraction
+# Falls back to capitalisation heuristics if not installed
+ner = [
+    "spacy (>=3.7.0,<4.0.0)"
 ]
 
 # Jupyter notebook execution (not needed for API)
