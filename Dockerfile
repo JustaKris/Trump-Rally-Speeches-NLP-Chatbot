@@ -18,7 +18,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 COPY pyproject.toml uv.lock /app/
 
 # Create a venv for the app dependencies
-RUN uv venv /opt/venv
+RUN uv venv --seed /opt/venv
 
 # Export production deps, strip GPU packages, install CPU-only alternatives
 RUN uv export --frozen --no-hashes --no-emit-project \
