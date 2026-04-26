@@ -52,20 +52,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy the venv from builder
-COPY --from=builder /opt/venv /opt/venv
+# Non-root user — create early so --chown on COPY instructions works,
+# avoiding a slow recursive chown pass over the entire venv later.
+RUN useradd -m -u 1000 appuser
+
+# Copy the venv from builder with correct ownership from the start
+COPY --from=builder --chown=appuser:appuser /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 # Allow Python to find the speech_nlp package
 ENV PYTHONPATH="/app/src"
 
 # Copy app code
-COPY src/ ./src/
-COPY data/ ./data/
-COPY configs/ ./configs/
-COPY scripts/ ./scripts/
+COPY --chown=appuser:appuser src/ ./src/
+COPY --chown=appuser:appuser data/ ./data/
+COPY --chown=appuser:appuser configs/ ./configs/
+COPY --chown=appuser:appuser scripts/ ./scripts/
 
-# Non-root user
-RUN useradd -m -u 1000 appuser && chown -R appuser /app
 USER appuser
 
 # Pre-download all HuggingFace models based on configuration
