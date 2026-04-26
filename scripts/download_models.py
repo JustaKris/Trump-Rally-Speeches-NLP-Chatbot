@@ -9,6 +9,7 @@ Usage:
 """
 
 import argparse
+import subprocess
 import sys
 from pathlib import Path
 
@@ -94,7 +95,12 @@ def download_spacy_model(model_name: str) -> None:
         except OSError:
             pass  # Not installed yet — fall through to download
 
-        spacy.cli.download(model_name)
+        # Use the current Python executable's pip to install the model package.
+        # This works in Docker where no standalone pip/uv binary is on PATH,
+        # because sys.executable always points to the active interpreter.
+        subprocess.check_call(  # nosec B603
+            [sys.executable, "-m", "pip", "install", "--quiet", model_name],
+        )
         logger.info(f"✓ Successfully downloaded spaCy model: {model_name}")
     except ImportError:
         logger.warning(
