@@ -30,14 +30,14 @@ logger = logging.getLogger(__name__)
 # MONEY) are dropped to keep entity lists clean and relevant.
 RELEVANT_NER_LABELS: frozenset[str] = frozenset(
     {
-        "PERSON",       # Politicians, journalists, named individuals
-        "ORG",          # Companies, media outlets, parties, agencies
-        "GPE",          # Countries, states, cities (geopolitical entities)
-        "NORP",         # Nationalities, political/religious groups
-        "FAC",          # Buildings, airports, bridges, highways
-        "EVENT",        # Named events (elections, summits)
-        "LAW",          # Named laws, amendments, acts
-        "PRODUCT",      # Products, vehicles, software
+        "PERSON",  # Politicians, journalists, named individuals
+        "ORG",  # Companies, media outlets, parties, agencies
+        "GPE",  # Countries, states, cities (geopolitical entities)
+        "NORP",  # Nationalities, political/religious groups
+        "FAC",  # Buildings, airports, bridges, highways
+        "EVENT",  # Named events (elections, summits)
+        "LAW",  # Named laws, amendments, acts
+        "PRODUCT",  # Products, vehicles, software
         "WORK_OF_ART",  # Titles of books, songs, TV shows
     }
 )

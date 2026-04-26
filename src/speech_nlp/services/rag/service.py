@@ -356,7 +356,9 @@ class RAGService:
             search_query = self.query_rewriter.rewrite(question)
 
         # Extract entities from original question (user intent, not rewritten)
-        entity_matches: List[EntityMatch] = self.entity_analyzer.extract_entities_with_types(question)
+        entity_matches: List[EntityMatch] = self.entity_analyzer.extract_entities_with_types(
+            question
+        )
         entities = [m.text for m in entity_matches]  # plain strings for backward-compat internals
         logger.debug(f"Extracted entities: {[(m.text, m.label) for m in entity_matches]}")
 
@@ -496,7 +498,10 @@ class RAGService:
             # cross-reference data.entities to find the entity type colour.
             label_map = {m.text: m.label for m in entity_matches}
             response["entity_statistics"] = {
-                name: {**stats.model_dump(exclude_none=False), "label": label_map.get(name, "UNKNOWN")}
+                name: {
+                    **stats.model_dump(exclude_none=False),
+                    "label": label_map.get(name, "UNKNOWN"),
+                }
                 for name, stats in entity_stats.items()
             }
 

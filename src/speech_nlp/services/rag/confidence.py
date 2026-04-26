@@ -36,16 +36,16 @@ class ConfidenceCalculator:
     # PERSON/NORP appear in almost every political-speech chunk (e.g. "Trump",
     # "Democrats") so they carry a weaker signal than a named law or event.
     LABEL_SPECIFICITY: Dict[str, float] = {
-        "LAW": 0.95,          # "Tax Cuts and Jobs Act" — very specific
-        "EVENT": 0.90,        # "Election Day" — specific
-        "FAC": 0.90,          # Named facilities — specific
-        "PRODUCT": 0.85,      # Named products — specific
+        "LAW": 0.95,  # "Tax Cuts and Jobs Act" — very specific
+        "EVENT": 0.90,  # "Election Day" — specific
+        "FAC": 0.90,  # Named facilities — specific
+        "PRODUCT": 0.85,  # Named products — specific
         "WORK_OF_ART": 0.85,  # Named titles — specific
-        "ORG": 0.75,          # Organizations — moderately specific
-        "GPE": 0.65,          # Countries/cities — moderately specific
-        "NORP": 0.55,         # "Democrats", "Chinese" — frequent in political speech
-        "PERSON": 0.45,       # "Trump", "Biden" — appear in virtually every chunk
-        "UNKNOWN": 0.50,      # Heuristic fallback — no type info
+        "ORG": 0.75,  # Organizations — moderately specific
+        "GPE": 0.65,  # Countries/cities — moderately specific
+        "NORP": 0.55,  # "Democrats", "Chinese" — frequent in political speech
+        "PERSON": 0.45,  # "Trump", "Biden" — appear in virtually every chunk
+        "UNKNOWN": 0.50,  # Heuristic fallback — no type info
     }
 
     # Thresholds for confidence levels
@@ -258,9 +258,7 @@ class ConfidenceCalculator:
         for match in entity_matches:
             # Raw per-chunk coverage for this entity
             mentions = sum(
-                1
-                for chunk in context_chunks
-                if match.text.lower() in chunk.text.lower()
+                1 for chunk in context_chunks if match.text.lower() in chunk.text.lower()
             )
             raw_coverage = mentions / len(context_chunks)
 

@@ -328,10 +328,10 @@ class TestSpacyNERPath:
         """SpaCy path must drop labels not in RELEVANT_NER_LABELS."""
         analyzer = EntityAnalyzer(use_ner=True)
         mock_ents = [
-            self._make_mock_ent("Donald Trump", "PERSON"),   # keep
-            self._make_mock_ent("2024", "DATE"),             # drop
-            self._make_mock_ent("$1 million", "MONEY"),      # drop
-            self._make_mock_ent("America", "GPE"),           # keep
+            self._make_mock_ent("Donald Trump", "PERSON"),  # keep
+            self._make_mock_ent("2024", "DATE"),  # drop
+            self._make_mock_ent("$1 million", "MONEY"),  # drop
+            self._make_mock_ent("America", "GPE"),  # keep
         ]
         mock_nlp = self._make_mock_nlp(mock_ents)
 

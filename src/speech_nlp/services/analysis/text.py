@@ -8,7 +8,11 @@ import logging
 import re
 from typing import Any, Dict, Optional
 
-from speech_nlp.utils.io import get_dataset_statistics, get_project_root, load_speeches_from_directory
+from speech_nlp.utils.io import (
+    get_dataset_statistics,
+    get_project_root,
+    load_speeches_from_directory,
+)
 from speech_nlp.utils.text import extract_ngrams, get_stopwords, tokenize_text
 
 logger = logging.getLogger(__name__)
