@@ -9,7 +9,7 @@ Usage:
 """
 
 import argparse
-import subprocess
+import subprocess  # nosec B404 - used only with [sys.executable, "-m", ...] (no shell, no user input)
 import sys
 from pathlib import Path
 
