@@ -95,11 +95,11 @@ def download_spacy_model(model_name: str) -> None:
         except OSError:
             pass  # Not installed yet — fall through to download
 
-        # Use the current Python executable's pip to install the model package.
-        # This works in Docker where no standalone pip/uv binary is on PATH,
-        # because sys.executable always points to the active interpreter.
+        # Use `python -m spacy download` so spaCy picks the wheel version that
+        # matches the installed spaCy release. Plain `pip install en_core_web_sm`
+        # would pull an unversioned/mismatched package from PyPI.
         subprocess.check_call(  # nosec B603
-            [sys.executable, "-m", "pip", "install", "--quiet", model_name],
+            [sys.executable, "-m", "spacy", "download", model_name],
         )
         logger.info(f"✓ Successfully downloaded spaCy model: {model_name}")
     except ImportError:
