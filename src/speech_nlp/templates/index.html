@@ -100,7 +100,7 @@
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
-            color: #999;
+            color: #aaa;
             transition: all 0.3s;
             white-space: nowrap;
         }
@@ -183,7 +183,7 @@
         }
         
         textarea::placeholder {
-            color: #666;
+            color: #777;
         }
         
         button.analyze {
@@ -575,7 +575,7 @@
         }
 
         .qa-input-row textarea::placeholder {
-            color: #666;
+            color: #777;
         }
 
         .qa-submit {
@@ -649,7 +649,7 @@
         .sources-label {
             font-size: 13px;
             font-weight: 700;
-            color: #888;
+            color: #999;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             display: block;
@@ -730,7 +730,7 @@
         }
 
         .lab-divider-subtitle {
-            color: #666;
+            color: #777;
             font-size: 14px;
             margin-top: 6px;
             font-style: italic;
@@ -784,7 +784,7 @@
             margin-top: 8px;
             padding: 6px;
             font-size: 12px;
-            color: #555;
+            color: #666;
             font-style: italic;
         }
 
@@ -940,13 +940,14 @@
                     query rewriting, hybrid semantic search, cross-encoder re-ranking, grounded answer generation, and multi-factor confidence scoring.
                     Three ML models under the hood. Zero LangChain.
                 </p>
-                <p style="margin: 0 0 8px; font-size: 13px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Quick test on these topics:</p>
+                <p style="margin: 0 0 8px; font-size: 13px; color: #777; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Quick test on these topics:</p>
                 <div class="sample-questions">
                     <span class="sample-q" onclick="setSampleQuestion('What does Trump say about Joe Biden?')">🗣️ On Joe Biden</span>
                     <span class="sample-q" onclick="setSampleQuestion('What does Trump say about the media and fake news?')">📺 Views on the media</span>
                     <span class="sample-q" onclick="setSampleQuestion('How does Trump talk about the economy and jobs?')">💰 Economy &amp; jobs</span>
                     <span class="sample-q" onclick="setSampleQuestion('What does Trump say about immigration?')">🌎 Immigration stance</span>
                 </div>
+                <p style="margin: 8px 0 18px; font-size: 12px; color: #777; font-style: italic;">Not sure what to ask? You can browse all 35 source speeches — and read any one in full — on the <span style="color: #667eea; cursor: pointer; text-decoration: underline;" onclick="document.querySelector('[data-tab=stats]').click()">Dataset tab</span>.</p>
                 <div class="qa-input-row">
                     <textarea id="ragQuestion" placeholder="Ask a question about the speeches..." rows="2"></textarea>
                     <button class="qa-submit" onclick="askRAG()">🚀 Ask AI</button>
@@ -973,7 +974,7 @@
                     </div>
                     
                     <div id="ragEntitiesCard" style="display:none; margin-bottom: 16px; padding: 16px 20px; background: linear-gradient(135deg, #1a1a2e 0%, #20202e 100%); border: 1px solid #3a3a4a; border-radius: 10px;">
-                        <div style="font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px;">🔍 Entities Detected in Your Question</div>
+                        <div style="font-size: 12px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px;">🔍 Entities Detected in Your Question</div>
                         <div id="ragEntities" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
                         <div id="ragEntityStats" style="margin-top: 14px;"></div>
                     </div>
@@ -989,7 +990,7 @@
             <div class="tab-content" id="sentiment">
                 <h2>🎭 Sentiment Analysis</h2>
                 <p class="qa-description">Drop in any text and get a three-model breakdown — <strong>FinBERT</strong> scores the sentiment, <strong>RoBERTa</strong> maps the emotions, and an <strong>LLM</strong> ties it together with a plain-English interpretation. Speeches, news articles, tweets, whatever.</p>
-                <p style="margin: 0 0 8px; font-size: 13px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Quick-load a speech excerpt:</p>
+                <p style="margin: 0 0 8px; font-size: 13px; color: #777; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Quick-load a speech excerpt:</p>
                 <div class="sample-questions">
                     <span class="sample-q" onclick="setSentimentSample('economy')">💰 Economy &amp; Trade (Cincinnati, 2019)</span>
                     <span class="sample-q" onclick="setSentimentSample('immigration')">🌎 Immigration (Cincinnati, 2019)</span>
@@ -1036,7 +1037,7 @@
             <div class="tab-content" id="topics">
                 <h2>🏷️ Topic Extraction</h2>
                 <p class="qa-description">Drop in any substantial text and get it broken down into meaningful themes — keywords grouped by semantic similarity, real examples pulled from the source with highlighting, and an LLM summary tying it all together. Under the hood: DBSCAN clustering with sentence-transformers.</p>
-                <p style="margin: 0 0 8px; font-size: 13px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Quick-load a full speech:</p>
+                <p style="margin: 0 0 8px; font-size: 13px; color: #777; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Quick-load a full speech:</p>
                 <div class="sample-questions">
                     <span class="sample-q" onclick="setTopicsSample('cincinnati')">🏙️ Cincinnati, Aug 2019</span>
                     <span class="sample-q" onclick="setTopicsSample('minneapolis')">🏙️ Minneapolis, Oct 2019</span>
@@ -1084,8 +1085,11 @@
                     
                     <!-- Speech List -->
                     <div style="margin-top: 28px;">
-                        <div style="font-weight: 700; font-size: 16px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px;">📄 All Speeches in the Corpus</div>
-                        <div id="speechListLoading" style="display:none; text-align:center; padding: 16px; color: #888;"><div class="spinner" style="width:30px;height:30px;border-width:3px;margin:0 auto 8px;"></div>Loading speech list...</div>
+                        <div style="display:flex; align-items:baseline; flex-wrap:wrap; gap:10px; margin-bottom: 14px;">
+                            <div style="font-weight: 700; font-size: 16px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px;">📄 All Speeches in the Corpus</div>
+                            <div style="font-size: 12px; color: #777; font-style: italic;">— click any row to read the full speech text</div>
+                        </div>
+                        <div id="speechListLoading" style="display:none; text-align:center; padding: 16px; color: #999;"><div class="spinner" style="width:30px;height:30px;border-width:3px;margin:0 auto 8px;"></div>Loading speech list...</div>
                         <div id="speechListError" style="display:none;" class="error"></div>
                         <div id="speechList"></div>
                     </div>
@@ -1368,7 +1372,7 @@
             }).join('');
             
             emotions.innerHTML = emotionScoresHtml + `
-                <p style="font-size: 12px; color: #888; margin-top: 10px; font-style: italic;">
+                <p style="font-size: 12px; color: #999; margin-top: 10px; font-style: italic;">
                     Analyzed in ${data.num_chunks} chunk(s)
                 </p>
             `;
@@ -1602,7 +1606,7 @@
                                 <div style="flex:1; background:#1a1a25; border-radius:6px; height:10px; overflow:hidden;">
                                     <div style="width:${pct}%; background: linear-gradient(90deg,#667eea,#764ba2); height:100%; border-radius:6px;"></div>
                                 </div>
-                                <span style="font-size:12px; color:#888; min-width:46px; text-align:right;">${(s.word_count || 0).toLocaleString()}</span>
+                                <span style="font-size:12px; color:#999; min-width:46px; text-align:right;">${(s.word_count || 0).toLocaleString()}</span>
                             </div>
                         </td>
                     </tr>`;
@@ -1613,9 +1617,9 @@
                     <table style="width:100%; border-collapse: collapse; font-size: 14px;">
                         <thead>
                             <tr style="background: #1e1e2e; border-bottom: 2px solid #3a3a4a;">
-                                <th style="padding: 12px 14px; text-align:left; color:#888; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; font-size:12px;">Location</th>
-                                <th style="padding: 12px 14px; text-align:left; color:#888; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; font-size:12px;">Date</th>
-                                <th style="padding: 12px 14px; text-align:left; color:#888; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; font-size:12px;">Word Count</th>
+                                <th style="padding: 12px 14px; text-align:left; color:#999; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; font-size:12px;">Location</th>
+                                <th style="padding: 12px 14px; text-align:left; color:#999; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; font-size:12px;">Date</th>
+                                <th style="padding: 12px 14px; text-align:left; color:#999; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; font-size:12px;">Word Count</th>
                             </tr>
                         </thead>
                         <tbody>${rows}</tbody>
@@ -1798,7 +1802,7 @@
                             </div>
                             ${assocTerms.length > 0 ? `
                             <div style="display: flex; flex-wrap: wrap; gap: 5px; align-items: center;">
-                                <span style="font-size: 11px; color: #888; margin-right: 2px;">Often with:</span>
+                                <span style="font-size: 11px; color: #999; margin-right: 2px;">Often with:</span>
                                 ${assocTerms.slice(0, 6).map(t =>
                                     `<span style="padding: 2px 8px; background: rgba(255,255,255,0.06); border: 1px solid #3a3a4a; border-radius: 10px; font-size: 11px; color: #bbb;">${escapeHtml(t)}</span>`
                                 ).join('')}
@@ -1902,15 +1906,15 @@
             <div class="speech-modal-card">
                 <div class="speech-modal-header">
                     <div>
-                        <div style="font-size:11px; color:#888; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Full Speech Text</div>
+                        <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">Full Speech Text</div>
                         <h3 id="speechModalTitle" style="margin:0; font-size:20px; color:#e0e0e0; font-weight:700;"></h3>
-                        <div id="speechModalMeta" style="margin-top:6px; font-size:13px; color:#888;"></div>
+                        <div id="speechModalMeta" style="margin-top:6px; font-size:13px; color:#999;"></div>
                     </div>
                     <button class="speech-modal-close" onclick="closeSpeechModal()" aria-label="Close">✕ Close</button>
                 </div>
                 <div id="speechModalLoading" style="display:none; text-align:center; padding:48px 24px;">
                     <div class="spinner" style="margin:0 auto 16px;"></div>
-                    <p style="color:#888; margin:0;">Loading speech...</p>
+                    <p style="color:#999; margin:0;">Loading speech...</p>
                 </div>
                 <div id="speechModalError" style="display:none; padding:20px 24px; color:#e06060; background:rgba(224,96,96,0.08); border-top:1px solid rgba(224,96,96,0.2);"></div>
                 <div id="speechModalContent" style="display:none;" class="speech-modal-body">
